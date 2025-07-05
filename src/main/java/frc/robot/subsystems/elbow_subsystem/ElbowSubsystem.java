@@ -35,10 +35,19 @@ public class ElbowSubsystem extends SubsystemBase{
     public SparkMaxConfig rightConfig = new SparkMaxConfig();
     public SparkClosedLoopController rightElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
 
+    public double elevation = 0;
+    public double rotation = 0;
+
+    public double leftMotorPos = 0;
+    public double rightMotorPos = 0;
+
+    public double elevationConversionFactor = 1;
+    public double rotationConversionFactor = 1;
+
     public ElbowSubsystem() {
         timer.start();
 
-    leftConfig.encoder.positionConversionFactor(1/1.785)
+    leftConfig.encoder.positionConversionFactor(1)
     .velocityConversionFactor(1);
     leftConfig.smartCurrentLimit(1,8,50);
 
@@ -77,12 +86,22 @@ public class ElbowSubsystem extends SubsystemBase{
     }
 
     public void setElevationPos(double targetPosition) {
-        leftElbowClosedLoopController.setReference(targetPosition, ControlType.kPosition);
-        rightElbowClosedLoopController.setReference(targetPosition, ControlType.kPosition);
+        elevation = targetPosition;
+        leftElbowClosedLoopController.setReference(leftMotorPos + targetPosition, ControlType.kPosition);
+        rightElbowClosedLoopController.setReference(rightMotorPos + targetPosition, ControlType.kPosition);
     }
 
     public void setRollPos(double targetRotation) {
-        leftElbowClosedLoopController.setReference(leftElbowEncoder.getPosition() - targetRotation, ControlType.kPosition);
-        rightElbowClosedLoopController.setReference(rightElbowEncoder.getPosition() + targetRotation, ControlType.kPosition);
+        rotation = targetRotation;
+        leftElbowClosedLoopController.setReference(leftMotorPos - targetRotation, ControlType.kPosition);
+        rightElbowClosedLoopController.setReference(rightMotorPos + targetRotation, ControlType.kPosition);
+    }
+
+    public void setElevationRotationPos(double elevation, double rotation) {
+        leftMotorPos = elevation * elevationConversionFactor - rotation * elevationConversionFactor;
+        rightMotorPos = elevation * elevationConversionFactor + rotation * elevationConversionFactor;
+
+        leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition);
+        rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition);
     }
 }

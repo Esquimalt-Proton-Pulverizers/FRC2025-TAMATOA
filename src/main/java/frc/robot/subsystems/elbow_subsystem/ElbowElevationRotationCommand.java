@@ -7,13 +7,16 @@ package frc.robot.subsystems.elbow_subsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class ElbowElevationCommmand extends Command {
-  double positionRevolutions =0;  
+public class ElbowElevationRotationCommand extends Command {
+  double elevation;
+  double rotation; 
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
 
-  public ElevatorToPosCommand(double positionRevolutions,ElbowSubsystem elbowSubsystem) {
-    this.positionRevolutions = positionRevolutions;
+  private double TOLARCE = 1.0;
+  public ElbowElevationRotationCommand(double elevation, double rotation,ElbowSubsystem elbowSubsystem) {
+    this.elevation = elevation;
+    this.rotation = rotation;
     this.elbowSubsystem = elbowSubsystem;
     this.addRequirements(elbowSubsystem);
   }
@@ -22,18 +25,16 @@ public class ElbowElevationCommmand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("StartingElevatorMove");
-    elevatorSubsystem.setTargetPosition(positionRevolutions);
+    System.out.println("StartingElevate");
+    elbowSubsystem.setElevationRotationPos(elevation, rotation);
     atPosition = false;
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-positionRevolutions)<1.0){
+    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLARCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLARCE){
       atPosition=true;
-
     }
   }
 

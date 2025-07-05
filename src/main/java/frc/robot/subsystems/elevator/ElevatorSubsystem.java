@@ -46,7 +46,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   protected SparkClosedLoopController elevatorClosedLoopController=elevatorMotor.getClosedLoopController();
   public RelativeEncoder elevatorEncoder=elevatorMotor.getEncoder();
   
-
  
   public ElevatorSubsystem() {
     // Initialize the subsystem here

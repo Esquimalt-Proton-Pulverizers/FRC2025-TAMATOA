@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
+import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
@@ -40,6 +42,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+
+    public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
 
     public RobotContainer() {
         configureBindings();
@@ -85,6 +89,10 @@ public class RobotContainer {
          joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
          joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
          joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
+
+         joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
+         joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
+
     }
 
     public Command getAutonomousCommand() {
