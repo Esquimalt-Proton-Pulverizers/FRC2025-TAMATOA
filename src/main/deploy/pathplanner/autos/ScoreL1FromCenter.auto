@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1FromCenter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OpenCoralDoor"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MoveAwayFromReef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CloseCoralDoor"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
