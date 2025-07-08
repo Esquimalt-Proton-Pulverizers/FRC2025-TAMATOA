@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.swerveDrive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
@@ -29,7 +29,9 @@ public class AutoPickup extends SequentialCommandGroup {
         NONE("None"),
         LEFT("LeftStation"),
         RIGHT("RightStation");
+
         public String pathName;
+
         CoralStationSide(String pathName) {
             this.pathName = pathName;
         }
@@ -44,11 +46,13 @@ public class AutoPickup extends SequentialCommandGroup {
         }
     }
 
-    public AutoPickup(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, Supplier<CoralStationSide> side, boolean level1) {
+    public AutoPickup(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem,
+            Supplier<CoralStationSide> side, boolean level1) {
         this(drivetrain, elevatorSubsystem, side, level1, "");
     }
 
-    public AutoPickup(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, Supplier<CoralStationSide> side, boolean level1, String suppliedPathName) {
+    public AutoPickup(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem,
+            Supplier<CoralStationSide> side, boolean level1, String suppliedPathName) {
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
                 3.0, 4.0,
@@ -78,74 +82,79 @@ public class AutoPickup extends SequentialCommandGroup {
 
         if (!Utils.isSimulation()) {
             addCommands(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        // Perform the auto pickup sequence
-                        new ParallelCommandGroup(
-                            // Move the elevator to the appropriate position based on the level1 flag
+                    new ConditionalCommand(
                             new SequentialCommandGroup(
-                                new ElevatorToPosCommand(level1 ? ElevatorSubsystem.level2Position : ElevatorSubsystem.lowPosition, elevatorSubsystem)
-                            ),
-                            // Drive to the station
-                            new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                    // Follow the suppplied path if given, otherwise pathfind and then follow the left or right path
-                                    new ConditionalCommand(
-                                        new ConditionalCommand(
-                                            AutoBuilder.pathfindThenFollowPath(leftPath, constraints),
-                                            AutoBuilder.pathfindThenFollowPath(rightPath, constraints),
-                                            () -> side.get() == CoralStationSide.LEFT
-                                        ),
-                                        AutoBuilder.followPath(suppliedPath),
-                                        () -> suppliedPathName.isEmpty()
-                                    ),
-                                    new PrintCommand("Pathfinding to station").repeatedly()
-                                ),
-                                // Path may end with a target velocity, to drive robot into station, do so for a short time
-                                new WaitCommand(0.5),
-                                // Stop the robot from moving into station, the robot will move backwards after coral intake so OK if never reach this
-                                new InstantCommand(() -> drivetrain.applyRequest(() -> new SwerveRequest.RobotCentric().withVelocityX(0)))
-                            ).withName("Pathfinding to station")
-                        ).withDeadline(
-                            // Wait 1 second after reaching the station to ensure the robot is aligned
-                            new WaitCommand(1)
-                        ),
-                        new PrintCommand("Finished auto align"),
-                        // Move back from the station, while centering the coral in receive, for a short period
-                        new ParallelCommandGroup(
-                            new ElevatorToPosCommand(ElevatorSubsystem.lowPosition, elevatorSubsystem),
-                            new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-2))).repeatedly()
-                        ).withDeadline(new WaitCommand(0.25)),
-                        new PrintCommand("Drove backwards")
-                    ),
-                    // Do nothing if given the flag
-                    new InstantCommand(() -> {}),
-                    () -> side.get() != CoralStationSide.NONE
-                )
-            );
+                                    // Perform the auto pickup sequence
+                                    new ParallelCommandGroup(
+                                            // Move the elevator to the appropriate position based on the level1 flag
+                                            new SequentialCommandGroup(
+                                                    new ElevatorToPosCommand(
+                                                            level1 ? ElevatorSubsystem.level2Position
+                                                                    : ElevatorSubsystem.lowPosition,
+                                                            elevatorSubsystem)),
+                                            // Drive to the station
+                                            new SequentialCommandGroup(
+                                                    new ParallelCommandGroup(
+                                                            // Follow the suppplied path if given, otherwise pathfind
+                                                            // and then follow the left or right path
+                                                            new ConditionalCommand(
+                                                                    new ConditionalCommand(
+                                                                            AutoBuilder.pathfindThenFollowPath(leftPath,
+                                                                                    constraints),
+                                                                            AutoBuilder.pathfindThenFollowPath(
+                                                                                    rightPath, constraints),
+                                                                            () -> side.get() == CoralStationSide.LEFT),
+                                                                    AutoBuilder.followPath(suppliedPath),
+                                                                    () -> suppliedPathName.isEmpty()),
+                                                            new PrintCommand("Pathfinding to station").repeatedly()),
+                                                    // Path may end with a target velocity, to drive robot into station,
+                                                    // do so for a short time
+                                                    new WaitCommand(0.5),
+                                                    // Stop the robot from moving into station, the robot will move
+                                                    // backwards after coral intake so OK if never reach this
+                                                    new InstantCommand(() -> drivetrain.applyRequest(
+                                                            () -> new SwerveRequest.RobotCentric().withVelocityX(0))))
+                                                    .withName("Pathfinding to station"))
+                                            .withDeadline(
+                                                    // Wait 1 second after reaching the station to ensure the robot is
+                                                    // aligned
+                                                    new WaitCommand(1)),
+                                    new PrintCommand("Finished auto align"),
+                                    // Move back from the station, while centering the coral in receive, for a short
+                                    // period
+                                    new ParallelCommandGroup(
+                                            new ElevatorToPosCommand(ElevatorSubsystem.lowPosition, elevatorSubsystem),
+                                            new InstantCommand(() -> drivetrain
+                                                    .setControl(new SwerveRequest.RobotCentric().withVelocityX(-2)))
+                                                    .repeatedly())
+                                            .withDeadline(new WaitCommand(0.25)),
+                                    new PrintCommand("Drove backwards")),
+                            // Do nothing if given the flag
+                            new InstantCommand(() -> {
+                            }),
+                            () -> side.get() != CoralStationSide.NONE));
         } else {
             // Simulation is simplified pickup
             addCommands(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        // Drive to the station
-                        new ConditionalCommand(
-                            new ConditionalCommand(
-                                AutoBuilder.pathfindThenFollowPath(leftPath, constraints),
-                                AutoBuilder.pathfindThenFollowPath(rightPath, constraints),
-                                () -> side.get() == CoralStationSide.LEFT
-                            ),
-                            AutoBuilder.followPath(suppliedPath),
-                            () -> suppliedPath != null
-                        ),
-                        // Move the robot back with a constant velocity (-X in robot centric) for a period of time
-                        new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-2))).repeatedly().withDeadline(new WaitCommand(0.25))
-                    ),
-                    // Do nothing if given the flag
-                    new InstantCommand(() -> {}),
-                    () -> side.get() != CoralStationSide.NONE
-                )
-            );
+                    new ConditionalCommand(
+                            new SequentialCommandGroup(
+                                    // Drive to the station
+                                    new ConditionalCommand(
+                                            new ConditionalCommand(
+                                                    AutoBuilder.pathfindThenFollowPath(leftPath, constraints),
+                                                    AutoBuilder.pathfindThenFollowPath(rightPath, constraints),
+                                                    () -> side.get() == CoralStationSide.LEFT),
+                                            AutoBuilder.followPath(suppliedPath),
+                                            () -> suppliedPath != null),
+                                    // Move the robot back with a constant velocity (-X in robot centric) for a
+                                    // period of time
+                                    new InstantCommand(() -> drivetrain
+                                            .setControl(new SwerveRequest.RobotCentric().withVelocityX(-2)))
+                                            .repeatedly().withDeadline(new WaitCommand(0.25))),
+                            // Do nothing if given the flag
+                            new InstantCommand(() -> {
+                            }),
+                            () -> side.get() != CoralStationSide.NONE));
         }
     }
 }
