@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.85,
-  "robotLength": 0.97,
+  "robotWidth": 0.686,
+  "robotLength": 0.8128,
   "holonomicMode": true,
   "pathFolders": [],
   "autoFolders": [],
@@ -29,8 +29,7 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Coral Outtake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.19,\"y\":-0.42},\"size\":{\"width\":0.2,\"length\":0.15},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Coral Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.19,\"y\":0.25},\"size\":{\"width\":0.2,\"length\":0.3},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Coral Level1 Outtake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.485,\"y\":-0.1465},\"size\":{\"width\":0.406,\"length\":0.15},\"borderRadius\":0.05,\"strokeWidth\":0.01,\"filled\":false}}"
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.25},\"size\":{\"width\":0.1,\"length\":0.457},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.25},\"size\":{\"width\":0.1,\"length\":0.1},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
