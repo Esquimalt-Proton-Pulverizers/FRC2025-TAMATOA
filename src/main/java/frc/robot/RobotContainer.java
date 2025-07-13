@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -137,73 +138,82 @@ public class RobotContainer {
 		driverController.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
 		driverController.rightBumper().onTrue(new ElbowElevationRotationCommand(0, 0, elbowSubsystem));
 
-		//// ---------------- Automated Commands ----------------
-		// Choosing where to score on Custom Controller
-		CustomController.bt1().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.A;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt2().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.A;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt3().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.B;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt4().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.B;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt5().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.C;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt6().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.C;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt7().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.D;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt8().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.D;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt9().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.E;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt10().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.E;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt11().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.F;
-			level = 1;
-		}));
-		CustomController.bt12().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.F;
-			level = 2;
-		}));
-		CustomController.bt16().onTrue(new RunCommand(() -> {
-			level = 1;
-		}));
-		CustomController.bt17().onTrue(new RunCommand(() -> {
-			level = 2;
-		}));
-		CustomController.bt18().onTrue(new RunCommand(() -> {
-			level = 3;
-		}));
-		CustomController.bt19().onTrue(new RunCommand(() -> {
-			level = 4;
-		}));
+		////// ---------------- Automated Commands ----------------
+		//// Choosing where to score on Custom Controller
+		// CustomController.bt1().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.A;
+		// 	side = AutoPlace.Side.one;
+		// }));
+		// CustomController.bt2().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.A;
+		// 	side = AutoPlace.Side.two;
+		// }));
+		// CustomController.bt3().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.B;
+		// 	side = AutoPlace.Side.one;
+		// }));
+		// CustomController.bt4().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.B;
+		// 	side = AutoPlace.Side.two;
+		// }));
+		// CustomController.bt5().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.C;
+		// 	side = AutoPlace.Side.one;
+		// }));
+		// CustomController.bt6().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.C;
+		// 	side = AutoPlace.Side.two;
+		// }));
+		// CustomController.bt7().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.D;
+		// 	side = AutoPlace.Side.one;
+		// }));
+		// CustomController.bt8().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.D;
+		// 	side = AutoPlace.Side.two;
+		// }));
+		// CustomController.bt9().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.E;
+		// 	side = AutoPlace.Side.one;
+		// }));
+		// CustomController.bt10().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.E;
+		// 	side = AutoPlace.Side.two;
+		// }));
+		// CustomController.bt11().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.F;
+		// 	level = 1;
+		// }));
+		// CustomController.bt12().onTrue(new RunCommand(() -> {
+		// 	hexSide = AutoPlace.HexSide.F;
+		// 	level = 2;
+		// }));
+		// CustomController.bt16().onTrue(new RunCommand(() -> {
+		// 	level = 1;
+		// }));
+		// CustomController.bt17().onTrue(new RunCommand(() -> {
+		// 	level = 2;
+		// }));
+		// CustomController.bt18().onTrue(new RunCommand(() -> {
+		// 	level = 3;
+		// }));
+		// CustomController.bt19().onTrue(new RunCommand(() -> {
+		// 	level = 4;
+		// }));
+
+		hexSide = AutoPlace.HexSide.C;
+		side = AutoPlace.Side.one;
+		level = 1;
+
+		driverController.back().whileTrue(new InstantCommand(
+			()-> System.out.println("Back btn pressed")
+		));
+
 
 		// Autoplace command (Allow operator to also place)
-		// driverController.back().whileTrue(new AutoPlace(drivetrain,
-		// elevatorSubsystem, elbowSubsystem,
-		// new Node(level, hexSide, side)));
+		driverController.back().whileTrue(new AutoPlace(drivetrain,
+		elevatorSubsystem, elbowSubsystem,
+		new Node(level, hexSide, side)));
 		// operatorController.rightBumper().whileTrue(new AutoPlace(drivetrain,
 		// elevatorSubsystem, elbowSubsystem,
 		// new Node(level, hexSide, side)));

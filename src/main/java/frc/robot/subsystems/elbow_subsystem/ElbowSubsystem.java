@@ -79,8 +79,8 @@ public class ElbowSubsystem extends SubsystemBase{
     public void periodic() {
       // Put code here to be run every loop
       if(timer.hasElapsed(2.0)) {
-        System.out.println("LeftElbowPos" + leftElbowEncoder.getPosition());
-        System.out.println("RightElbowPos" + rightElbowEncoder.getPosition());
+        // System.out.println("LeftElbowPos" + leftElbowEncoder.getPosition());
+        // System.out.println("RightElbowPos" + rightElbowEncoder.getPosition());
         timer.reset();
       }
     }

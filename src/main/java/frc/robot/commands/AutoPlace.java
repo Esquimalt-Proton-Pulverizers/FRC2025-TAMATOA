@@ -63,7 +63,7 @@ public class AutoPlace extends SequentialCommandGroup {
 
     // Create the constraints to use while pathfinding
     private PathConstraints constraints = new PathConstraints(
-            3.0, 4.0,
+            1.0, 4.0,
             Units.degreesToRadians(270), Units.degreesToRadians(360));
 
     public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, Node node) {
@@ -78,6 +78,8 @@ public class AutoPlace extends SequentialCommandGroup {
         // If lvl 1, append "lvl1" to the path name. Otherwise, append the side name
         pathName += String.valueOf(node.level).equals("1") ? "lvl1" : node.side.name;
 
+        System.out.println("Pathname is: " + pathName);
+
         try {
             path = PathPlannerPath.fromPathFile(suppliedPathName.isEmpty() ? pathName : suppliedPathName);
         } catch (Exception e) {
@@ -85,66 +87,74 @@ public class AutoPlace extends SequentialCommandGroup {
             throw (new RuntimeException("Loaded a path that does not exist."));
         }
 
+        System.out.println("Before move command");
+
+
         // Command to move the robot to the desired position along a path, running until path is complete
         Command move = new ParallelDeadlineGroup(
-
             // On the fly pathfinding to the reef, or follow the path if supplied
             new ConditionalCommand(
                 AutoBuilder.pathfindThenFollowPath(path, constraints),
                 AutoBuilder.followPath(path),
                 () -> suppliedPathName.isEmpty()
+            
             ),
             // Start moving the elevator to the correct position
-            elevatorToLevel(node.level, elevatorSubsystem)
+            //elevatorToLevel(node.level, elevatorSubsystem)
+            new InstantCommand(()->System.out.println("inside move command") )
+
         );
 
-        // Command to move elevator to the desired position and score the coral
-        SequentialCommandGroup place = new SequentialCommandGroup(
-            // Move elevator with a timeout
-            elevatorToLevel(node.level, elevatorSubsystem)
-            .withTimeout(1),
-            // Wait time dependent on level
-            new WaitCommand((node.level == 3) || (node.level == 4) ? 1 : 0.5)
+        System.out.println("Exited move command");
+
+
+        // // Command to move elevator to the desired position and score the coral
+        // SequentialCommandGroup place = new SequentialCommandGroup(
+        //     // Move elevator with a timeout
+        //     elevatorToLevel(node.level, elevatorSubsystem)
+        //     .withTimeout(1),
+        //     // Wait time dependent on level
+        //     new WaitCommand((node.level == 3) || (node.level == 4) ? 1 : 0.5)
             
-            // Score Coral
-            // new ConditionalCommand(
-            //     new ParallelDeadlineGroup(
-            //         // Add command to drive right
-            //         new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.5))).repeatedly().withTimeout(1)
-            //     ),
-            //     new InstantCommand(() -> new CoralDoorToPositionCommand(CoralDoorSubsystem.DoorPosition.OPEN, coralDoorSubsystem)),
-            //     () -> node.level != 1
-            // )
-        );
+        //     // Score Coral
+        //     // new ConditionalCommand(
+        //     //     new ParallelDeadlineGroup(
+        //     //         // Add command to drive right
+        //     //         new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.5))).repeatedly().withTimeout(1)
+        //     //     ),
+        //     //     new InstantCommand(() -> new CoralDoorToPositionCommand(CoralDoorSubsystem.DoorPosition.OPEN, coralDoorSubsystem)),
+        //     //     () -> node.level != 1
+        //     // )
+        // );
 
-        if (!Utils.isSimulation()) {
-            // Move the robot to desired position, stowing scrubber along the way
-            addCommands(new ParallelDeadlineGroup(move));
-            addCommands(place);
+    //     if (!Utils.isSimulation()) {
+    //         // Move the robot to desired position, stowing scrubber along the way
+    //         addCommands(new ParallelDeadlineGroup(move));
+    //         addCommands(place);
 
-            // Lower elevator
-            elevatorToLevel(0, elevatorSubsystem);
+    //         // Lower elevator
+    //         elevatorToLevel(0, elevatorSubsystem);
 
-        } else {
-            // Simplified place in simulation
-            Timer timer = new Timer();
-            addCommands(
-                // Move the robot to desired position, stowing scrubber along the way
-                new ConditionalCommand(
-                    AutoBuilder.pathfindThenFollowPath(path, constraints),
-                    AutoBuilder.followPath(path),
-                    () -> suppliedPathName.isEmpty()
-                ),
+    //     } else {
+    //         // Simplified place in simulation
+    //         Timer timer = new Timer();
+    //         addCommands(
+    //             // Move the robot to desired position, stowing scrubber along the way
+    //             new ConditionalCommand(
+    //                 AutoBuilder.pathfindThenFollowPath(path, constraints),
+    //                 AutoBuilder.followPath(path),
+    //                 () -> suppliedPathName.isEmpty()
+    //             ),
 
-                /*
-                 * No coral scoring in simulation
-                 */
+    //             /*
+    //              * No coral scoring in simulation
+    //              */
 
-                // Adjust target speed to accelerate backwards (-X in robot centric) for a period of time
-                new InstantCommand(timer::restart),
-                new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-timer.get() * 4))).repeatedly().withDeadline(new WaitCommand(0.5))
-            );
-        }
+    //             // Adjust target speed to accelerate backwards (-X in robot centric) for a period of time
+    //             new InstantCommand(timer::restart),
+    //             new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-timer.get() * 4))).repeatedly().withDeadline(new WaitCommand(0.5))
+    //         );
+    //     }
     }
 
     public Command elevatorToLevel(int level, ElevatorSubsystem elevatorSubsystem) {

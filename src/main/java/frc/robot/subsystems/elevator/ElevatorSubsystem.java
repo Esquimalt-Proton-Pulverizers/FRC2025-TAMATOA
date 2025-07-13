@@ -82,8 +82,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     // Put code here to be run every loop
     if(timer.hasElapsed(2.0)) {
-      System.out.println("Elevator Running at position"+elevatorEncoder.getPosition());
-      System.out.println("Is inverted: " + !isCompetitionRobot);
+      // System.out.println("Elevator Running at position"+elevatorEncoder.getPosition());
+      // System.out.println("Is inverted: " + !isCompetitionRobot);
       timer.reset();
     }
   }

@@ -302,9 +302,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 mt2.pose,
                 Utils.fpgaToCurrentTime(mt2.timestampSeconds));
 
-            System.out.println("Limelight updatedPose");
+            // System.out.println("Limelight updatedPose");
             var updatedPose = getState().Pose;
-            System.out.println("Updated Robot Position: " + updatedPose);
+            // System.out.println("Updated Robot Position: " + updatedPose);
         }
         if (mt1 != null && mt1.tagCount > 0 && angularVelocity <= 720 && mt1.avgTagDist <.8) {
             setVisionMeasurementStdDevs(VecBuilder.fill(5,5, 5));
@@ -312,9 +312,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 mt1.pose,
                 Utils.fpgaToCurrentTime(mt1.timestampSeconds));
 
-            System.out.println("Limelight updatedPose heading");
+            // System.out.println("Limelight updatedPose heading");
             var updatedPose = getState().Pose;
-            System.out.println("Updated Robot Position: " + updatedPose);
+            // System.out.println("Updated Robot Position: " + updatedPose);
         }
     }
 
