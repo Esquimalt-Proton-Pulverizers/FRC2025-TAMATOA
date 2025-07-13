@@ -24,16 +24,19 @@ public class ElbowSubsystem extends SubsystemBase{
 
     private Timer timer = new Timer();
 
-    protected SparkMax leftElbowMotor = new SparkMax(2, MotorType.kBrushless);
-    protected SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
+    public static boolean hasBeenInitialized = false;
 
-    public SparkMaxConfig leftConfig = new SparkMaxConfig();
+    protected static SparkMax leftElbowMotor = new SparkMax(2, MotorType.kBrushless);
+    protected static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
+
+    public SparkMaxConfig motorConfig = new SparkMaxConfig();
     public SparkClosedLoopController leftElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
-    public RelativeEncoder leftElbowEncoder = leftElbowMotor.getEncoder();
+    public static  RelativeEncoder leftElbowEncoder = leftElbowMotor.getEncoder();
+    
+    public static RelativeEncoder rightElbowEncoder = rightElbowMotor.getEncoder();
+    public SparkClosedLoopController rightElbowClosedLoopController = rightElbowMotor.getClosedLoopController();
 
-    public RelativeEncoder rightElbowEncoder = rightElbowMotor.getEncoder();
-    public SparkMaxConfig rightConfig = new SparkMaxConfig();
-    public SparkClosedLoopController rightElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
+    public double ELBOW_MOTORS_GEAR_RATIO = 360/48.0 ;
 
     public double elevation = 0;
     public double rotation = 0;
@@ -47,32 +50,43 @@ public class ElbowSubsystem extends SubsystemBase{
     public ElbowSubsystem() {
         timer.start();
 
-    leftConfig.encoder.positionConversionFactor(1)
-    .velocityConversionFactor(1);
-    leftConfig.smartCurrentLimit(1,8,50);
+        motorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
+        .velocityConversionFactor(1);
+        motorConfig.smartCurrentLimit(1,8,50);
 
-    leftConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-    .p(0.1).i(0.000001).d(0.0000)
-    .outputRange(-.2, .6, ClosedLoopSlot.kSlot0);
-    // Set PID values for velocity control in slot 1
-        // .p(0.0001, ClosedLoopSlot.kSlot1)
-        // .i(0, ClosedLoopSlot.kSlot1)
-        // .d(0, ClosedLoopSlot.kSlot1)
-        // .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-        // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
+        motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(0.1).i(0.00000).d(0.0000)
+        .outputRange(-.4, .6, ClosedLoopSlot.kSlot0);
+        // Set PID values for velocity control in slot 1
+            // .p(0.0001, ClosedLoopSlot.kSlot1)
+            // .i(0, ClosedLoopSlot.kSlot1)
+            // .d(0, ClosedLoopSlot.kSlot1)
+            // .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
+            // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
 
-    leftConfig.closedLoop.maxMotion
-    // Set MAXMotion parameters for position control. We don't need to pass
-        // a closed loop slot, as it will default to slot 0.
-        .maxVelocity(3000)
-        .maxAcceleration(8000)
-        .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-        
+        motorConfig.closedLoop.maxMotion
+        // Set MAXMotion parameters for position control. We don't need to pass
+            // a closed loop slot, as it will default to slot 0.
+            .maxVelocity(3000)
+            .maxAcceleration(8000)
+            .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+            
 
-    leftElbowMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    rightElbowMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    leftElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
-    rightElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+        leftElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        rightElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        leftElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+        rightElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+    }
+
+    public static void initialize(){
+        //TODO boolean to check if initialized in auto
+        if(!hasBeenInitialized) {
+            leftElbowEncoder.setPosition(START_POS);
+            rightElbowEncoder.setPosition(START_POS);
+        hasBeenInitialized = true;
+        }
+
+    //TODO initialization code to reset encoders
     }
 
     @Override
@@ -85,20 +99,8 @@ public class ElbowSubsystem extends SubsystemBase{
       }
     }
 
-    public void setElevationPos(double targetPosition) {
-        elevation = targetPosition;
-        leftElbowClosedLoopController.setReference(leftMotorPos + targetPosition, ControlType.kPosition);
-        rightElbowClosedLoopController.setReference(rightMotorPos + targetPosition, ControlType.kPosition);
-    }
-
-    public void setRollPos(double targetRotation) {
-        rotation = targetRotation;
-        leftElbowClosedLoopController.setReference(leftMotorPos - targetRotation, ControlType.kPosition);
-        rightElbowClosedLoopController.setReference(rightMotorPos + targetRotation, ControlType.kPosition);
-    }
-
     public void setElevationRotationPos(double elevation, double rotation) {
-        leftMotorPos = elevation * elevationConversionFactor - rotation * elevationConversionFactor;
+        leftMotorPos = -elevation * elevationConversionFactor + rotation * elevationConversionFactor;
         rightMotorPos = elevation * elevationConversionFactor + rotation * elevationConversionFactor;
 
         leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition);

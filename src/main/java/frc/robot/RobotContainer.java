@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -90,12 +91,15 @@ public class RobotContainer {
          joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
          joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
 
-         joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
+         joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0, 90, elbowSubsystem));
          joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
 
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return new SequentialCommandGroup(
+            Commands.print("No autonomous command configured")
+        );
     }
+    
 }

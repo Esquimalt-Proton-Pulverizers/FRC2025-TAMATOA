@@ -13,7 +13,7 @@ public class ElbowElevationRotationCommand extends Command {
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
 
-  private double TOLARCE = 1.0;
+  private static final double TOLERANCE = 1.0;
   public ElbowElevationRotationCommand(double elevation, double rotation,ElbowSubsystem elbowSubsystem) {
     this.elevation = elevation;
     this.rotation = rotation;
@@ -33,7 +33,7 @@ public class ElbowElevationRotationCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLARCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLARCE){
+    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }
