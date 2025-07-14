@@ -136,24 +136,24 @@ public class AutoPlace extends SequentialCommandGroup {
     //         elevatorToLevel(0, elevatorSubsystem);
 
     //     } else {
-    //         // Simplified place in simulation
-    //         Timer timer = new Timer();
-    //         addCommands(
-    //             // Move the robot to desired position, stowing scrubber along the way
-    //             new ConditionalCommand(
-    //                 AutoBuilder.pathfindThenFollowPath(path, constraints),
-    //                 AutoBuilder.followPath(path),
-    //                 () -> suppliedPathName.isEmpty()
-    //             ),
+            // Simplified place in simulation
+            Timer timer = new Timer();
+            addCommands(
+                // Move the robot to desired position, stowing scrubber along the way
+                new ConditionalCommand(
+                    AutoBuilder.pathfindThenFollowPath(path, constraints),
+                    AutoBuilder.followPath(path),
+                    () -> suppliedPathName.isEmpty()
+                ),
 
-    //             /*
-    //              * No coral scoring in simulation
-    //              */
+                /*
+                 * No coral scoring in simulation
+                 */
 
-    //             // Adjust target speed to accelerate backwards (-X in robot centric) for a period of time
-    //             new InstantCommand(timer::restart),
-    //             new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-timer.get() * 4))).repeatedly().withDeadline(new WaitCommand(0.5))
-    //         );
+                // Adjust target speed to accelerate backwards (-X in robot centric) for a period of time
+                new InstantCommand(timer::restart),
+                new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-timer.get() * 4))).repeatedly().withDeadline(new WaitCommand(0.5))
+            );
     //     }
     }
 
