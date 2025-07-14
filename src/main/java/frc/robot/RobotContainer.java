@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
@@ -23,6 +24,7 @@ import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.intake_subsystem.IntakeSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -45,6 +47,8 @@ public class RobotContainer {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
+
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     public RobotContainer() {
         configureBindings();
@@ -86,13 +90,28 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-         joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
-         joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
-         joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
-         joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
+        //elevator levels
+        // test 1
+        joystick.start().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem));
+        joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
+        joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
+        joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
+        joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
 
-         joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0, 90, elbowSubsystem));
-         joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
+        //elbow control
+        // test 3 with no rotation + teat 4 with rotation
+        // joystick.povLeft().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION + elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
+        // joystick.povRight().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION - elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
+        // joystick.povLeft().and(joystick.povRight()).whileFalse(elbowSubsystem.elevation > elbowSubsystem.HORIZONTAL_POS_ELEVATION? new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem): new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.rotation, elbowSubsystem));
+        
+        // joystick.povUp().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.START_POS_ELEVATION, elbowSubsystem.START_POS_ROTATION, elbowSubsystem));
+        // joystick.povDown().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.INTAKE_POS_ELEVATION, elbowSubsystem.INTAKE_POS_ROTATION, elbowSubsystem));
+
+        //intake control 
+        //test 2
+        // joystick.leftTrigger().onTrue(intakeSubsystem.IntakeUntilStalledCommand());
+        // joystick.rightTrigger().onTrue(intakeSubsystem.OuttakeUntilStalledCommand());
+        // joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));
 
     }
 

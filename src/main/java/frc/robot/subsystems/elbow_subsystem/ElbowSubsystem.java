@@ -18,9 +18,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 
 public class ElbowSubsystem extends SubsystemBase{
-    public static final double START_POS = 0;
-    public static final double CORAL_INTAKE = 0.4;
-    public static final double HORIZONTAL = 0.25;
+    public final static double START_POS_ELEVATION = 0;
+    public final static double START_POS_ROTATION = 0;
+
+    public final static double HORIZONTAL_POS_ELEVATION = 90;
+    public final static double HORIZONTAL_POS_ROTATION = 0;// to be 90
+    public final static double CORAL_COMPENSATION = 0;//to be 90
+
+    public final static double INTAKE_POS_ELEVATION = 120;
+    public final static double INTAKE_POS_ROTATION = 0;// to be 90
 
     private Timer timer = new Timer();
 
@@ -74,15 +80,15 @@ public class ElbowSubsystem extends SubsystemBase{
 
         leftElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         rightElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        leftElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
-        rightElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+        leftElbowClosedLoopController.setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
+        rightElbowClosedLoopController.setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
     }
 
     public static void initialize(){
         //TODO boolean to check if initialized in auto
         if(!hasBeenInitialized) {
-            leftElbowEncoder.setPosition(START_POS);
-            rightElbowEncoder.setPosition(START_POS);
+            leftElbowEncoder.setPosition(START_POS_ELEVATION);
+            rightElbowEncoder.setPosition(START_POS_ELEVATION);
         hasBeenInitialized = true;
         }
 
