@@ -147,12 +147,20 @@ public class AutoPlace extends SequentialCommandGroup {
         );
 
         if (!Utils.isSimulation()) {
-            addCommands(new ParallelDeadlineGroup(
-                stepOne_driveToPath,
-                stepTwo_moveScoringSystems,
-                stepThreeAndFour_driveForwardForScoring,
-                stepFive_driveBackwardsandLowerScoringSystem
-            ));
+            addCommands(stepOne_driveToPath,
+                    stepTwo_moveScoringSystems,
+                    stepThreeAndFour_driveForwardForScoring,
+                    stepFive_driveBackwardsandLowerScoringSystem
+                    );
+            // addCommands(stepTwo_moveScoringSystems);
+            // addCommands(stepThreeAndFour_driveForwardForScoring);
+            // addCommands(stepFive_driveBackwardsandLowerScoringSystem);
+            // addCommands(new ParallelDeadlineGroup(
+            //     stepOne_driveToPath,
+            //     stepTwo_moveScoringSystems,
+            //     stepThreeAndFour_driveForwardForScoring,
+            //     stepFive_driveBackwardsandLowerScoringSystem
+            // ));
         } else {
             // // Simplified place in simulation
             // Timer timer = new Timer();
