@@ -96,9 +96,9 @@ public class RobotContainer {
         //  joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
         //  joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
 
-        joystick.a().onTrue(hanger.latch());
-        joystick.b().onTrue(hanger.release());
-        joystick.x().onTrue(hanger.extend());
+        joystick.a().onTrue(hanger.extend());
+        joystick.b().onTrue(hanger.retract());
+//        joystick.x().onTrue();
 
         joystick.leftBumper().onTrue(hanger.intake());
         joystick.leftBumper().onFalse(hanger.stop());

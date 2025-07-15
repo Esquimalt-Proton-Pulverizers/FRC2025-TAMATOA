@@ -28,7 +28,7 @@ public final class HangingSubsystem extends SubsystemBase {
     private final int LATCH_SERVO_PORT = 0;
     private final int INTAKE_MOTOR_CANID = 11;
 
-    private final double INTAKE_VELOCITY = 10000.0;
+    private final double INTAKE_VELOCITY = 3000.0;
     private final double HOLDING_VELOCITY = 0.0;
 
     // Hardware
@@ -39,6 +39,7 @@ public final class HangingSubsystem extends SubsystemBase {
     private final Servo latchServo;
     private final SparkMax intakeMotor;
     private final SparkClosedLoopController intakeController;
+    private final RelativeEncoder intakeMotorEncoder;
 
     // State
 
@@ -85,7 +86,8 @@ public final class HangingSubsystem extends SubsystemBase {
 
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         intakeController = intakeMotor.getClosedLoopController();
-        intakeController.setReference(0, SparkMax.ControlType.kVoltage);    
+        intakeController.setReference(0, SparkMax.ControlType.kVoltage);
+        intakeMotorEncoder = intakeMotor.getEncoder();    
 
         winchToPositionTimer = new Timer();
     }
