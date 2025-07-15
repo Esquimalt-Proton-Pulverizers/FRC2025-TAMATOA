@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems.elbow_subsystem;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -28,6 +31,12 @@ public class ElbowElevationRotationCommand extends Command {
     System.out.println("StartingElevate");
     elbowSubsystem.setElevationRotationPos(elevation, rotation);
     atPosition = false;
+
+    if (elevation == ElbowSubsystem.START_POS_ELEVATION) {
+      elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 35);
+      elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+      elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,7 +49,11 @@ public class ElbowElevationRotationCommand extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 50);
+    elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
 
   // Returns true when the command should end.
   @Override

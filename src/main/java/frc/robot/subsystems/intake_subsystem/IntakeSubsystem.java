@@ -65,19 +65,19 @@ public class IntakeSubsystem extends SubsystemBase {
         // timer.reset();
         // }
     }
-    public void setTargetVelocity(double targetVelocity){
-        intakeMotorController.setReference(targetVelocity, ControlType.kVelocity);
+    public void setTargetVoltage(double targetVelocity){
+        intakeMotorController.setReference(targetVelocity, ControlType.kVoltage);
     }
 
     public void intake(){
-        setTargetVelocity(INTAKE_VELOCITY);
+        setTargetVoltage(INTAKE_VELOCITY);
     }
 
     public void outtake(){
-        setTargetVelocity(OUTAKE_VELOCITY);
+        setTargetVoltage(OUTAKE_VELOCITY);
     }
 
     public void stop(){
-        setTargetVelocity(HOLDING_VELOCITY);
+        setTargetVoltage(HOLDING_VELOCITY);
     }
 }

@@ -91,7 +91,7 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         //elevator levels
-        // test 1
+        // test 1 is a successs
         joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem));
         //joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
         joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
@@ -100,18 +100,18 @@ public class RobotContainer {
 
         //elbow controlr
         // test 3 with no rotation + teat 4 with rotation
-        // joystick.povLeft().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION + elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
-        // joystick.povRight().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION - elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
-        // joystick.povLeft().and(joystick.povRight()).whileFalse(elbowSubsystem.elevation > elbowSubsystem.HORIZONTAL_POS_ELEVATION? new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem): new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.rotation, elbowSubsystem));
+        joystick.povLeft().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION + elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
+        joystick.povRight().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION - elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
+        joystick.povLeft().and(joystick.povRight()).whileFalse(elbowSubsystem.elevation > ElbowSubsystem.HORIZONTAL_POS_ELEVATION? new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem): new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.rotation, elbowSubsystem));
         
-        // joystick.povUp().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.START_POS_ELEVATION, elbowSubsystem.START_POS_ROTATION, elbowSubsystem));
-        // joystick.povDown().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.INTAKE_POS_ELEVATION, elbowSubsystem.INTAKE_POS_ROTATION, elbowSubsystem));
+        joystick.povUp().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.START_POS_ELEVATION, ElbowSubsystem.START_POS_ROTATION, elbowSubsystem));
+        joystick.povDown().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.INTAKE_POS_ELEVATION, ElbowSubsystem.INTAKE_POS_ROTATION, elbowSubsystem));
 
         //intake control 
-        //test 2
+        //test 2 semi-success, just have to move on
         joystick.leftTrigger().onTrue(Commands.runOnce(() -> {intakeSubsystem.intake();}));
         joystick.rightTrigger().onTrue(Commands.runOnce(() -> {intakeSubsystem.outtake();}));
-        joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));
+        joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));//works but funny
 
     }
 
