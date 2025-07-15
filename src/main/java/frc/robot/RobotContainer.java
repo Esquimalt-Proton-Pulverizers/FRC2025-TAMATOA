@@ -99,6 +99,9 @@ public class RobotContainer {
         joystick.a().onTrue(hanger.latch());
         joystick.b().onTrue(hanger.release());
         joystick.x().onTrue(hanger.extend());
+
+        joystick.leftBumper().onTrue(hanger.intake());
+        joystick.leftBumper().onFalse(hanger.stop());
     }
 
     public Command getAutonomousCommand() {

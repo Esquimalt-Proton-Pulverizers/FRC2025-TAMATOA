@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
@@ -25,6 +26,10 @@ public final class HangingSubsystem extends SubsystemBase {
 
     private final int WINCH_MOTOR_CAN_ID = 10;
     private final int LATCH_SERVO_PORT = 0;
+    private final int INTAKE_MOTOR_CANID = 11;
+
+    private final double INTAKE_VELOCITY = 10000.0;
+    private final double HOLDING_VELOCITY = 0.0;
 
     // Hardware
 
@@ -32,6 +37,8 @@ public final class HangingSubsystem extends SubsystemBase {
     private final SparkClosedLoopController winchController;
     private final RelativeEncoder winchEncoder; 
     private final Servo latchServo;
+    private final SparkMax intakeMotor;
+    private final SparkClosedLoopController intakeController;
 
     // State
 
@@ -65,6 +72,20 @@ public final class HangingSubsystem extends SubsystemBase {
 
         latchServo = new Servo(LATCH_SERVO_PORT);
         setLatchServoPosition(LatchServoPosition.FREE);
+
+        SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+        intakeMotorConfig.closedLoop.maxMotion
+        // Set MAXMotion parameters for position control. We don't need to pass
+            // a closed loop slot, as it will default to slot 0.
+            .maxVelocity(3000)
+            .maxAcceleration(8000)
+            .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+            
+        intakeMotor = new SparkMax(INTAKE_MOTOR_CANID, MotorType.kBrushless);
+
+        intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        intakeController = intakeMotor.getClosedLoopController();
+        intakeController.setReference(0, SparkMax.ControlType.kVoltage);    
 
         winchToPositionTimer = new Timer();
     }
@@ -148,5 +169,13 @@ public final class HangingSubsystem extends SubsystemBase {
         private WinchPosition(double value) {
             this.value = value;
         }
+    }
+
+    public Command intake(){
+        return Commands.runOnce(() -> intakeController.setReference(INTAKE_VELOCITY, ControlType.kVelocity));    
+    }
+
+    public Command stop(){
+        return Commands.runOnce(() -> intakeController.setReference(HOLDING_VELOCITY, ControlType.kVelocity));    
     }
 }
