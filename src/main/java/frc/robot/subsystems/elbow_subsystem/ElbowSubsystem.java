@@ -22,8 +22,8 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double START_POS_ROTATION = 0;
 
     public final static double HORIZONTAL_POS_ELEVATION = -90;
-    public final static double HORIZONTAL_POS_ROTATION = 0;// to be 90
-    public final static double CORAL_COMPENSATION = 0;//to be 90
+    public final static double HORIZONTAL_POS_ROTATION = 90;
+    public final static double CORAL_COMPENSATION = 45;
 
     public final static double INTAKE_POS_ELEVATION = -120;
     public final static double INTAKE_POS_ROTATION = 0;// to be 90
