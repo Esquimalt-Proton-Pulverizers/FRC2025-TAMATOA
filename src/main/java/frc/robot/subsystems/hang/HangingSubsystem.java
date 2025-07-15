@@ -1,0 +1,152 @@
+package frc.robot.subsystems.hang;
+
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public final class HangingSubsystem extends SubsystemBase {
+    // Constants 
+
+    private final int WINCH_MOTOR_CAN_ID = 10;
+    private final int LATCH_SERVO_PORT = 0;
+
+    // Hardware
+
+    private final SparkMax winchMotor;
+    private final SparkClosedLoopController winchController;
+    private final RelativeEncoder winchEncoder; 
+    private final Servo latchServo;
+
+    // State
+
+    private final Timer winchToPositionTimer;
+
+    public HangingSubsystem() {
+        winchMotor = new SparkMax(WINCH_MOTOR_CAN_ID, MotorType.kBrushless);
+        
+        SparkMaxConfig winchConfig = new SparkMaxConfig();
+        winchConfig
+            .inverted(true)
+            .smartCurrentLimit(1, 8, 50);
+
+        winchConfig.encoder
+            .positionConversionFactor(1)
+            .velocityConversionFactor(1);
+
+        winchConfig.closedLoop
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .pid(0.1, 0.0, 0.0)
+            .outputRange(-1, 1, ClosedLoopSlot.kSlot0);
+
+        winchMotor.configure(
+            winchConfig, 
+            ResetMode.kResetSafeParameters, 
+            PersistMode.kNoPersistParameters
+        );
+
+        winchEncoder = winchMotor.getEncoder();
+        winchController = winchMotor.getClosedLoopController();
+
+        latchServo = new Servo(LATCH_SERVO_PORT);
+        setLatchServoPosition(LatchServoPosition.FREE);
+
+        winchToPositionTimer = new Timer();
+    }
+
+    private void setLatchServoPosition(LatchServoPosition position) {
+        latchServo.set(position.value);
+    }
+
+    public void setWinchPosition(double position) {
+        winchController.setReference(position, ControlType.kPosition);
+    }
+
+    public void setWinchPosition(WinchPosition position) {
+        setWinchPosition(position.value);
+    }
+
+    public double getWinchPosition() {
+        return winchEncoder.getPosition();
+    }
+
+    //Commands
+
+    public SequentialCommandGroup extend() {
+        return new SequentialCommandGroup(
+            release(),
+            new WinchToPositionCommand(this, -3),
+            new WinchToPositionCommand(this, WinchPosition.EXTENDED)
+        );
+    }
+
+    public SequentialCommandGroup retract() {
+        return new SequentialCommandGroup(
+            latch(),
+            new WinchToPositionCommand(this, WinchPosition.RETRACTED)  
+        );
+    }
+
+    public Command manualRetract() {
+        return Commands.runOnce(() -> {
+            winchController.setReference(-5, ControlType.kVoltage);
+            setLatchServoPosition(LatchServoPosition.LATCHED);
+        });    
+    }
+
+    public Command resetWinch() {
+        return Commands.runOnce(() -> {
+            winchController.setReference(0, ControlType.kVoltage);
+            winchMotor.getEncoder().setPosition(0);
+        });
+    }
+
+    public Command release() {
+        return Commands.runOnce(() -> setLatchServoPosition(LatchServoPosition.FREE));    
+    }
+
+    public Command latch() {
+        return Commands.runOnce(() -> setLatchServoPosition(LatchServoPosition.LATCHED));    
+    }
+
+    @Override public void periodic() {
+        SmartDashboard.putNumber("Servo Position", latchServo.getPosition());
+    }
+
+    public enum LatchServoPosition {
+        LATCHED(1),
+        FREE(0.5);
+
+        double value;
+
+        private LatchServoPosition(double value) {
+            this.value = value;
+        }
+    }
+
+    public enum WinchPosition {
+        RETRACTED(0),
+        EXTENDED(690);
+
+        double value;
+
+        private WinchPosition(double value) {
+            this.value = value;
+        }
+    }
+}
