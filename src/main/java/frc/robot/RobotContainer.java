@@ -73,10 +73,10 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        //joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        //joystick.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -92,13 +92,13 @@ public class RobotContainer {
 
         //elevator levels
         // test 1
-        joystick.start().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem));
-        joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
+        joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem));
+        //joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
         joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
         joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
         joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
 
-        //elbow control
+        //elbow controlr
         // test 3 with no rotation + teat 4 with rotation
         // joystick.povLeft().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION + elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
         // joystick.povRight().onTrue(new ElbowElevationRotationCommand(elbowSubsystem.HORIZONTAL_POS_ELEVATION, elbowSubsystem.HORIZONTAL_POS_ROTATION - elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
@@ -109,9 +109,9 @@ public class RobotContainer {
 
         //intake control 
         //test 2
-        // joystick.leftTrigger().onTrue(intakeSubsystem.IntakeUntilStalledCommand());
-        // joystick.rightTrigger().onTrue(intakeSubsystem.OuttakeUntilStalledCommand());
-        // joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));
+        joystick.leftTrigger().onTrue(Commands.runOnce(() -> {intakeSubsystem.intake();}));
+        joystick.rightTrigger().onTrue(Commands.runOnce(() -> {intakeSubsystem.outtake();}));
+        joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));
 
     }
 

@@ -31,13 +31,12 @@ public class IntakeSubsystem extends SubsystemBase {
     protected SparkClosedLoopController intakeMotorController = intakeMotor.getClosedLoopController();
     public RelativeEncoder intakeEncoder = intakeMotor.getEncoder();
     
-    private static final double INTAKE_VOLTAGE = 0.5;
-    private static final double OUTAKE_VOLTAGE = 0.5;
+    private static final double INTAKE_VOLTAGE = 5;
+    private static final double OUTAKE_VOLTAGE = 5;
 
     private static final double HOLDING_VELOCITY = 0;
-    private static double last_velocity = Double.NaN;
-    private static final double INTAKE_VELOCITY = 100;//in terms of coral
-    private static final double OUTAKE_VELOCITY = -100;
+    private static final double INTAKE_VELOCITY = 10000;//in terms of coral
+    private static final double OUTAKE_VELOCITY = -10000;
     
     public IntakeSubsystem() {
         // Initialize the subsystem here
@@ -70,54 +69,15 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorController.setReference(targetVelocity, ControlType.kVelocity);
     }
 
-    private void intake(){
-        intakeMotorController.setReference(INTAKE_VOLTAGE, ControlType.kVoltage);
-        last_velocity = INTAKE_VELOCITY;
+    public void intake(){
+        setTargetVelocity(INTAKE_VELOCITY);
     }
 
-    private void outtake(){
-        intakeMotorController.setReference(OUTAKE_VOLTAGE, ControlType.kVoltage);
-        last_velocity = OUTAKE_VELOCITY;
-      }
+    public void outtake(){
+        setTargetVelocity(OUTAKE_VELOCITY);
+    }
 
     public void stop(){
-        if (last_velocity == Double.NaN) {
-            setTargetVelocity(HOLDING_VELOCITY);
-        } else {
-            setTargetVelocity(last_velocity * -0.05 + HOLDING_VELOCITY);
-        }
-        
-    }
-
-    public Command IntakeUntilStalledCommand() {
-        return Commands.runOnce(() -> {intake();}, this)
-        .andThen(Commands.waitUntil(() -> {//wait for motor to spin up
-            System.out.println("Intake Velocity = "+ intakeMotor.getEncoder().getVelocity());
-            return intakeMotor.getEncoder().getVelocity()>= INTAKE_VELOCITY;}))
-        .andThen(Commands.waitUntil(() -> {//wiat for the algae ball to stop the motor
-            if (intakeMotor.getEncoder().getVelocity()<= INTAKE_VELOCITY * 0.1){
-            stop();
-            System.out.println("I am stopped!!!");
-            return true;
-            } else {
-            return false;
-            }}))
-        .withName("stalled");
-    }
-
-    public Command OuttakeUntilStalledCommand() {
-        return Commands.runOnce(() -> {outtake();}, this)
-        .andThen(Commands.waitUntil(() -> {//wait for motor to spin up
-            System.out.println("Intake Velocity = "+ intakeMotor.getEncoder().getVelocity());
-            return intakeMotor.getEncoder().getVelocity()<= OUTAKE_VELOCITY;}))
-        .andThen(Commands.waitUntil(() -> {//wiat for the algae ball to stop the motor
-            if (intakeMotor.getEncoder().getVelocity()<= OUTAKE_VELOCITY * 0.1){
-            stop();
-            System.out.println("I am stopped!!!");
-            return true;
-            } else {
-            return false;
-            }}))
-        .withName("stalled");
+        setTargetVelocity(HOLDING_VELOCITY);
     }
 }

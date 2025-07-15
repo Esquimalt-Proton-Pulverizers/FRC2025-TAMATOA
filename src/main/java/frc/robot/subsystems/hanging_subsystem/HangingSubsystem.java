@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HangingSubsystem extends SubsystemBase{
     //Spark Max
-    private SparkMax winchMotor = new SparkMax(4, MotorType.kBrushless);
+    private SparkMax winchMotor = new SparkMax(10, MotorType.kBrushless);
     private SparkMaxConfig winchConfig = new SparkMaxConfig();
     private SparkClosedLoopController winchController = winchMotor.getClosedLoopController();
     private RelativeEncoder winchEncoder = winchMotor.getEncoder();

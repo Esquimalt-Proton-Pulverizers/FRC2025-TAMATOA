@@ -23,11 +23,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   // here. Call these from Commands.
   public static final double LOW_POSITION=0;
   //public static final double processorPosition=10;
-  public static final double LEVEL1_POSITION=20;
-  public static final double LEVEL2_POSITION=13;
+  public static final double LEVEL1_POSITION=10;
+  public static final double LEVEL2_POSITION=20;
   public static final double LEVEL3_POSITION=LEVEL2_POSITION+16;
-  public static final double LEVEL4_POSITION=53.5;
-  public static final double NET_POSITION=60;
+  public static final double LEVEL4_POSITION=40;
+  public static final double NET_POSITION=50;
   public static final double CORAL_STATION_POSITION=25;
 
   public boolean isCompetitionRobot;
@@ -50,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     // Initialize the subsystem here
     timer.start();
-    elevatorConfig.encoder.positionConversionFactor(1/1.785)
+    elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
     .velocityConversionFactor(1);
     elevatorConfig.smartCurrentLimit(1,8,50);
 
@@ -95,10 +95,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
 
   }
-  
-  public void isCompetitionRobot(boolean isCompetitionRobot){
-    this.isCompetitionRobot = isCompetitionRobot;
-    elevatorConfig.inverted(!isCompetitionRobot);
-  }
+ 
 
 }
