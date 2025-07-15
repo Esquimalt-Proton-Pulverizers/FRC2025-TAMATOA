@@ -28,22 +28,22 @@ public final class HangingSubsystem extends SubsystemBase {
     private final int LATCH_SERVO_PORT = 0;
     private final int INTAKE_MOTOR_CANID = 11;
 
-    private final double INTAKE_VELOCITY = 3000.0;
-    private final double HOLDING_VELOCITY = 0.0;
+    private final double INTAKE_VOLTAGE = 6.0;
+    private final double HOLDING_VOLTAGE = 0.0;
 
     // Hardware
 
-    private final SparkMax winchMotor;
-    private final SparkClosedLoopController winchController;
-    private final RelativeEncoder winchEncoder; 
-    private final Servo latchServo;
-    private final SparkMax intakeMotor;
-    private final SparkClosedLoopController intakeController;
-    private final RelativeEncoder intakeMotorEncoder;
+    private  SparkMax winchMotor;
+    private SparkClosedLoopController winchController;
+    private RelativeEncoder winchEncoder; 
+    private Servo latchServo;
+    private SparkMax intakeMotor;
+    private SparkClosedLoopController intakeController;
+    private RelativeEncoder intakeMotorEncoder;
 
     // State
 
-    private final Timer winchToPositionTimer;
+    private Timer winchToPositionTimer;
 
     public HangingSubsystem() {
         winchMotor = new SparkMax(WINCH_MOTOR_CAN_ID, MotorType.kBrushless);
@@ -75,6 +75,8 @@ public final class HangingSubsystem extends SubsystemBase {
         setLatchServoPosition(LatchServoPosition.FREE);
 
         SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+        
+        intakeMotor = new SparkMax(INTAKE_MOTOR_CANID, MotorType.kBrushless);
         intakeMotorConfig.closedLoop.maxMotion
         // Set MAXMotion parameters for position control. We don't need to pass
             // a closed loop slot, as it will default to slot 0.
@@ -82,7 +84,6 @@ public final class HangingSubsystem extends SubsystemBase {
             .maxAcceleration(8000)
             .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
             
-        intakeMotor = new SparkMax(INTAKE_MOTOR_CANID, MotorType.kBrushless);
 
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         intakeController = intakeMotor.getClosedLoopController();
@@ -163,8 +164,8 @@ public final class HangingSubsystem extends SubsystemBase {
     }
 
     public enum WinchPosition {
-        RETRACTED(0),
-        EXTENDED(690);
+        RETRACTED(690),
+        EXTENDED(0);
 
         double value;
 
@@ -174,10 +175,10 @@ public final class HangingSubsystem extends SubsystemBase {
     }
 
     public Command intake(){
-        return Commands.runOnce(() -> intakeController.setReference(INTAKE_VELOCITY, ControlType.kVelocity));    
+        return Commands.runOnce(() -> intakeController.setReference(INTAKE_VOLTAGE, ControlType.kVoltage));    
     }
 
     public Command stop(){
-        return Commands.runOnce(() -> intakeController.setReference(HOLDING_VELOCITY, ControlType.kVelocity));    
+        return Commands.runOnce(() -> intakeController.setReference(HOLDING_VOLTAGE, ControlType.kVoltage));    
     }
 }
