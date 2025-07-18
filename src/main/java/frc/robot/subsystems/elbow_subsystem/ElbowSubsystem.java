@@ -15,7 +15,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
 
 public class ElbowSubsystem extends SubsystemBase{
     public final static double START_POS_ELEVATION = 0;
@@ -25,8 +24,13 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double HORIZONTAL_POS_ROTATION = 90;
     public final static double CORAL_COMPENSATION = 45;
 
-    public final static double INTAKE_POS_ELEVATION = -120;
-    public final static double INTAKE_POS_ROTATION = 0;// to be 90
+    public final static double[] INTAKE_POS = {-98.0,89.0};
+    public final static double[] LOW_POS    = {-26.0,90.0};
+    public final static double[] MIDS_POS   = {-51.5,0.0};
+    public final static double[] HIGH_POS   = {-44,0.0};
+
+    public final static double INTAKE_POS_ELEVATION = -98;
+    public final static double INTAKE_POS_ROTATION = 89;// to be 90
 
     private Timer timer = new Timer();
 
@@ -50,8 +54,7 @@ public class ElbowSubsystem extends SubsystemBase{
     public double leftMotorPos = 0;
     public double rightMotorPos = 0;
 
-    public double elevationConversionFactor = 1;
-    public double rotationConversionFactor = 1;
+    
 
     public ElbowSubsystem() {
         timer.start();
@@ -106,10 +109,28 @@ public class ElbowSubsystem extends SubsystemBase{
     }
 
     public void setElevationRotationPos(double elevation, double rotation) {
-        leftMotorPos = -elevation * elevationConversionFactor + rotation * elevationConversionFactor;
-        rightMotorPos = elevation * elevationConversionFactor + rotation * elevationConversionFactor;
+        leftMotorPos = -elevation + rotation;
+        rightMotorPos = elevation + rotation;
 
         leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition);
         rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition);
+    }
+
+    public double getElevationPos() {
+        double leftMotorPos = leftElbowMotor.getEncoder().getPosition();
+        double rightMotorPos = rightElbowMotor.getEncoder().getPosition();
+
+        double elevation = (rightMotorPos - leftMotorPos) / 2.0;
+
+        return elevation;
+    }
+
+    public double getRotationPos() {
+        double leftMotorPos = leftElbowMotor.getEncoder().getPosition();
+        double rightMotorPos = rightElbowMotor.getEncoder().getPosition();
+
+        double rotation = (rightMotorPos + leftMotorPos) / 2.0;
+
+        return rotation;
     }
 }
