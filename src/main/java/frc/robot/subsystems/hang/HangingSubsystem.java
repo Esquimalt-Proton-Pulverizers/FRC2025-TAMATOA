@@ -164,8 +164,8 @@ public final class HangingSubsystem extends SubsystemBase {
     }
 
     public enum WinchPosition {
-        RETRACTED(690),
-        EXTENDED(0);
+        RETRACTED(0),
+        EXTENDED(690);
 
         double value;
 
