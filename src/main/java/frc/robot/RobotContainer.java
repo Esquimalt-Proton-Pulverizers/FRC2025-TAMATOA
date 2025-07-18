@@ -22,6 +22,7 @@ import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.hang.HangingSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -45,13 +46,15 @@ public class RobotContainer {
 
     public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
 
+    public final HangingSubsystem hanger = new HangingSubsystem();
+
     public RobotContainer() {
         configureBindings();
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        // // Note that X is defined as forward according to WPILib convention,
+        // // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
@@ -61,38 +64,29 @@ public class RobotContainer {
             )
         );
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
-
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        
 
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
 
-         joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
-         joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
-         joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
-         joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
+        //  joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
+        //  joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
+        //  joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
+        //  joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
 
-         joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
-         joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
+        //  joystick.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
+        //  joystick.rightBumper().onTrue(new ElbowElevationRotationCommand(0,0, elbowSubsystem));
 
+        joystick.povUp().onTrue(hanger.extend());
+        joystick.povDown().onTrue(hanger.retract());
+        joystick.back().onTrue(hanger.manualRetract());
+        joystick.back().onFalse(hanger.resetWinch());
+//        joystick.x().onTrue();
+
+        joystick.leftBumper().onTrue(hanger.intake());
+        joystick.leftBumper().onFalse(hanger.stop());
     }
 
     public Command getAutonomousCommand() {

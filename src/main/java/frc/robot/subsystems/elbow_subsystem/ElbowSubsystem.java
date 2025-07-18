@@ -71,8 +71,8 @@ public class ElbowSubsystem extends SubsystemBase{
 
     leftElbowMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     rightElbowMotor.configure(leftConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    leftElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
-    rightElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+    //leftElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
+    //rightElbowClosedLoopController.setReference(START_POS, SparkMax.ControlType.kPosition); 
     }
 
     @Override
