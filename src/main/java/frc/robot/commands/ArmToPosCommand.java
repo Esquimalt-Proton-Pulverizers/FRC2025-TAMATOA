@@ -14,15 +14,22 @@ public class ArmToPosCommand extends SequentialCommandGroup {
     public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, double elevatorLevel, double[] elbowTargetPos) {
         double curElbowRotationPos = elbowSubsystem.getElevationPos();
         double curElbowElevationPos = elbowSubsystem.getRotationPos();
+        double curElevatorPos = elevatorSubsystem.getPosition();
 
         boolean elbowElevationSafe;
         boolean elbowRotationSafe;
+        boolean elevatorAboveLow;
 
-        final double SAFE_ELEVATE_POS = -20.0;
+        final double SAFE_ELEVATE_POS = -29.0;
         final double SAFE_ROTATE_POS = 0.0;
 
+        // // Check elevator position
+        // if (curElevatorPos < ElevatorSubsystem.LOW_POSITION) {
+        //     ele
+        // }
+
         // Check elevation safety
-        if (curElbowElevationPos < -30 || curElbowElevationPos > -10) {
+        if (curElbowElevationPos < -30 || curElbowElevationPos > -26) {
             elbowElevationSafe = false;
         }
         else {
@@ -38,6 +45,8 @@ public class ArmToPosCommand extends SequentialCommandGroup {
         }
 
         Command armMovement = new SequentialCommandGroup(
+            // Move Elevator up to 
+
             //// Move Arm to a safe position
             // If Elbow elevation not safe, move to safe elevation. If it is, do nothing
             new ConditionalCommand(
@@ -73,5 +82,9 @@ public class ArmToPosCommand extends SequentialCommandGroup {
         );
 
         addCommands(armMovement);
+    }
+    @Override
+    public void initialize() {
+      
     }
 }
