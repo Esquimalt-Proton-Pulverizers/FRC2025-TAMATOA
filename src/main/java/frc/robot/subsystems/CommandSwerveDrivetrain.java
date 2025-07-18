@@ -303,7 +303,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Utils.fpgaToCurrentTime(mt2.timestampSeconds));
 
             // System.out.println("Limelight updatedPose");
-            var updatedPose = getState().Pose;
+            // var updatedPose = getState().Pose;
             // System.out.println("Updated Robot Position: " + updatedPose);
         }
         if (mt1 != null && mt1.tagCount > 0 && angularVelocity <= 720 && mt1.avgTagDist < 2.0) {
@@ -312,8 +312,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 mt1.pose,
                 Utils.fpgaToCurrentTime(mt1.timestampSeconds));
 
-             //System.out.println(mt1.avgTagDist);
-            var updatedPose = getState().Pose;
+            // System.out.println(mt1.avgTagDist);
+            // var updatedPose = getState().Pose;
             // System.out.println("Updated Robot Position: " + updatedPose);
         }
     }
