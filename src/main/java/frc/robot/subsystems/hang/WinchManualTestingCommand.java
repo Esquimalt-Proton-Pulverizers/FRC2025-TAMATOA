@@ -1,5 +1,4 @@
-
-package frc.robot.subsystems.hanging_subsystem;
+package frc.robot.subsystems.hang;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;

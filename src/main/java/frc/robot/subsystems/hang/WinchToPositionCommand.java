@@ -1,4 +1,4 @@
-package frc.robot.subsystems.hanging_subsystem;
+package frc.robot.subsystems.hang;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +27,6 @@ public class WinchToPositionCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return (Math.abs(hangingSubsystem.getWinchPosition() - targetPosition) < 10.0)||timer.hasElapsed(5);
+        return (Math.abs(hangingSubsystem.getWinchPosition() - targetPosition) < 10.0 && timer.hasElapsed(0.5)) || timer.hasElapsed(5.0);
     }
 }
