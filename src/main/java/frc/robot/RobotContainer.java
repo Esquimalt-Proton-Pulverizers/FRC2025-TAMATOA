@@ -72,12 +72,12 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        // // Arm controls
+        // Arm controls
         // joystick.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS));
-        // joystick.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
-        // joystick.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
-        // joystick.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
-        // joystick.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
+        joystick.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
+        joystick.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
+        joystick.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
+        joystick.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
 
         // // Elbow control
         // // test 3 with no rotation + teat 4 with rotation
@@ -105,8 +105,8 @@ public class RobotContainer {
 
 		joystick.leftBumper().onTrue(hanger.intake());
         joystick.leftBumper().onFalse(hanger.stop());
-        joystick.rightBumper().onTrue(hanger.manualRetract());
-        joystick.rightBumper().onFalse(hanger.resetWinch());
+        joystick.back().onTrue(hanger.manualRetract());
+        joystick.back().onFalse(hanger.resetWinch());
     }
 
     public Command getAutonomousCommand() {
