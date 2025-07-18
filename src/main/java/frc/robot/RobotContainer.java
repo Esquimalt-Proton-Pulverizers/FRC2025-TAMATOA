@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
@@ -57,14 +57,14 @@ public class RobotContainer {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxControlSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxControlSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+        // drivetrain.setDefaultCommand(
+        //     // Drivetrain will execute this command periodically
+        //     drivetrain.applyRequest(() ->
+        //         drive.withVelocityX(-joystick.getLeftY() * MaxControlSpeed) // Drive forward with negative Y (forward)
+        //             .withVelocityY(-joystick.getLeftX() * MaxControlSpeed) // Drive left with negative X (left)
+        //             .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        //     )
+        // );
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -78,31 +78,35 @@ public class RobotContainer {
         //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         // ));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // // Run SysId routines when holding back/start and X/Y.
+        // // Note that each routine should be run exactly once in a single log.
+        // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // // reset the field-centric heading on left bumper press
+        // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
 
         //elevator levels
         // test 1 is a successs
-        joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem));
-        //joystick.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
-        joystick.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
-        joystick.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
-        joystick.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
+        joystick.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS));
+        joystick.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
+        joystick.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
+        joystick.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
+        joystick.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
 
         //elbow controlr
         // test 3 with no rotation + teat 4 with rotation
-        joystick.povLeft().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION + elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
-        joystick.povRight().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION - elbowSubsystem.CORAL_COMPENSATION, elbowSubsystem));
-        joystick.povLeft().and(joystick.povRight()).whileFalse(elbowSubsystem.elevation > ElbowSubsystem.HORIZONTAL_POS_ELEVATION? new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem): new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.rotation, elbowSubsystem));
+        joystick.povLeft().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem));
+        joystick.povRight().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.HORIZONTAL_POS_ELEVATION, ElbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem));
+        joystick.povLeft().and(joystick.povRight()).whileFalse(
+            elbowSubsystem.elevation > ElbowSubsystem.HORIZONTAL_POS_ELEVATION?
+             new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.HORIZONTAL_POS_ROTATION, elbowSubsystem):
+             new ElbowElevationRotationCommand(elbowSubsystem.elevation, elbowSubsystem.rotation, elbowSubsystem)
+        );
         
         joystick.povUp().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.START_POS_ELEVATION, ElbowSubsystem.START_POS_ROTATION, elbowSubsystem));
         joystick.povDown().onTrue(new ElbowElevationRotationCommand(ElbowSubsystem.INTAKE_POS_ELEVATION, ElbowSubsystem.INTAKE_POS_ROTATION, elbowSubsystem));
