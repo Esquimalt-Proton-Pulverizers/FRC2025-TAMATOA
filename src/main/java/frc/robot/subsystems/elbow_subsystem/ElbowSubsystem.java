@@ -14,7 +14,11 @@ import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.hang.HangingSubsystem.LatchServoPosition;
 
 public class ElbowSubsystem extends SubsystemBase{
     public final static double START_POS_ELEVATION = 0;
@@ -61,7 +65,7 @@ public class ElbowSubsystem extends SubsystemBase{
 
         motorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
         .velocityConversionFactor(1);
-        motorConfig.smartCurrentLimit(1,8,50);
+        motorConfig.smartCurrentLimit(1,3,50);
 
         motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0.1).i(0.00000).d(0.0000)
@@ -88,22 +92,27 @@ public class ElbowSubsystem extends SubsystemBase{
     }
 
     public static void initialize(){
-        //TODO boolean to check if initialized in auto
         if(!hasBeenInitialized) {
+            resetEncoder();
+
             leftElbowEncoder.setPosition(START_POS_ELEVATION);
             rightElbowEncoder.setPosition(START_POS_ELEVATION);
-        hasBeenInitialized = true;
+            hasBeenInitialized = true;
         }
-
-    //TODO initialization code to reset encoders
+        leftElbowEncoder.setPosition(START_POS_ELEVATION);
+        rightElbowEncoder.setPosition(START_POS_ELEVATION);
     }
 
     @Override
     public void periodic() {
       // Put code here to be run every loop
       if(timer.hasElapsed(2.0)) {
-        System.out.println("LeftElbowPos" + leftElbowEncoder.getPosition());
-        System.out.println("RightElbowPos" + rightElbowEncoder.getPosition());
+        // System.out.println("LeftElbowPos" + leftElbowEncoder.getPosition());
+        // System.out.println("RightElbowPos" + rightElbowEncoder.getPosition());
+
+        System.out.println("-----------------------");
+        System.out.println("Elbow Elevation: " + getElevationPos());
+        System.out.println("Elbow Rotation: " + getRotationPos());
         timer.reset();
       }
     }
@@ -132,5 +141,16 @@ public class ElbowSubsystem extends SubsystemBase{
         double rotation = (rightMotorPos + leftMotorPos) / 2.0;
 
         return rotation;
+    }
+
+    private static void resetEncoder() {
+        leftElbowMotor.getEncoder().setPosition(0);
+        rightElbowMotor.getEncoder().setPosition(0);
+    }
+
+    public Command resetEncoderCommand() {
+        return Commands.runOnce(() -> {
+            resetEncoder();
+        });    
     }
 }

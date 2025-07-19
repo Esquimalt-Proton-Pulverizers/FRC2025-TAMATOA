@@ -73,11 +73,17 @@ public class RobotContainer {
         );
 
         // Arm controls
-        // joystick.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS));
-        joystick.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
-        joystick.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
-        joystick.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
-        joystick.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
+        double curElbowElevationPos = elbowSubsystem.getElevationPos();
+        double curElbowRotationPos = elbowSubsystem.getRotationPos();
+        double curElevatorPos = elevatorSubsystem.getPosition();
+        joystick.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        joystick.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        joystick.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        joystick.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        joystick.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+
+		joystick.start().onTrue(elbowSubsystem.resetEncoderCommand());
+
 
         // // Elbow control
         // // test 3 with no rotation + teat 4 with rotation
@@ -99,14 +105,14 @@ public class RobotContainer {
         // joystick.leftTrigger().and(joystick.rightTrigger()).onFalse(Commands.runOnce(() -> {intakeSubsystem.stop();}));//works but funny
 
 
-		// Hanger Control
-		joystick.povUp().onTrue(hanger.extend());
-        joystick.povDown().onTrue(hanger.retract());
+		// // Hanger Control
+		// joystick.povUp().onTrue(hanger.extend());
+        // joystick.povDown().onTrue(hanger.retract());
 
-		joystick.leftBumper().onTrue(hanger.intake());
-        joystick.leftBumper().onFalse(hanger.stop());
-        joystick.back().onTrue(hanger.manualRetract());
-        joystick.back().onFalse(hanger.resetWinch());
+		// joystick.leftBumper().onTrue(hanger.intake());
+        // joystick.leftBumper().onFalse(hanger.stop());
+        // joystick.back().onTrue(hanger.manualRetract());
+        // joystick.back().onFalse(hanger.resetWinch());
     }
 
     public Command getAutonomousCommand() {
