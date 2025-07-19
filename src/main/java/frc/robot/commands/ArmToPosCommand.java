@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -49,7 +50,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
         }
 
         // Check Elevator position
-        if (curElevatorPos < 1) {
+        if (curElevatorPos < 1.0) {
             elevatorTooLow = true;
         }
         else {
@@ -61,15 +62,21 @@ public class ArmToPosCommand extends SequentialCommandGroup {
         Command armMovement = new SequentialCommandGroup(
             // If elevator too low, move it up
             new ConditionalCommand(
-                new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem), 
+                new SequentialCommandGroup(
+                    new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem),
+                    Commands.waitSeconds(0.5)), 
                 new InstantCommand(){}, 
                 () -> elevatorTooLow),
+
+            
 
             //// Move Arm to a safe position
             // If Elbow elevation is not safe, move it to a safe elevation. If it is safe, do nothing.
             new ConditionalCommand(
                 new InstantCommand(){}, 
-                new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, curElbowRotationPos, elbowSubsystem), 
+                new SequentialCommandGroup(
+                    new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, curElbowRotationPos, elbowSubsystem),
+                    Commands.waitSeconds(0.5)), 
                 () -> elbowElevationSafe
             ),
 
@@ -78,27 +85,33 @@ public class ArmToPosCommand extends SequentialCommandGroup {
                 // Elbow elevation was not moved, and Elbow rotation is in safe pos. Do nothing.
                 new ConditionalCommand(
                     new InstantCommand(){}, 
-                    new ElbowElevationRotationCommand(curElbowRotationPos, SAFE_ROTATE_POS, elbowSubsystem), 
+                    new SequentialCommandGroup(
+                        new ElbowElevationRotationCommand(curElbowRotationPos, SAFE_ROTATE_POS, elbowSubsystem),
+                        Commands.waitSeconds(0.5)), 
                     () -> elbowRotationSafe
                 ),
                 // Elbow elevation was moved, and Elbow rotation is not in safe pos. Rotate elbow to safe pos.
                 new ConditionalCommand(
                     new InstantCommand(){}, 
-                    new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, SAFE_ROTATE_POS, elbowSubsystem), 
+                    new SequentialCommandGroup(
+                        new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, SAFE_ROTATE_POS, elbowSubsystem),
+                        Commands.waitSeconds(0.5)), 
                     () -> elbowRotationSafe
                 ),
                 () -> elbowElevationSafe),
 
-            //// Elbow now in safe position, move Elevator first, then Elbow to target position
-            // Move Elevator to target position
-            new ElevatorToPosCommand(elevatorPos, elevatorSubsystem),
-
+            //// Elbow now in safe position, move Elbow first, then Elevator to target position
             // Move Elbow to target position
             new ConditionalCommand(
                 new ElbowElevationRotationCommand(curElbowElevationPos, elbowTargetPos[1], elbowSubsystem), 
                 new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, elbowTargetPos[1], elbowSubsystem), 
                 () -> elbowElevationSafe),
-            new ElbowElevationRotationCommand(elbowTargetPos[0], elbowTargetPos[1], elbowSubsystem)
+            new ElbowElevationRotationCommand(elbowTargetPos[0], elbowTargetPos[1], elbowSubsystem),
+
+            Commands.waitSeconds(0.5),
+
+            // Move Elevator to target position
+            new ElevatorToPosCommand(elevatorPos, elevatorSubsystem)
         );
 
         // Run command
