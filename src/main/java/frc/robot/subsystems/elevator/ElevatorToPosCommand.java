@@ -6,9 +6,11 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
+/** 
+ * An example command that uses an example subsystem. 
+ */
 public class ElevatorToPosCommand extends Command {
-  double positionRevolutions =0;  
+  double positionRevolutions = 0;  
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
   private boolean manualOverride = false;
@@ -40,7 +42,6 @@ public class ElevatorToPosCommand extends Command {
 
     elevatorSubsystem.setTargetPosition(positionRevolutions);
     atPosition = false;
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -48,7 +49,6 @@ public class ElevatorToPosCommand extends Command {
   public void execute() {
     if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-positionRevolutions)<1.0){
       atPosition=true;
-
     }
   }
 

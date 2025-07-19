@@ -16,36 +16,34 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.hang.HangingSubsystem.LatchServoPosition;
 
 public class ElbowSubsystem extends SubsystemBase{
-    public final static double START_POS_ELEVATION = 0;
-    public final static double START_POS_ROTATION = 0;
+    public final static double START_POS_ELEVATION = 0.0;
+    public final static double START_POS_ROTATION  = 0.0;
 
-    public final static double HORIZONTAL_POS_ELEVATION = -90;
-    public final static double HORIZONTAL_POS_ROTATION = 90;
-    public final static double CORAL_COMPENSATION = 45;
+    public final static double HORIZONTAL_POS_ELEVATION = -90.0;
+    public final static double HORIZONTAL_POS_ROTATION  =  90.0;
+    public final static double CORAL_COMPENSATION       =  45.0;
 
     public final static double MIN_ELEVATION =    0.0;
     public final static double MIN_ROTATION  =    0.0;
     public final static double MAX_ELEVATION = -100.0;
     public final static double MAX_ROTATION  =  100.0;
 
-    public final static double[] INTAKE_POS = {-98.0,89.0};
-    public final static double[] LOW_POS    = {-26.0,90.0};
-    public final static double[] MIDS_POS   = {-51.5,0.0};
-    public final static double[] HIGH_POS   = {-44,0.0};
+    public final static double[] INTAKE_POS = {-98.0, 89.0};
+    public final static double[] LOW_POS    = {-26.0, 90.0};
+    public final static double[] MIDS_POS   = {-51.5,  0.0};
+    public final static double[] HIGH_POS   = {-44.0,  0.0};
 
-    public final static double INTAKE_POS_ELEVATION = -98;
-    public final static double INTAKE_POS_ROTATION = 89;// to be 90
+    public final static double INTAKE_POS_ELEVATION = -98.0;
+    public final static double INTAKE_POS_ROTATION  =  89.0; // To be 90
 
     private Timer timer = new Timer();
 
     public static boolean hasBeenInitialized = false;
 
-    protected static SparkMax leftElbowMotor = new SparkMax(2, MotorType.kBrushless);
+    protected static SparkMax leftElbowMotor  = new SparkMax(2, MotorType.kBrushless);
     protected static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
 
     public SparkMaxConfig motorConfig = new SparkMaxConfig();
@@ -64,7 +62,6 @@ public class ElbowSubsystem extends SubsystemBase{
     public double rightMotorPos = 0;
 
     
-
     public ElbowSubsystem() {
         timer.start();
 
@@ -75,7 +72,7 @@ public class ElbowSubsystem extends SubsystemBase{
         motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0.1).i(0.00000).d(0.0000)
         .outputRange(-.4, .6, ClosedLoopSlot.kSlot0);
-        // Set PID values for velocity control in slot 1
+            // Set PID values for velocity control in slot 1
             // .p(0.0001, ClosedLoopSlot.kSlot1)
             // .i(0, ClosedLoopSlot.kSlot1)
             // .d(0, ClosedLoopSlot.kSlot1)
@@ -83,7 +80,7 @@ public class ElbowSubsystem extends SubsystemBase{
             // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
 
         motorConfig.closedLoop.maxMotion
-        // Set MAXMotion parameters for position control. We don't need to pass
+            // Set MAXMotion parameters for position control. We don't need to pass
             // a closed loop slot, as it will default to slot 0.
             .maxVelocity(3000)
             .maxAcceleration(8000)

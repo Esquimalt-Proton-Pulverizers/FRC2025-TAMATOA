@@ -24,7 +24,7 @@ import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
-import frc.robot.subsystems.intake_subsystem.IntakeSubsystem;
+import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;

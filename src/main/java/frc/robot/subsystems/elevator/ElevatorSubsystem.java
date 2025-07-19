@@ -13,70 +13,56 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 
 public class ElevatorSubsystem extends SubsystemBase {
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
-  public static final double LOW_POSITION=1.1;
-  //public static final double processorPosition=10;
-  public static final double LEVEL1_POSITION=10.0;
-  public static final double LEVEL2_POSITION=14.5;
-  public static final double LEVEL3_POSITION=LEVEL2_POSITION + 16.0;
-  public static final double LEVEL4_POSITION=55.5;
-  public static final double NET_POSITION=50;
-  public static final double CORAL_STATION_POSITION=25;
+  // Position Constants
+  public static final double LOW_POSITION    =  1.1;
+  public static final double LEVEL1_POSITION = 10.0;
+  public static final double LEVEL2_POSITION = 14.5;
+  public static final double LEVEL3_POSITION = LEVEL2_POSITION + 16.0;
+  public static final double LEVEL4_POSITION = 55.5;
+  public static final double NET_POSITION    = 50;
+  public static final double CORAL_STATION_POSITION = 25;
 
-  public boolean isCompetitionRobot;
-
-
-  //add a timer object
+  // Add a timer object
   private Timer timer = new Timer();
 
-  //add a new spark controller
-  //private Spark spark = new Spark(0);
-  //add anew sparkmax brushless
+  // Elevator Motor Config
   protected static SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
-  //add new victor spx
-  //private WPI_VictorSPX victor = new WPI_VictorSPX(0);
-  protected SparkMaxConfig elevatorConfig=new SparkMaxConfig();
-  protected SparkClosedLoopController elevatorClosedLoopController=elevatorMotor.getClosedLoopController();
-  public RelativeEncoder elevatorEncoder=elevatorMotor.getEncoder();
+  protected SparkMaxConfig elevatorConfig = new SparkMaxConfig();
+  protected SparkClosedLoopController elevatorClosedLoopController = elevatorMotor.getClosedLoopController();
+  public RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   
  
   public ElevatorSubsystem() {
-    // Initialize the subsystem here
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
-    .velocityConversionFactor(1);
-    elevatorConfig.smartCurrentLimit(1,8,50);
+      .velocityConversionFactor(1);
+      elevatorConfig.smartCurrentLimit(1,8,50);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-    .p(0.1).i(0.000001).d(0.0000)
-    .outputRange(-.2, .6, ClosedLoopSlot.kSlot0);
-    // Set PID values for velocity control in slot 1
-        // .p(0.0001, ClosedLoopSlot.kSlot1)
-        // .i(0, ClosedLoopSlot.kSlot1)
-        // .d(0, ClosedLoopSlot.kSlot1)
-        // .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-        // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
+      .p(0.1).i(0.000001).d(0.0000)
+      .outputRange(-.2, .6, ClosedLoopSlot.kSlot0);
+      // Set PID values for velocity control in slot 1
+      // .p(0.0001, ClosedLoopSlot.kSlot1)
+      // .i(0, ClosedLoopSlot.kSlot1)
+      // .d(0, ClosedLoopSlot.kSlot1)
+      // .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
+      // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
 
     elevatorConfig.closedLoop.maxMotion
-    // Set MAXMotion parameters for position control. We don't need to pass
-        // a closed loop slot, as it will default to slot 0.
-        .maxVelocity(3000)
-        .maxAcceleration(8000)
-        .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+      // Set MAXMotion parameters for position control. We don't need to pass
+      // a closed loop slot, as it will default to slot 0.
+      .maxVelocity(3000)
+      .maxAcceleration(8000)
+      .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         
-
     elevatorMotor.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     elevatorClosedLoopController.setReference(LOW_POSITION, SparkMax.ControlType.kPosition);    
   }
-
-  
 
   @Override
   public void periodic() {
@@ -90,11 +76,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
   public void setTargetPosition(double targetPosition){
     elevatorClosedLoopController.setReference(targetPosition, ControlType.kPosition);
-    
-    //elevatorClosedLoopController.setReference(targetPosition, ControlType.kMAXMotionPositionControl,
-    //ClosedLoopSlot.kSlot0);
-
-
   }
 
   public static void resetEncoder() {
@@ -104,5 +85,4 @@ public class ElevatorSubsystem extends SubsystemBase {
   public double getPosition() {
     return elevatorEncoder.getPosition();
   }
-
 }

@@ -9,7 +9,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
+/** 
+ * An example command that uses an example subsystem. 
+ * */
 public class ElbowElevationRotationCommand extends Command {
   double elevation;
   double rotation; 
@@ -56,15 +58,15 @@ public class ElbowElevationRotationCommand extends Command {
 
     if (elevation == ElbowSubsystem.START_POS_ELEVATION) {
       elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 35);
-      elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-      elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+      ElbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+      ElbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
+    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }
@@ -73,8 +75,8 @@ public class ElbowElevationRotationCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 50);
-    elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    ElbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    ElbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   // Returns true when the command should end.

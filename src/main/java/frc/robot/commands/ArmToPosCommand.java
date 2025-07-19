@@ -16,13 +16,13 @@ public class ArmToPosCommand extends SequentialCommandGroup {
 
 
     /**
-     * 
-     * @param elevatorSubsystem
-     * @param elbowSubsystem
-     * @param elevatorLevel
-     * @param elbowTargetPos
+     * Constructor for automated arm movement command.
+     * @param elevatorSubsystem - Object of Elevator Subsystem
+     * @param elbowSubsystem - Object of Elbow Subsystem
+     * @param elevatorPos - Elevator position to go to (Inch)
+     * @param elbowTargetPos = Elbow position to go to (Degrees)
      */
-    public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, double elevatorLevel, 
+    public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, double elevatorPos, 
             double[] elbowTargetPos, double curElbowElevationPos, double curElbowRotationPos, double curElevatorPos) {
 
         // Safe Position Variables
@@ -89,7 +89,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
 
             //// Elbow now in safe position, move Elevator first, then Elbow to target position
             // Move Elevator to target position
-            new ElevatorToPosCommand(elevatorLevel, elevatorSubsystem),
+            new ElevatorToPosCommand(elevatorPos, elevatorSubsystem),
 
             // Move Elbow to target position
             new ConditionalCommand(
@@ -99,6 +99,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
             new ElbowElevationRotationCommand(elbowTargetPos[0], elbowTargetPos[1], elbowSubsystem)
         );
 
+        // Run command
         addCommands(armMovement);
     }
 }
