@@ -30,7 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public static final double NET_POSITION=60;
   public static final double CORAL_STATION_POSITION=25;
 
-  public boolean isCompetitionRobot;
+
 
 
   //add a timer object
@@ -83,7 +83,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     // Put code here to be run every loop
     if(timer.hasElapsed(2.0)) {
       System.out.println("Elevator Running at position"+elevatorEncoder.getPosition());
-      System.out.println("Is inverted: " + !isCompetitionRobot);
       timer.reset();
     }
   }
@@ -94,11 +93,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     //ClosedLoopSlot.kSlot0);
 
 
-  }
-  
-  public void isCompetitionRobot(boolean isCompetitionRobot){
-    this.isCompetitionRobot = isCompetitionRobot;
-    elevatorConfig.inverted(!isCompetitionRobot);
   }
 
 }
