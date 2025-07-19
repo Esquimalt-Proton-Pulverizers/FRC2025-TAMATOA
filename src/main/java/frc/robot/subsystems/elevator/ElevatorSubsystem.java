@@ -21,13 +21,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ElevatorSubsystem extends SubsystemBase {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  public static final double LOW_POSITION=0;
+  public static final double LOW_POSITION=1.1;
   //public static final double processorPosition=10;
-  public static final double LEVEL1_POSITION=20;
-  public static final double LEVEL2_POSITION=13;
-  public static final double LEVEL3_POSITION=LEVEL2_POSITION+16;
-  public static final double LEVEL4_POSITION=53.5;
-  public static final double NET_POSITION=60;
+  public static final double LEVEL1_POSITION=10.0;
+  public static final double LEVEL2_POSITION=14.5;
+  public static final double LEVEL3_POSITION=LEVEL2_POSITION + 16.0;
+  public static final double LEVEL4_POSITION=55.5;
+  public static final double NET_POSITION=50;
   public static final double CORAL_STATION_POSITION=25;
 
   public boolean isCompetitionRobot;
@@ -50,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public ElevatorSubsystem() {
     // Initialize the subsystem here
     timer.start();
-    elevatorConfig.encoder.positionConversionFactor(1/1.785)
+    elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
     .velocityConversionFactor(1);
     elevatorConfig.smartCurrentLimit(1,8,50);
 
@@ -73,7 +73,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         
 
     elevatorMotor.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    elevatorClosedLoopController.setReference(0, SparkMax.ControlType.kPosition);    
+    elevatorClosedLoopController.setReference(LOW_POSITION, SparkMax.ControlType.kPosition);    
   }
 
   
@@ -84,6 +84,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     if(timer.hasElapsed(2.0)) {
       // System.out.println("Elevator Running at position"+elevatorEncoder.getPosition());
       // System.out.println("Is inverted: " + !isCompetitionRobot);
+      System.out.println("Elevator Level: " + getPosition());
       timer.reset();
     }
   }
@@ -95,10 +96,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
 
   }
-  
-  public void isCompetitionRobot(boolean isCompetitionRobot){
-    this.isCompetitionRobot = isCompetitionRobot;
-    elevatorConfig.inverted(!isCompetitionRobot);
+
+  public double getPosition() {
+    return elevatorEncoder.getPosition();
   }
 
 }

@@ -20,41 +20,33 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
-
-// Auto scoring imports
+import frc.robot.subsystems.hang.HangingSubsystem;
+import frc.robot.subsystems.intake_subsystem.IntakeSubsystem;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
-public class RobotContainer {
-	// Speed limits
-	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-	private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-																																										// second, max angular velocity
-	private double MaxControlSpeed = 1;
 
-	// Auto scoring variables
-	private int level = 0;
-	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
-	private AutoPlace.Side side = AutoPlace.Side.one;
-	private boolean level1Pickup = false;
+public class RobotContainer {
+    // Swerve Drive variables
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MaxControlSpeed = 1;
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-																																// motors
+			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -71,6 +63,14 @@ public class RobotContainer {
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 	public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
+	public final HangingSubsystem hanger = new HangingSubsystem();
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+
+    // Auto scoring variables
+	private int level = 0;
+	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
+	private AutoPlace.Side side = AutoPlace.Side.one;
+	private boolean level1Pickup = false;
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
@@ -81,63 +81,78 @@ public class RobotContainer {
 	public RobotContainer() {
 		// Register the named commands for auto
 		registerCommands();
+        configureBindings();
 		autoChooser = AutoBuilder.buildAutoChooser("ScoreL1FromCenter"); // @TODO add auto program
 		SmartDashboard.putData("Auto Mode", autoChooser);
+    }
 
-		configureBindings();
-	}
+
 
 	/**
 	 * Configure all bindings for the robot's controls.
 	 */
 	private void configureBindings() {
+        /////////////////////////////////////////////////////////
+        ////// ------------- Driver Controls ------------- //////
+        /////////////////////////////////////////////////////////
+        
 		//// ----------------- Driving Commands -----------------
 		// Note that X is defined as forward according to WPILib convention,
 		// and Y is defined as to the left according to WPILib convention.
-		drivetrain.setDefaultCommand(
-				// Drivetrain will execute this command periodically
-				drivetrain.applyRequest(() -> drive
-						.withVelocityX(MathUtil.applyDeadband(-driverController.getLeftY(), XBOX_DEADBAND) * MaxSpeed
-								* (driverController.getRightTriggerAxis() * 2 + 1)) // Drive forward with negative Y (forward)
-						.withVelocityY(MathUtil.applyDeadband(-driverController.getLeftX(), XBOX_DEADBAND) * MaxSpeed
-								* (driverController.getRightTriggerAxis() * 2 + 1)) // Drive left with negative X (left)
-						.withRotationalRate(MathUtil.applyDeadband(-driverController.getRightX(), XBOX_DEADBAND) * MaxAngularRate
-								* (driverController.getRightTriggerAxis() * 2 + 1)) // Drive counterclockwise with negative X (left)
-				));
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(-driverController.getLeftY() * MaxControlSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverController.getLeftX() * MaxControlSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
 
-		// Reset the field-centric heading on left bumper press
-		driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		// // Reset the field-centric heading on left bumper press
+		// driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-		// Idle while the robot is disabled. This ensures the configured
-		// neutral mode is applied to the drive motors while disabled.
-		final var idle = new SwerveRequest.Idle();
-		RobotModeTriggers.disabled().whileTrue(
-				drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+		// // Idle while the robot is disabled. This ensures the configured
+		// // neutral mode is applied to the drive motors while disabled.
+		// final var idle = new SwerveRequest.Idle();
+		// RobotModeTriggers.disabled().whileTrue(
+		// 		drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-		driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-		driverController.b().whileTrue(drivetrain.applyRequest(
-				() -> point.withModuleDirection(
-						new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+		// driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+		// driverController.b().whileTrue(drivetrain.applyRequest(
+		// 		() -> point.withModuleDirection(
+		// 				new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-		// Run SysId routines when holding back/start and X/Y.
-		// Note that each routine should be run exactly once in a single log.
-		driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-		driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-		driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-		driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        //// ----------------- Hanging Controls -----------------
+		driverController.povUp().onTrue(hanger.extend());
+        driverController.povDown().onTrue(hanger.retract());
+		driverController.leftBumper().onTrue(hanger.intake());
+        driverController.leftBumper().onFalse(hanger.stop());
+        driverController.back().onTrue(hanger.manualRetract());
+        driverController.back().onFalse(hanger.resetWinch());
 
-		drivetrain.registerTelemetry(logger::telemeterize);
+        
+        /////////////////////////////////////////////////////////
+        ////// ------------ Operator Controls ------------ //////
+        /////////////////////////////////////////////////////////
 
-		//// ----------------- Elevator Commands ----------------
-		driverController.a().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem));
-		driverController.b().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem));
-		driverController.x().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem));
-		driverController.y().onTrue(new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem));
+        //// ------------------- Arm Controls -------------------
+        double curElbowElevationPos = elbowSubsystem.getElevationPos();
+        double curElbowRotationPos = elbowSubsystem.getRotationPos();
+        double curElevatorPos = elevatorSubsystem.getPosition();
+        operatorController.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+		operatorController.start().onTrue(elbowSubsystem.resetEncoderCommand());
 
 		//// ----------------- Elbow Commands ----------------
 		driverController.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
 		driverController.rightBumper().onTrue(new ElbowElevationRotationCommand(0, 0, elbowSubsystem));
 
+        /////////////////////////////////////////////////////////
+        ////// ----------- Automated Controls ----------- //////
+        /////////////////////////////////////////////////////////
 		////// ---------------- Automated Commands ----------------
 		//// Choosing where to score on Custom Controller
 		// CustomController.bt1().onTrue(new RunCommand(() -> {
