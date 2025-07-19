@@ -25,6 +25,8 @@ public class ArmToPosCommand extends SequentialCommandGroup {
     public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, double elevatorPos, 
             double[] elbowTargetPos, double curElbowElevationPos, double curElbowRotationPos, double curElevatorPos) {
 
+        
+        this.addRequirements(elevatorSubsystem, elbowSubsystem);
         // Safe Position Variables
         boolean elbowElevationSafe;
         boolean elbowRotationSafe;

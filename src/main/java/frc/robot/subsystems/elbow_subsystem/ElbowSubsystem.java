@@ -72,12 +72,11 @@ public class ElbowSubsystem extends SubsystemBase{
         motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0.1).i(0.00000).d(0.0000)
         .outputRange(-.4, .6, ClosedLoopSlot.kSlot0);
-            // Set PID values for velocity control in slot 1
-            // .p(0.0001, ClosedLoopSlot.kSlot1)
-            // .i(0, ClosedLoopSlot.kSlot1)
-            // .d(0, ClosedLoopSlot.kSlot1)
-            // .velocityFF(1.0 / 5767, ClosedLoopSlot.kSlot1)
-            // .outputRange(-.4, .6, ClosedLoopSlot.kSlot1);
+
+        // motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        // .p(0.1, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
+        // .outputRange(-.2, .2, ClosedLoopSlot.kSlot1);
+            
 
         motorConfig.closedLoop.maxMotion
             // Set MAXMotion parameters for position control. We don't need to pass
