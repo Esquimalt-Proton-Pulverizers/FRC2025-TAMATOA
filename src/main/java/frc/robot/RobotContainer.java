@@ -10,19 +10,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -41,22 +33,24 @@ public class RobotContainer {
     // Swerve Drive variables
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    private double MaxControlSpeed = 1;
+    private double MaxControlSpeed = 1.0;
+    private double MinControlSpeed = 0.5;
+    private double throttle;
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
 			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-	private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+	// private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
 	// Telemetry
 	private final Telemetry logger = new Telemetry(MaxSpeed);
 
 	// Controllers
 	private final CommandXboxController driverController = new CommandXboxController(0);
-	private final CommandCustomController CustomController = new CommandCustomController(1);
-	private final CommandXboxController operatorController = new CommandXboxController(2);
+	private final CommandXboxController operatorController = new CommandXboxController(1);
+    private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.1;
 
 	// Create Subsystems
@@ -66,14 +60,15 @@ public class RobotContainer {
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
+
     // Auto scoring variables
 	private int level = 0;
 	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
 	private AutoPlace.Side side = AutoPlace.Side.one;
-	private boolean level1Pickup = false;
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
+
 
 	/**
 	 * RobotContainer constructor initializes the robot.
@@ -87,7 +82,6 @@ public class RobotContainer {
     }
 
 
-
 	/**
 	 * Configure all bindings for the robot's controls.
 	 */
@@ -97,30 +91,24 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
 		//// ----------------- Driving Commands -----------------
-		// Note that X is defined as forward according to WPILib convention,
-		// and Y is defined as to the left according to WPILib convention.
+        // Set drive speed (Throttle Control)
+        throttle = (driverController.getRightTriggerAxis() / 2.0) + MinControlSpeed;
+        // Drive Controls
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverController.getLeftY() * MaxControlSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getLeftX() * MaxControlSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driverController.getLeftY() * throttle) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverController.getLeftX() * throttle) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * throttle) // Drive counterclockwise with negative X (left)
             )
         );
 
-		// // Reset the field-centric heading on left bumper press
-		// driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		// Reset the field-centric heading on left bumper press
+		driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-		// // Idle while the robot is disabled. This ensures the configured
-		// // neutral mode is applied to the drive motors while disabled.
-		// final var idle = new SwerveRequest.Idle();
-		// RobotModeTriggers.disabled().whileTrue(
-		// 		drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+        // Brake Mode - Stop robot from being moved
+		driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
 
-		// driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-		// driverController.b().whileTrue(drivetrain.applyRequest(
-		// 		() -> point.withModuleDirection(
-		// 				new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().onTrue(hanger.extend());
@@ -130,7 +118,7 @@ public class RobotContainer {
         driverController.back().onTrue(hanger.manualRetract());
         driverController.back().onFalse(hanger.resetWinch());
 
-        
+
         /////////////////////////////////////////////////////////
         ////// ------------ Operator Controls ------------ //////
         /////////////////////////////////////////////////////////
@@ -139,6 +127,7 @@ public class RobotContainer {
         double curElbowElevationPos = elbowSubsystem.getElevationPos();
         double curElbowRotationPos = elbowSubsystem.getRotationPos();
         double curElevatorPos = elevatorSubsystem.getPosition();
+
         operatorController.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
@@ -146,9 +135,14 @@ public class RobotContainer {
         operatorController.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 		operatorController.start().onTrue(elbowSubsystem.resetEncoderCommand());
 
+        //// ---------------- Intake Commands ----------------
+        // @TODO: Add Intake Commands
+        // Left Trigger Intake, Right Trigger Outake
+
 		//// ----------------- Elbow Commands ----------------
-		driverController.leftBumper().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
-		driverController.rightBumper().onTrue(new ElbowElevationRotationCommand(0, 0, elbowSubsystem));
+		operatorController.povUp().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
+		operatorController.povDown().onTrue(new ElbowElevationRotationCommand(0, 0, elbowSubsystem));
+
 
         /////////////////////////////////////////////////////////
         ////// ----------- Automated Controls ----------- //////
@@ -216,31 +210,23 @@ public class RobotContainer {
 		// 	level = 4;
 		// }));
 
-		hexSide = AutoPlace.HexSide.C;
-		side = AutoPlace.Side.one;
-		level = 1;
+		// hexSide = AutoPlace.HexSide.C;
+		// side = AutoPlace.Side.one;
+		// level = 1;
 
-		driverController.back().whileTrue(new InstantCommand(
-			()-> System.out.println("Back btn pressed")
-		));
+		// driverController.back().whileTrue(new InstantCommand(
+		// 	()-> System.out.println("Back btn pressed")
+		// ));
 
 
-		// Autoplace command (Allow operator to also place)
-		driverController.back().whileTrue(new AutoPlace(drivetrain,
-		elevatorSubsystem, elbowSubsystem,
-		new Node(level, hexSide, side)));
-		// operatorController.rightBumper().whileTrue(new AutoPlace(drivetrain,
-		// elevatorSubsystem, elbowSubsystem,
-		// new Node(level, hexSide, side)));
-
-		// // Auto pickup command
-		// // If wanting to pickup to score for level 1, press A, otherwise press Y
-		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
-		// operatorController.a().whileTrue(new RunCommand(() -> level1Pickup = true));
-		// operatorController.leftBumper().whileTrue(new AutoPickup(drivetrain,
-		// elevatorSubsystem,
-		// () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), level1Pickup));
-
+		// // Auto-place command
+		// driverController.a().whileTrue(new AutoPlace(drivetrain,
+        //     elevatorSubsystem, elbowSubsystem,
+        //     new Node(level, hexSide, side)));
+        // // Auto-score command
+        // driverController.leftBumper().whileTrue(new AutoPickup(drivetrain,
+        //     elevatorSubsystem,
+        //     () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), false));
 	}
 
 	public Command getAutonomousCommand() {
