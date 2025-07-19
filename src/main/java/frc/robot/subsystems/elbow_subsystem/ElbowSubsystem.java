@@ -31,7 +31,7 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double MAX_ELEVATION = -100.0;
     public final static double MAX_ROTATION  =  100.0;
 
-    public final static double[] HOMING_POS = {START_POS_ELEVATION, START_POS_ROTATION};
+    public final static double[] HOMING_POS = {START_POS_ELEVATION - 5.0, START_POS_ROTATION};
     public final static double[] INTAKE_POS = {-98.0, 89.0};
     public final static double[] LOW_POS    = {-26.0, 90.0};
     public final static double[] MIDS_POS   = {-51.5,  0.0};
@@ -47,12 +47,12 @@ public class ElbowSubsystem extends SubsystemBase{
     protected static SparkMax leftElbowMotor  = new SparkMax(2, MotorType.kBrushless);
     protected static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
 
-    public SparkMaxConfig motorConfig = new SparkMaxConfig();
-    public SparkClosedLoopController leftElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
+    protected SparkMaxConfig motorConfig = new SparkMaxConfig();
+    protected SparkClosedLoopController leftElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
     public static  RelativeEncoder leftElbowEncoder = leftElbowMotor.getEncoder();
     
     public static RelativeEncoder rightElbowEncoder = rightElbowMotor.getEncoder();
-    public SparkClosedLoopController rightElbowClosedLoopController = rightElbowMotor.getClosedLoopController();
+    protected SparkClosedLoopController rightElbowClosedLoopController = rightElbowMotor.getClosedLoopController();
 
     public double ELBOW_MOTORS_GEAR_RATIO = 360/48.0 ;
 
@@ -68,7 +68,7 @@ public class ElbowSubsystem extends SubsystemBase{
 
         motorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
         .velocityConversionFactor(1);
-        motorConfig.smartCurrentLimit(3,4,50);
+        motorConfig.smartCurrentLimit(30,20,50);
 
         motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0.1).i(0.00000).d(0.0000)
@@ -76,7 +76,7 @@ public class ElbowSubsystem extends SubsystemBase{
         
         
         motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(0.1, ClosedLoopSlot.kSlot1).d(0.0005, ClosedLoopSlot.kSlot1)
+        .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
         .outputRange(-.4, .4, ClosedLoopSlot.kSlot1);
 
         motorConfig.closedLoop.maxMotion

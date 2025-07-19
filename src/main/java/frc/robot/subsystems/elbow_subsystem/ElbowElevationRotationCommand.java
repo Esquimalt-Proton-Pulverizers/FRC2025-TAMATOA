@@ -19,7 +19,7 @@ public class ElbowElevationRotationCommand extends Command {
   private boolean atPosition = false;
   private boolean manualOverride = false;
 
-  private static final double TOLERANCE = 1.0;
+  private static final double TOLERANCE = 3.0;
   public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
     this(elevation, rotation, elbowSubsystem, false);
   }
@@ -55,11 +55,7 @@ public class ElbowElevationRotationCommand extends Command {
     elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
 
-    if (elevation == ElbowSubsystem.START_POS_ELEVATION) {
-      elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 35);
-      ElbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-      ElbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

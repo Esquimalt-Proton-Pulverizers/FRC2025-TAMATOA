@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
@@ -37,8 +38,8 @@ public class RobotContainer {
     // Swerve Drive variables
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    private double MaxControlSpeed = 1.0;
-    private double MinControlSpeed = 0.5;
+    private double MaxControlSpeed = 3.0;
+    private double MinControlSpeed = 1.0;
     private double throttle;
 
 	// Setting up bindings for necessary control of the swerve drive platform
@@ -102,7 +103,7 @@ public class RobotContainer {
         
 		//// ----------------- Driving Commands -----------------
         // Set drive speed (Throttle Control)
-        throttle = (driverController.getRightTriggerAxis() / 2.0) + MinControlSpeed;
+        throttle = (driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed;
         throttle = throttle > MaxControlSpeed ? MaxControlSpeed : throttle;
         // Drive Controls
         drivetrain.setDefaultCommand(
@@ -155,12 +156,16 @@ public class RobotContainer {
         operatorController.povUp().onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
         operatorController.povDown().onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 
-        // //// --------------- Elevator Commands ---------------
-        // elevatorPosChange = operatorController.getRightY();
-        // if (Math.abs(elevatorPosChange) > 0.1) {
-        //     elevatorPosChange = elevatorSubsystem.getPosition() + elevatorPosChange;
-        //     elevatorSubsystem.runOnce(() -> new ElevatorToPosCommand(elevatorPosChange, elevatorSubsystem, manualOverride));
-        // }
+        operatorController.leftTrigger().whileTrue(new InstantCommand(
+			()-> System.out.println("Left Trigger pressed")
+		));
+
+        //// --------------- Elevator Commands ---------------
+        elevatorPosChange = operatorController.getRightY();
+        if (Math.abs(elevatorPosChange) > 0.1) {
+            elevatorPosChange = elevatorSubsystem.getPosition() + elevatorPosChange;
+            elevatorSubsystem.runOnce(() -> new ElevatorToPosCommand(elevatorPosChange, elevatorSubsystem, manualOverride));
+        }
 
 		// //// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
@@ -168,8 +173,8 @@ public class RobotContainer {
 		// operatorController.povLeft().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos - ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
 		// operatorController.povRight().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos + ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
 
-        // //// ---------------- Manual Override ----------------
-        // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
+        // // //// ---------------- Manual Override ----------------
+        // // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
         // operatorController.start().onTrue(Commands.runOnce(() -> encoderReset = true)); // Reset Encoder Positions for Elevator and Elbow
         // if (encoderReset) {
         //     ElevatorSubsystem.resetEncoder();
@@ -272,7 +277,10 @@ public class RobotContainer {
 		// Register the commands here
 		NamedCommands.registerCommand("ArmToLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
                 ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, ElbowSubsystem.START_POS_ELEVATION, 
-                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+                ElbowSubsystem.START_POS_ROTATION, 0.0));
+        NamedCommands.registerCommand("ArmHomingAfterLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
+                elevatorSubsystem.getPosition(), ElbowSubsystem.HOMING_POS, elbowSubsystem.getElevationPos(), 
+                elbowSubsystem.getRotationPos(), ElevatorSubsystem.LEVEL1_POSITION));
         NamedCommands.registerCommand("ArmToLevel2", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
                 ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
                 ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
