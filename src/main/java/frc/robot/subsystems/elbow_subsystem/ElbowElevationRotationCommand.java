@@ -29,20 +29,15 @@ public class ElbowElevationRotationCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevate");
-    elbowSubsystem.setElevationRotationPos(elevation, rotation);
+    elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
 
-    if (elevation == ElbowSubsystem.START_POS_ELEVATION) {
-      elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 35);
-      elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-      elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
+    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos) < TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }
@@ -50,9 +45,6 @@ public class ElbowElevationRotationCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 50);
-    elbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    elbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   // Returns true when the command should end.
