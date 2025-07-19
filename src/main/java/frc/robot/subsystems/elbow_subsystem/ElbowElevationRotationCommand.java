@@ -38,19 +38,19 @@ public class ElbowElevationRotationCommand extends Command {
   public void initialize() {
     System.out.println("StartingElevate");
 
-    if (!manualOverride) {
-      if (elevation < ElbowSubsystem.MIN_ELEVATION) {
-        elevation = ElbowSubsystem.MIN_ELEVATION;
-      } else if (elevation > ElbowSubsystem.MAX_ELEVATION) {
-        elevation = ElbowSubsystem.MAX_ELEVATION;
-      }
+    // if (!manualOverride) {
+    //   if (elevation < ElbowSubsystem.MIN_ELEVATION) {
+    //     elevation = ElbowSubsystem.MIN_ELEVATION;
+    //   } else if (elevation > ElbowSubsystem.MAX_ELEVATION) {
+    //     elevation = ElbowSubsystem.MAX_ELEVATION;
+    //   }
 
-      if (rotation < ElbowSubsystem.MIN_ROTATION) {
-        rotation = ElbowSubsystem.MIN_ROTATION;
-      } else if (rotation > ElbowSubsystem.MAX_ROTATION) {
-        rotation = ElbowSubsystem.MAX_ROTATION;
-      }
-    }
+    //   if (rotation < ElbowSubsystem.MIN_ROTATION) {
+    //     rotation = ElbowSubsystem.MIN_ROTATION;
+    //   } else if (rotation > ElbowSubsystem.MAX_ROTATION) {
+    //     rotation = ElbowSubsystem.MAX_ROTATION;
+    //   }
+    // }
 
     elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;

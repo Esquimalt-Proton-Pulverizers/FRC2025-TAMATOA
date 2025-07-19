@@ -31,6 +31,7 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double MAX_ELEVATION = -100.0;
     public final static double MAX_ROTATION  =  100.0;
 
+    public final static double[] HOMING_POS = {START_POS_ELEVATION, START_POS_ROTATION};
     public final static double[] INTAKE_POS = {-98.0, 89.0};
     public final static double[] LOW_POS    = {-26.0, 90.0};
     public final static double[] MIDS_POS   = {-51.5,  0.0};
