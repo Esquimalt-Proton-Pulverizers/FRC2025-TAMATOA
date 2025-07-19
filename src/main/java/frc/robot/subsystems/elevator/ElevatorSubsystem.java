@@ -39,7 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   //add a new spark controller
   //private Spark spark = new Spark(0);
   //add anew sparkmax brushless
-  protected SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
+  protected static SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
   //add new victor spx
   //private WPI_VictorSPX victor = new WPI_VictorSPX(0);
   protected SparkMaxConfig elevatorConfig=new SparkMaxConfig();
@@ -95,6 +95,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     //ClosedLoopSlot.kSlot0);
 
 
+  }
+
+  public static void resetEncoder() {
+    elevatorMotor.getEncoder().setPosition(0);
   }
 
   public double getPosition() {

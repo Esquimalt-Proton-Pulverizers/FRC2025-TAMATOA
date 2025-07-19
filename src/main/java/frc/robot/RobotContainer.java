@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake_subsystem.IntakeSubsystem;
 import frc.robot.commands.AutoPickup;
@@ -42,7 +44,6 @@ public class RobotContainer {
 			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-	// private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
 	// Telemetry
 	private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -60,6 +61,13 @@ public class RobotContainer {
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
+    // Manual Movement
+    public double elevatorPosChange;
+    public final double ELBOW_MOVEMENT_PER_CLICK = 0.5;
+
+    // Manual Override and Encoder Reset
+    private boolean manualOverride = false;
+    private boolean encoderReset = false;
 
     // Auto scoring variables
 	private int level = 0;
@@ -93,6 +101,7 @@ public class RobotContainer {
 		//// ----------------- Driving Commands -----------------
         // Set drive speed (Throttle Control)
         throttle = (driverController.getRightTriggerAxis() / 2.0) + MinControlSpeed;
+        throttle = throttle > MaxControlSpeed ? MaxControlSpeed : throttle;
         // Drive Controls
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
@@ -123,11 +132,12 @@ public class RobotContainer {
         ////// ------------ Operator Controls ------------ //////
         /////////////////////////////////////////////////////////
 
-        //// ------------------- Arm Controls -------------------
+        // Positions of Elevator and Elbow
         double curElbowElevationPos = elbowSubsystem.getElevationPos();
         double curElbowRotationPos = elbowSubsystem.getRotationPos();
         double curElevatorPos = elevatorSubsystem.getPosition();
 
+        //// ------------------- Arm Controls -------------------
         operatorController.leftBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.a().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.b().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
@@ -136,16 +146,40 @@ public class RobotContainer {
 		operatorController.start().onTrue(elbowSubsystem.resetEncoderCommand());
 
         //// ---------------- Intake Commands ----------------
-        // @TODO: Add Intake Commands
-        // Left Trigger Intake, Right Trigger Outake
+        if (operatorController.getLeftTriggerAxis() != 0.0) {
+            intakeSubsystem.intake();
+        }
+        else if (operatorController.getRightTriggerAxis() != 0.0) {
+            intakeSubsystem.outtake();
+        } else {
+            intakeSubsystem.stop();
+        }
+
+        //// --------------- Elevator Commands ---------------
+        elevatorPosChange = operatorController.getRightY();
+        if (Math.abs(elevatorPosChange) > 0.1) {
+            elevatorPosChange = elevatorSubsystem.getPosition() + elevatorPosChange;
+            elevatorSubsystem.runOnce(() -> new ElevatorToPosCommand(elevatorPosChange, elevatorSubsystem, manualOverride));
+        }
 
 		//// ----------------- Elbow Commands ----------------
-		operatorController.povUp().onTrue(new ElbowElevationRotationCommand(0.5, 0.5, elbowSubsystem));
-		operatorController.povDown().onTrue(new ElbowElevationRotationCommand(0, 0, elbowSubsystem));
+		operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
+		operatorController.povDown().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos - ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
+		operatorController.povLeft().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos - ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
+		operatorController.povRight().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos + ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
+
+        //// ---------------- Manual Override ----------------
+        operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
+        operatorController.start().onTrue(Commands.runOnce(() -> encoderReset = true)); // Reset Encoder Positions for Elevator and Elbow
+        if (encoderReset) {
+            ElevatorSubsystem.resetEncoder();
+            ElbowSubsystem.resetEncoder();
+            manualOverride = false;
+        }
 
 
         /////////////////////////////////////////////////////////
-        ////// ----------- Automated Controls ----------- //////
+        ////// ----------- Automated Controls ----------- ///////
         /////////////////////////////////////////////////////////
 		////// ---------------- Automated Commands ----------------
 		//// Choosing where to score on Custom Controller

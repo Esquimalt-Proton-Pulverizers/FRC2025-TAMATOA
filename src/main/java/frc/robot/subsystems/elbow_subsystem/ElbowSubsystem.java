@@ -28,6 +28,11 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double HORIZONTAL_POS_ROTATION = 90;
     public final static double CORAL_COMPENSATION = 45;
 
+    public final static double MIN_ELEVATION =    0.0;
+    public final static double MIN_ROTATION  =    0.0;
+    public final static double MAX_ELEVATION = -100.0;
+    public final static double MAX_ROTATION  =  100.0;
+
     public final static double[] INTAKE_POS = {-98.0,89.0};
     public final static double[] LOW_POS    = {-26.0,90.0};
     public final static double[] MIDS_POS   = {-51.5,0.0};
@@ -143,7 +148,7 @@ public class ElbowSubsystem extends SubsystemBase{
         return rotation;
     }
 
-    private static void resetEncoder() {
+    public static void resetEncoder() {
         leftElbowMotor.getEncoder().setPosition(0);
         rightElbowMotor.getEncoder().setPosition(0);
     }

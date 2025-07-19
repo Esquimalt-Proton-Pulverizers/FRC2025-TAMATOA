@@ -11,11 +11,17 @@ public class ElevatorToPosCommand extends Command {
   double positionRevolutions =0;  
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
+  private boolean manualOverride = false;
 
   public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem) {
+    this(positionRevolutions, elevatorSubsystem, false);
+  }
+
+  public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem, boolean manualOverride) {
     this.positionRevolutions = positionRevolutions;
     this.elevatorSubsystem = elevatorSubsystem;
     this.addRequirements(elevatorSubsystem);
+    this.manualOverride = manualOverride;
   }
   
 
@@ -23,6 +29,15 @@ public class ElevatorToPosCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevatorMove");
+
+    if (!manualOverride) {
+      if (positionRevolutions < ElevatorSubsystem.LOW_POSITION) {
+        positionRevolutions = ElevatorSubsystem.LOW_POSITION;
+      } else if (positionRevolutions > ElevatorSubsystem.LEVEL4_POSITION) {
+        positionRevolutions = ElevatorSubsystem.LEVEL4_POSITION;
+      }
+    }
+
     elevatorSubsystem.setTargetPosition(positionRevolutions);
     atPosition = false;
 
