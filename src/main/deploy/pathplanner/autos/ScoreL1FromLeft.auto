@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "L1FromCenter"
+            "pathName": "L1FromLeft"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MoveAwayFromL1Center"
+            "pathName": "MoveAwayFromL1Left"
           }
         }
       ]
