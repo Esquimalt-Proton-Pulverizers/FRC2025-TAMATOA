@@ -52,9 +52,8 @@ public class ElbowElevationRotationCommand extends Command {
       }
     }
 
-    elbowSubsystem.setElevationRotationPos(elevation, rotation);
+    elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
-
 
     if (elevation == ElbowSubsystem.START_POS_ELEVATION) {
       elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 35);
@@ -74,9 +73,6 @@ public class ElbowElevationRotationCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elbowSubsystem.motorConfig.smartCurrentLimit(1, 8, 50);
-    ElbowSubsystem.leftElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    ElbowSubsystem.rightElbowMotor.configure(elbowSubsystem.motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   // Returns true when the command should end.
