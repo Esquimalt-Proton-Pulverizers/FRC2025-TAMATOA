@@ -10,6 +10,8 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -144,38 +146,36 @@ public class RobotContainer {
         operatorController.x().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.y().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 		operatorController.start().onTrue(elbowSubsystem.resetEncoderCommand());
+        operatorController.rightBumper().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+
 
         //// ---------------- Intake Commands ----------------
-        if (operatorController.getLeftTriggerAxis() != 0.0) {
-            intakeSubsystem.intake();
-        }
-        else if (operatorController.getRightTriggerAxis() != 0.0) {
-            intakeSubsystem.outtake();
-        } else {
-            intakeSubsystem.stop();
-        }
+        operatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
+        operatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
+        operatorController.povUp().onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
+        operatorController.povDown().onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 
-        //// --------------- Elevator Commands ---------------
-        elevatorPosChange = operatorController.getRightY();
-        if (Math.abs(elevatorPosChange) > 0.1) {
-            elevatorPosChange = elevatorSubsystem.getPosition() + elevatorPosChange;
-            elevatorSubsystem.runOnce(() -> new ElevatorToPosCommand(elevatorPosChange, elevatorSubsystem, manualOverride));
-        }
+        // //// --------------- Elevator Commands ---------------
+        // elevatorPosChange = operatorController.getRightY();
+        // if (Math.abs(elevatorPosChange) > 0.1) {
+        //     elevatorPosChange = elevatorSubsystem.getPosition() + elevatorPosChange;
+        //     elevatorSubsystem.runOnce(() -> new ElevatorToPosCommand(elevatorPosChange, elevatorSubsystem, manualOverride));
+        // }
 
-		//// ----------------- Elbow Commands ----------------
-		operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
-		operatorController.povDown().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos - ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
-		operatorController.povLeft().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos - ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
-		operatorController.povRight().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos + ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
+		// //// ----------------- Elbow Commands ----------------
+		// operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
+		// operatorController.povDown().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos - ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
+		// operatorController.povLeft().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos - ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
+		// operatorController.povRight().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos + ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
 
-        //// ---------------- Manual Override ----------------
-        operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
-        operatorController.start().onTrue(Commands.runOnce(() -> encoderReset = true)); // Reset Encoder Positions for Elevator and Elbow
-        if (encoderReset) {
-            ElevatorSubsystem.resetEncoder();
-            ElbowSubsystem.resetEncoder();
-            manualOverride = false;
-        }
+        // //// ---------------- Manual Override ----------------
+        // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
+        // operatorController.start().onTrue(Commands.runOnce(() -> encoderReset = true)); // Reset Encoder Positions for Elevator and Elbow
+        // if (encoderReset) {
+        //     ElevatorSubsystem.resetEncoder();
+        //     ElbowSubsystem.resetEncoder();
+        //     manualOverride = false;
+        // }
 
 
         /////////////////////////////////////////////////////////
@@ -269,20 +269,21 @@ public class RobotContainer {
 	}
 
 	private void registerCommands() {
-		// // Register the commands here
-		// NamedCommands.registerCommand("ElevatorHomingCommand", new
-		// ElevatorHomingCommand(elevatorSubsystem));
-		// NamedCommands.registerCommand("ElevatorToLVL1",
-		// new ElevatorToPosCommand(ElevatorSubsystem.level1Position,
-		// elevatorSubsystem));
-		// NamedCommands.registerCommand("ElevatorToLVL2",
-		// new ElevatorToPosCommand(ElevatorSubsystem.level2Position,
-		// elevatorSubsystem));
-		// NamedCommands.registerCommand("ElevatorToLVL3",
-		// new ElevatorToPosCommand(ElevatorSubsystem.level3Position,
-		// elevatorSubsystem));
-		// NamedCommands.registerCommand("ElevatorToLVL4",
-		// new ElevatorToPosCommand(ElevatorSubsystem.level4Position,
-		// elevatorSubsystem));
+		// Register the commands here
+		NamedCommands.registerCommand("ArmToLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
+                ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+        NamedCommands.registerCommand("ArmToLevel2", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
+                ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+        NamedCommands.registerCommand("ArmToLevel3", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
+                ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+        NamedCommands.registerCommand("ArmToLevel4", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
+                ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+        NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
+        NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
+        NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 	}
 }

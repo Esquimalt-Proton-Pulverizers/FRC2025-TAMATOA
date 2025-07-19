@@ -11,27 +11,52 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "OpenCoralDoor"
-          }
-        },
-        {
           "type": "wait",
           "data": {
             "waitTime": 1.5
           }
         },
         {
-          "type": "path",
+          "type": "sequential",
           "data": {
-            "pathName": "MoveAwayFromReef"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToLevel1"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "CoralOutake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeStop"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "CloseCoralDoor"
+            "pathName": "MoveAwayFromL1Center"
           }
         }
       ]

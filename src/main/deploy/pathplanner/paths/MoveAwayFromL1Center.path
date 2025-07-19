@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.089094488188977,
-        "y": 7.548818897637796
+        "x": 5.76608606557377,
+        "y": 4.025
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.4948818897637794,
-        "y": 6.733503937007875
+        "x": 5.51608606557377,
+        "y": 4.025
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L1F_Center_Reef"
     },
     {
       "anchor": {
-        "x": 5.112992125984252,
-        "y": 5.116692913385826
+        "x": 6.293545081967213,
+        "y": 4.025
       },
       "prevControl": {
-        "x": 5.417007874015749,
-        "y": 5.6279921259842505
+        "x": 6.57720286885246,
+        "y": 4.025
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "L1F Scoring Position"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 0.4,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 100.0,
     "maxAngularAcceleration": 100,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 150.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": false
 }
