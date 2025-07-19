@@ -99,8 +99,9 @@ public class ElbowSubsystem extends SubsystemBase{
             rightElbowEncoder.setPosition(START_POS_ELEVATION);
             hasBeenInitialized = true;
         }
-        leftElbowEncoder.setPosition(START_POS_ELEVATION);
-        rightElbowEncoder.setPosition(START_POS_ELEVATION);
+
+        leftElbowMotor.getClosedLoopController().setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
+        rightElbowMotor.getClosedLoopController().setReference(-START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
     }
 
     @Override
