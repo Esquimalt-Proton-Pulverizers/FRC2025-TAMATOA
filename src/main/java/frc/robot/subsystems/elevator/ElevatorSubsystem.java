@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -21,27 +20,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ElevatorSubsystem extends SubsystemBase {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  public static final double LOW_POSITION=0;
+  public static final double LOW_POSITION=1.1;
   //public static final double processorPosition=10;
-  public static final double LEVEL1_POSITION=20;
-  public static final double LEVEL2_POSITION=13;
-  public static final double LEVEL3_POSITION=LEVEL2_POSITION+16;
-  public static final double LEVEL4_POSITION=53.5;
-  public static final double NET_POSITION=60;
+  public static final double LEVEL1_POSITION=10.0;
+  public static final double LEVEL2_POSITION=14.5;
+  public static final double LEVEL3_POSITION=LEVEL2_POSITION + 16.0;
+  public static final double LEVEL4_POSITION=55.5;
+  public static final double NET_POSITION=50;
   public static final double CORAL_STATION_POSITION=25;
 
-
-
-
-  //add a timer object
   private Timer timer = new Timer();
-
-  //add a new spark controller
-  //private Spark spark = new Spark(0);
-  //add anew sparkmax brushless
   protected SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
-  //add new victor spx
-  //private WPI_VictorSPX victor = new WPI_VictorSPX(0);
   protected SparkMaxConfig elevatorConfig=new SparkMaxConfig();
   protected SparkClosedLoopController elevatorClosedLoopController=elevatorMotor.getClosedLoopController();
   public RelativeEncoder elevatorEncoder=elevatorMotor.getEncoder();

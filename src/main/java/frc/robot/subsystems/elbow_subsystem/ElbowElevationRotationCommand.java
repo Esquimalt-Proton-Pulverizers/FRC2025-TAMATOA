@@ -10,14 +10,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ElbowElevationRotationCommand extends Command {
   double elevation;
   double rotation; 
-  private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
 
-  private double TOLARCE = 1.0;
+  private static final double TOLERANCE = 1.0;
   public ElbowElevationRotationCommand(double elevation, double rotation,ElbowSubsystem elbowSubsystem) {
     this.elevation = elevation;
     this.rotation = rotation;
-    this.elbowSubsystem = elbowSubsystem;
     this.addRequirements(elbowSubsystem);
   }
   
@@ -26,21 +24,24 @@ public class ElbowElevationRotationCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevate");
-    elbowSubsystem.setElevationRotationPos(elevation, rotation);
+    ElbowSubsystem.setElevationRollPos(elevation, rotation, true);
     atPosition = false;
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLARCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLARCE){
+    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - ElbowSubsystem.leftMotorTargetPos) < TOLERANCE &&
+     Math.abs(ElbowSubsystem.rightElbowEncoder.getPosition() - ElbowSubsystem.rightMotorTargetPos) < TOLERANCE){
       atPosition=true;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override
