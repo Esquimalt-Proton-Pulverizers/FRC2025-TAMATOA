@@ -26,10 +26,10 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double HORIZONTAL_POS_ROTATION  =  90.0;
     public final static double CORAL_COMPENSATION       =  45.0;
 
-    public final static double MIN_ELEVATION =    0.0;
-    public final static double MIN_ROTATION  =    0.0;
-    public final static double MAX_ELEVATION = -100.0;
-    public final static double MAX_ROTATION  =  100.0;
+    // public final static double MIN_ELEVATION =    0.0;
+    // public final static double MIN_ROTATION  =    0.0;
+    // public final static double MAX_ELEVATION = -100.0;
+    // public final static double MAX_ROTATION  =  100.0;
 
     public final static double[] HOMING_POS = {START_POS_ELEVATION - 5.0, START_POS_ROTATION};
     public final static double[] INTAKE_POS = {-98.0, 90.0};
@@ -64,6 +64,11 @@ public class ElbowSubsystem extends SubsystemBase{
 
     public static double targetElevationPos;
     public static double targetRotationPos;
+
+    public static final double MIN_ELEVATION = -105.0;
+    public static final double MAX_ELEVATION =    0.0;
+    public static final double MIN_ROTATION =  -180.0;
+    public static final double MAX_ROTATION =   180.0;
 
     
     public ElbowSubsystem() {
@@ -201,6 +206,10 @@ public class ElbowSubsystem extends SubsystemBase{
     public void manualMove(double elevationIncrement, double rotationIncrement){
         double newElevationTarget = elevationIncrement + targetElevationPos;
         double newRotationTarget = rotationIncrement + targetRotationPos;
-        setElevationRotationPos(newElevationTarget, newRotationTarget, true);
+
+        if (((newElevationTarget >= MIN_ELEVATION) && (newElevationTarget <= MAX_ELEVATION)) &&
+            ((newRotationTarget >= MIN_ROTATION) && (newRotationTarget <= MAX_ROTATION))) {
+                setElevationRotationPos(newElevationTarget, newRotationTarget, true);
+        }
     }
 }
