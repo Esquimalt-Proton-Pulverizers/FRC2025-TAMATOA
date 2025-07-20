@@ -28,6 +28,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   public static final double NET_POSITION    = 50;
   public static final double CORAL_STATION_POSITION = 25;
 
+  private static double elevatorTargetPosition;
+
   // Add a timer object
   private Timer timer = new Timer();
 
@@ -69,14 +71,15 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     // Put code here to be run every loop
     if(timer.hasElapsed(2.0)) {
-      // System.out.println("Elevator Running at position"+elevatorEncoder.getPosition());
+       System.out.println("Elevator target position"+getTargetPosition());
       // System.out.println("Is inverted: " + !isCompetitionRobot);
       System.out.println("Elevator Level: " + getPosition());
       timer.reset();
     }
   }
-  public void setTargetPosition(double targetPosition){
-    elevatorClosedLoopController.setReference(targetPosition, ControlType.kPosition);
+  protected void setTargetPosition(double targetPosition){
+    elevatorTargetPosition = targetPosition;
+    elevatorClosedLoopController.setReference(elevatorTargetPosition, ControlType.kPosition);
   }
 
   public static void resetEncoder() {
@@ -85,5 +88,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public double getPosition() {
     return elevatorEncoder.getPosition();
+  }
+
+  public double getTargetPosition() {
+    return elevatorTargetPosition;
+  }
+  public void manualMove(double distanceIncrement){
+    double newTarget = distanceIncrement + elevatorTargetPosition;
+    setTargetPosition(newTarget);
   }
 }

@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -40,7 +41,7 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private double MaxControlSpeed = 3.0;
-    private double MinControlSpeed = 1.0;
+    private double MinControlSpeed = 1.5;
     private double throttle;
 
 	// Setting up bindings for necessary control of the swerve drive platform
@@ -134,6 +135,9 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         ////// ------------ Operator Controls ------------ //////
         /////////////////////////////////////////////////////////
+        
+        //// -------------------- Cancel All --------------------
+        operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Positions of Elevator and Elbow
         double curElbowElevationPos = elbowSubsystem.getElevationPos();
@@ -157,10 +161,8 @@ public class RobotContainer {
         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 
         //// --------------- Elevator Commands ---------------
-        //operatorController.povUp().onTrue(new ElevatorToPosCommand(elevatorSubsystem.getPosition() + 0.5, elevatorSubsystem, manualOverride));
-        // operatorController.povUp().onTrue(getSaidCommand());
-
-        operatorController.povDown().onTrue(new ElevatorToPosCommand(elevatorSubsystem.getPosition() + 0.5, elevatorSubsystem, manualOverride));
+        operatorController.povUp().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(2.0), elevatorSubsystem));
+        operatorController.povDown().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-2.0), elevatorSubsystem));
 
 		// //// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));

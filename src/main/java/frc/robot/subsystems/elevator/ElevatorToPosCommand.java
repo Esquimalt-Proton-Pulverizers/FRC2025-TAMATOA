@@ -13,17 +13,19 @@ public class ElevatorToPosCommand extends Command {
   double positionRevolutions = 0;  
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
+  private boolean incrementalMove = false;
   private boolean manualOverride = false;
 
   public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem) {
-    this(positionRevolutions, elevatorSubsystem, false);
+    this(positionRevolutions, elevatorSubsystem, false, false);
   }
 
-  public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem, boolean manualOverride) {
+  public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem, boolean incrementalMove, boolean manualOverride) {
     this.positionRevolutions = positionRevolutions;
     this.elevatorSubsystem = elevatorSubsystem;
     this.addRequirements(elevatorSubsystem);
     this.manualOverride = manualOverride;
+    this.incrementalMove = incrementalMove;
   }
   
 
@@ -39,6 +41,13 @@ public class ElevatorToPosCommand extends Command {
     //     positionRevolutions = ElevatorSubsystem.LEVEL4_POSITION;
     //   }
     // }
+
+    if (incrementalMove) {
+      positionRevolutions = elevatorSubsystem.getPosition() + positionRevolutions;
+      System.out.println("Target Position: " + elevatorSubsystem.getTargetPosition());
+      System.out.println("Current Position: " + elevatorSubsystem.getPosition());
+      System.out.println("Elevator position revolution: " + positionRevolutions);
+    }
 
     elevatorSubsystem.setTargetPosition(positionRevolutions);
     atPosition = false;
