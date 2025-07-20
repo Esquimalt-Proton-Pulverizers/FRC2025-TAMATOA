@@ -19,9 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorSubsystem extends SubsystemBase {
   // Position Constants
-  public static final double LOW_POSITION    =  1.1;
-  public static final double LEVEL1_POSITION = 10.0;
-  public static final double LEVEL2_POSITION = 14.5;
+  public static final double LOCK_POSITION   =  0.0;
+  public static final double LOW_POSITION    =  2.0;
+  public static final double LEVEL1_POSITION =  5.0;
+  public static final double LEVEL2_POSITION = 16.5;
   public static final double LEVEL3_POSITION = LEVEL2_POSITION + 16.0;
   public static final double LEVEL4_POSITION = 55.5;
   public static final double NET_POSITION    = 50;
