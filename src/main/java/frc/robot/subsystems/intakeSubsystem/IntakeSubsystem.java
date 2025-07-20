@@ -27,8 +27,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // private static final double OUTAKE_VOLTAGE = 5.0;
 
     private static final double HOLDING_VELOCITY =      0.0;
-    private static final double INTAKE_VELOCITY  =  10000.0; // In terms of coral
-    private static final double OUTAKE_VELOCITY  = -10000.0;
+    private static final double INTAKE_VELOCITY  =  12.0; // In terms of coral
+    private static final double OUTAKE_VELOCITY  = -2.0;
     
     public IntakeSubsystem() {
         // Initialize the subsystem here

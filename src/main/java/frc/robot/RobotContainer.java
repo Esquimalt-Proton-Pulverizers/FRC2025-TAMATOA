@@ -41,12 +41,12 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private double MaxControlSpeed = 3.0;
-    private double MinControlSpeed = 1.5;
-    private double throttle;
+	private final double DRIVE_DEADBAND = 0.0;
+	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
@@ -57,7 +57,8 @@ public class RobotContainer {
 	private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandGenericHID operatorController = new CommandGenericHID(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
-	private static final double XBOX_DEADBAND = 0.1;
+	private static final double XBOX_DEADBAND = 0.05;
+	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -68,7 +69,8 @@ public class RobotContainer {
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
-    public final double ELBOW_MOVEMENT_PER_CLICK = 0.5;
+    public final double ELBOW_ELEVATION_MOVEMENT_PER_CLICK = 1.0;
+	public final double ELBOW_ROTATION_MOVEMENT_PER_CLICK = 10.0;
 
     // Manual Override and Encoder Reset
     private boolean manualOverride = false;
@@ -93,6 +95,16 @@ public class RobotContainer {
 		autoChooser = AutoBuilder.buildAutoChooser("ScoreL1FromCenter"); // @TODO add auto program
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
+	private static double applyDeadband(double value) {
+        if (Math.abs(value) < XBOX_DEADBAND) {
+            return 0.0;
+        }
+
+        // Rescale so the output goes from 0 to 1 outside the deadband
+        double sign = Math.signum(value);
+        double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
+        return sign * adjusted;
+    }
 
 	/**
 	 * Configure all bindings for the robot's controls.
@@ -103,16 +115,13 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
 		//// ----------------- Driving Commands -----------------
-        // Set drive speed (Throttle Control)
-        throttle = (driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed;
-        throttle = throttle > MaxControlSpeed ? MaxControlSpeed : throttle;
         // Drive Controls
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverController.getLeftY() * throttle) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getLeftX() * throttle) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getRightX() * throttle) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -145,36 +154,36 @@ public class RobotContainer {
         double curElevatorPos = elevatorSubsystem.getPosition();
 
         //// ------------------- Arm Controls -------------------
-        operatorController.button(5).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.button(2).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.button(1).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.button(3).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.button(4).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-		operatorController.button(9).onTrue(elbowSubsystem.resetEncoderCommand());
-        operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.button(11).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-        operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(5).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // Left Bumper
+        operatorController.button(2).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // A
+        operatorController.button(1).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // X
+        operatorController.button(3).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // B
+        operatorController.button(4).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // Y
+        operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // Right Bumper
+        operatorController.button(9).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // Back Button
+        // operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 
 
         //// ---------------- Intake Commands ----------------
-        operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
-        operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
-        operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
-        operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
+        operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
         //// --------------- Elevator Commands ---------------
-        operatorController.povUp().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));
-        operatorController.povDown().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));
+        operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
+        operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
 
 		// //// ----------------- Elbow Commands ----------------
-		// operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
-		// operatorController.povDown().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos - ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
-		// operatorController.povLeft().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos - ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
-		// operatorController.povRight().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos, curElbowRotationPos + ELBOW_MOVEMENT_PER_CLICK, elbowSubsystem, manualOverride));
+		operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
+		operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
+		operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
+		operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 
-        // // //// ---------------- Manual Override ----------------
-        // // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
-        operatorController.button(10).onTrue(Commands.runOnce(() -> encoderReset = true)); // Reset Encoder Positions for Elevator and Elbow
+        // //// ---------------- Manual Override ----------------
+        // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
+        // Reset Encoder Positions for Elevator and Elbow
+		operatorController.button(10).onTrue(Commands.runOnce(() -> encoderReset = true)); // Start Button
         if (encoderReset) {
             ElevatorSubsystem.resetEncoder();
             ElbowSubsystem.resetEncoder();

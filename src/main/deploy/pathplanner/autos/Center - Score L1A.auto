@@ -13,19 +13,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "L1FromLeft"
+            "pathName": "Center to L1A"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MoveAwayFromL1Left"
+            "pathName": "MoveAway - FromL1Center"
           }
         }
       ]

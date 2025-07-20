@@ -26,16 +26,16 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double HORIZONTAL_POS_ROTATION  =  90.0;
     public final static double CORAL_COMPENSATION       =  45.0;
 
-    public final static double MIN_ELEVATION =    0.0;
-    public final static double MIN_ROTATION  =    0.0;
-    public final static double MAX_ELEVATION = -100.0;
-    public final static double MAX_ROTATION  =  100.0;
+    // public final static double MIN_ELEVATION =    0.0;
+    // public final static double MIN_ROTATION  =    0.0;
+    // public final static double MAX_ELEVATION = -100.0;
+    // public final static double MAX_ROTATION  =  100.0;
 
     public final static double[] HOMING_POS = {START_POS_ELEVATION - 5.0, START_POS_ROTATION};
     public final static double[] INTAKE_POS = {-98.0, 90.0};
     public final static double[] LOW_POS    = {-26.0, 90.0};
     public final static double[] MIDS_POS   = {-51.5,  0.0};
-    public final static double[] HIGH_POS   = {-67.0,  0.0};
+    public final static double[] HIGH_POS   = {-51.5,  0.0};
     public final static double[] CORAL_POS  = {-26.0, 90.0};
 
     private Timer timer = new Timer();
@@ -45,7 +45,9 @@ public class ElbowSubsystem extends SubsystemBase{
     protected static SparkMax leftElbowMotor  = new SparkMax(2, MotorType.kBrushless);
     protected static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
 
-    protected SparkMaxConfig motorConfig = new SparkMaxConfig();
+    public SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
+    public SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
+
     protected SparkClosedLoopController leftElbowClosedLoopController = leftElbowMotor.getClosedLoopController();
     public static  RelativeEncoder leftElbowEncoder = leftElbowMotor.getEncoder();
     
@@ -60,33 +62,49 @@ public class ElbowSubsystem extends SubsystemBase{
     public double leftMotorPos = 0;
     public double rightMotorPos = 0;
 
+    public static double targetElevationPos;
+    public static double targetRotationPos;
+
+    public static final double MIN_ELEVATION = -105.0;
+    public static final double MAX_ELEVATION =    0.0;
+    public static final double MIN_ROTATION =  -180.0;
+    public static final double MAX_ROTATION =   180.0;
+
     
     public ElbowSubsystem() {
         timer.start();
 
-        motorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
-        .velocityConversionFactor(1);
-        motorConfig.smartCurrentLimit(30,20,50);
+        leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
+            .velocityConversionFactor(1);
+        leftMotorConfig.smartCurrentLimit(30,20,50);
+        double upPIDLimit = 0.4;
+        double downPIDLimit = 0.4;
 
-        motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(0.1).i(0.00000).d(0.0000)
-        .outputRange(-.4, .6, ClosedLoopSlot.kSlot0);
+        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0.1).d(0.0000)
+            .outputRange(-upPIDLimit, downPIDLimit, ClosedLoopSlot.kSlot0);
         
         
-        motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
-        .outputRange(-.4, .4, ClosedLoopSlot.kSlot1);
+        leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
+            .outputRange(-upPIDLimit/2, downPIDLimit/2, ClosedLoopSlot.kSlot1);
 
-        motorConfig.closedLoop.maxMotion
-            // Set MAXMotion parameters for position control. We don't need to pass
-            // a closed loop slot, as it will default to slot 0.
-            .maxVelocity(3000)
-            .maxAcceleration(8000)
-            .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-            
+        rightMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
+            .velocityConversionFactor(1);
+        rightMotorConfig.smartCurrentLimit(30,20,50);
 
-        leftElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        rightElbowMotor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0.1).d(0.0000)
+            .outputRange(-downPIDLimit, upPIDLimit, ClosedLoopSlot.kSlot0);
+        
+        
+        rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+            .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
+            .outputRange(-downPIDLimit/2, upPIDLimit/2, ClosedLoopSlot.kSlot1);
+           
+
+        leftElbowMotor.configure(leftMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        rightElbowMotor.configure(rightMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         leftElbowClosedLoopController.setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
         rightElbowClosedLoopController.setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
     }
@@ -119,22 +137,33 @@ public class ElbowSubsystem extends SubsystemBase{
     }
 
     public void setElevationRotationPos(double elevation, double rotation) {
-        leftMotorPos = -elevation + rotation;
-        rightMotorPos = elevation + rotation;
+        targetElevationPos = elevation;
+        targetRotationPos = rotation;
 
-        leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-        rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        leftMotorPos = -targetElevationPos + targetRotationPos;
+        rightMotorPos = targetElevationPos + targetRotationPos;
+
+        double ff = calculateFF(elevation);
+        leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,-ff);
+        rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,ff);
     }
     public void setElevationRotationPos(double elevation, double rotation, boolean slowMode) {
-        leftMotorPos = -elevation + rotation;
-        rightMotorPos = elevation + rotation;
+        targetElevationPos = elevation;
+        targetRotationPos = rotation;
 
+        leftMotorPos = -targetElevationPos + targetRotationPos;
+        rightMotorPos = targetElevationPos + targetRotationPos;
+
+        double ff = calculateFF(elevation);
         if (slowMode) {
-            leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1);
-            rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1);
+            leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1, -ff);
+            rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1, ff);
         } else {
             setElevationRotationPos(elevation, rotation);
         }
+    }
+    private double calculateFF(double elevation){
+        return Math.cos(Math.toRadians(-elevation))*0.1;//0.3 would be the power required to hold the arm at 90 degrees horizontally
     }
 
     public double getElevationPos() {
@@ -164,5 +193,23 @@ public class ElbowSubsystem extends SubsystemBase{
         return Commands.runOnce(() -> {
             resetEncoder();
         });    
+    }
+
+    public double getTargetElevationPosition() {
+        return targetElevationPos;
+    }
+
+    public double getTargetRotationPosition() {
+        return targetRotationPos;
+    }
+
+    public void manualMove(double elevationIncrement, double rotationIncrement){
+        double newElevationTarget = elevationIncrement + targetElevationPos;
+        double newRotationTarget = rotationIncrement + targetRotationPos;
+
+        if (((newElevationTarget >= MIN_ELEVATION) && (newElevationTarget <= MAX_ELEVATION)) &&
+            ((newRotationTarget >= MIN_ROTATION) && (newRotationTarget <= MAX_ROTATION))) {
+                setElevationRotationPos(newElevationTarget, newRotationTarget, true);
+        }
     }
 }

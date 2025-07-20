@@ -13,19 +13,25 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "L1FromCenter"
+            "pathName": "Left to L1D_Waypoint"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1D_Waypoint to L1D"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
@@ -56,7 +62,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MoveAwayFromL1Center"
+            "pathName": "MoveAway - FromL1D"
           }
         }
       ]
