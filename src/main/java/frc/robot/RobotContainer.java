@@ -41,8 +41,8 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private double MaxControlSpeed = 3.0;
-    private double MinControlSpeed = 1.5;
-	private final double DRIVE_DEADBAND = 0.1;
+	private final double DRIVE_DEADBAND = 0.0;
+	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -57,7 +57,8 @@ public class RobotContainer {
 	private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandGenericHID operatorController = new CommandGenericHID(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
-	private static final double XBOX_DEADBAND = 0.1;
+	private static final double XBOX_DEADBAND = 0.05;
+	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -69,6 +70,7 @@ public class RobotContainer {
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
     public final double ELBOW_MOVEMENT_PER_CLICK = 0.5;
+	
 
     // Manual Override and Encoder Reset
     private boolean manualOverride = false;
@@ -93,6 +95,16 @@ public class RobotContainer {
 		autoChooser = AutoBuilder.buildAutoChooser("ScoreL1FromCenter"); // @TODO add auto program
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
+	private static double applyDeadband(double value) {
+        if (Math.abs(value) < XBOX_DEADBAND) {
+            return 0.0;
+        }
+
+        // Rescale so the output goes from 0 to 1 outside the deadband
+        double sign = Math.signum(value);
+        double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
+        return sign * adjusted;
+    }
 
 	/**
 	 * Configure all bindings for the robot's controls.
@@ -107,9 +119,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverController.getLeftY() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getLeftX() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getRightX() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
             )
         );
 
