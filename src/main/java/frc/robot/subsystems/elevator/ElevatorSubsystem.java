@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 
 
@@ -29,6 +30,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   public static final double CORAL_STATION_POSITION = 19.0;
 
   private static double elevatorTargetPosition;
+
+  public static final double MIN_ELEVATION =  0.0;
+  public static final double MAX_ELEVATION = 62.0;
 
   // Add a timer object
   private Timer timer = new Timer();
@@ -48,7 +52,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
       .p(0.1).i(0.000001).d(0.0000)
-      .outputRange(-.2, .6, ClosedLoopSlot.kSlot0);
+      .outputRange(-.3, .7, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)
@@ -96,5 +100,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void manualMove(double distanceIncrement){
     double newTarget = distanceIncrement + elevatorTargetPosition;
     setTargetPosition(newTarget);
+
+    if ((newTarget >= MIN_ELEVATION) && (newTarget <= MAX_ELEVATION)) {
+      setTargetPosition(newTarget);
+    } else if (RobotContainer.manualOverride) {
+      setTargetPosition(newTarget);
+    }
   }
 }

@@ -18,7 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
@@ -73,7 +75,7 @@ public class RobotContainer {
 	public final double ELBOW_ROTATION_MOVEMENT_PER_CLICK = 10.0;
 
     // Manual Override and Encoder Reset
-    private boolean manualOverride = false;
+    public static boolean manualOverride = false;
     private boolean encoderReset = false;
 
     // Auto scoring variables
@@ -92,7 +94,7 @@ public class RobotContainer {
 		// Register the named commands for auto
 		registerCommands();
         configureBindings();
-		autoChooser = AutoBuilder.buildAutoChooser("ScoreL1FromCenter"); // @TODO add auto program
+		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
 	private static double applyDeadband(double value) {
@@ -174,21 +176,25 @@ public class RobotContainer {
         operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
 
-		// //// ----------------- Elbow Commands ----------------
+		//// ----------------- Elbow Commands ----------------
 		operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
 		operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
 		operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 		operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 
-        // //// ---------------- Manual Override ----------------
-        // operatorController.back().onTrue(Commands.runOnce(() -> manualOverride = !manualOverride)); // Enable/ Disable hard limits
-        // Reset Encoder Positions for Elevator and Elbow
-		operatorController.button(10).onTrue(Commands.runOnce(() -> encoderReset = true)); // Start Button
-        if (encoderReset) {
-            ElevatorSubsystem.resetEncoder();
-            ElbowSubsystem.resetEncoder();
-            manualOverride = false;
-        }
+		//// -------- Manual Override + Encoder Reset --------
+		// If Manual Override is false, become true
+		// If Manual Override is true, reset encoder positions, and then become false
+        operatorController.button(10).onTrue(Commands.runOnce(() -> 
+			new ConditionalCommand(
+				new ParallelCommandGroup(
+					Commands.runOnce(() -> ElevatorSubsystem.resetEncoder()),
+					Commands.runOnce(() -> ElbowSubsystem.resetEncoder()),
+					Commands.runOnce(() -> manualOverride = false)
+				), 
+				Commands.runOnce(() -> manualOverride = true),
+				() -> manualOverride)
+			));
 
 
         /////////////////////////////////////////////////////////
