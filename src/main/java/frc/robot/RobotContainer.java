@@ -42,11 +42,11 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private double MaxControlSpeed = 3.0;
     private double MinControlSpeed = 1.5;
-    private double throttle;
+	private final double DRIVE_DEADBAND = 0.1;
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-			.withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
@@ -103,16 +103,13 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
 		//// ----------------- Driving Commands -----------------
-        // Set drive speed (Throttle Control)
-        throttle = (driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed;
-        throttle = throttle > MaxControlSpeed ? MaxControlSpeed : throttle;
         // Drive Controls
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverController.getLeftY() * throttle) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getLeftX() * throttle) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getRightX() * throttle) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driverController.getLeftY() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverController.getLeftX() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * ((driverController.getRightTriggerAxis() * 2.0) + MinControlSpeed)) // Drive counterclockwise with negative X (left)
             )
         );
 
