@@ -24,9 +24,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   public static final double LEVEL1_POSITION =  5.0;
   public static final double LEVEL2_POSITION = 16.5;
   public static final double LEVEL3_POSITION = LEVEL2_POSITION + 16.0;
-  public static final double LEVEL4_POSITION = 55.5;
+  public static final double LEVEL4_POSITION = 58.0;
   public static final double NET_POSITION    = 50;
-  public static final double CORAL_STATION_POSITION = 25;
+  public static final double CORAL_STATION_POSITION = 19.0;
 
   private static double elevatorTargetPosition;
 

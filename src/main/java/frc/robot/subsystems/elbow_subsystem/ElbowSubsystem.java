@@ -32,13 +32,11 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double MAX_ROTATION  =  100.0;
 
     public final static double[] HOMING_POS = {START_POS_ELEVATION - 5.0, START_POS_ROTATION};
-    public final static double[] INTAKE_POS = {-98.0, 89.0};
+    public final static double[] INTAKE_POS = {-98.0, 90.0};
     public final static double[] LOW_POS    = {-26.0, 90.0};
     public final static double[] MIDS_POS   = {-51.5,  0.0};
-    public final static double[] HIGH_POS   = {-44.0,  0.0};
-
-    public final static double INTAKE_POS_ELEVATION = -98.0;
-    public final static double INTAKE_POS_ROTATION  =  89.0; // To be 90
+    public final static double[] HIGH_POS   = {-67.0,  0.0};
+    public final static double[] CORAL_POS  = {-26.0, 90.0};
 
     private Timer timer = new Timer();
 

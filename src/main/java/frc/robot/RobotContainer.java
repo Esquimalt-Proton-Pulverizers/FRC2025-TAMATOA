@@ -67,7 +67,7 @@ public class RobotContainer {
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     // Manual Movement
-    public double elevatorPosChange;
+    public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
     public final double ELBOW_MOVEMENT_PER_CLICK = 0.5;
 
     // Manual Override and Encoder Reset
@@ -153,6 +153,8 @@ public class RobotContainer {
 		operatorController.button(9).onTrue(elbowSubsystem.resetEncoderCommand());
         operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
         operatorController.button(11).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+
 
         //// ---------------- Intake Commands ----------------
         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
@@ -161,8 +163,8 @@ public class RobotContainer {
         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 
         //// --------------- Elevator Commands ---------------
-        operatorController.povUp().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(2.0), elevatorSubsystem));
-        operatorController.povDown().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-2.0), elevatorSubsystem));
+        operatorController.povUp().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));
+        operatorController.povDown().onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));
 
 		// //// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(new ElbowElevationRotationCommand(curElbowElevationPos + ELBOW_MOVEMENT_PER_CLICK, curElbowRotationPos, elbowSubsystem, manualOverride));
