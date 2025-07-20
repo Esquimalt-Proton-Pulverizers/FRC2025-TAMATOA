@@ -94,7 +94,7 @@ public class RobotContainer {
 		// Register the named commands for auto
 		registerCommands();
         configureBindings();
-		autoChooser = AutoBuilder.buildAutoChooser("ScoreL1FromCenter"); // @TODO add auto program
+		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
 	private static double applyDeadband(double value) {

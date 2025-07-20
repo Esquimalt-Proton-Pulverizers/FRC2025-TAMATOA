@@ -52,7 +52,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
       .p(0.1).i(0.000001).d(0.0000)
-      .outputRange(-.2, .6, ClosedLoopSlot.kSlot0);
+      .outputRange(-.3, .7, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)
