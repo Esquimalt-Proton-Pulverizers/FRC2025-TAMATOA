@@ -61,8 +61,7 @@ public class ElbowElevationRotationCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.getElevationPos() - elevation) < TOLERANCE &&
-        Math.abs(elbowSubsystem.getRotationPos() - rotation) < TOLERANCE){
+    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }

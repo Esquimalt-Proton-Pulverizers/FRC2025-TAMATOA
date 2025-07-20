@@ -142,15 +142,15 @@ public class RobotContainer {
         double curElevatorPos = elevatorSubsystem.getPosition();
 
         //// ------------------- Arm Controls -------------------
-        operatorController.button(5).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS));
-        operatorController.button(2).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
-        operatorController.button(1).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
-        operatorController.button(3).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
-        operatorController.button(4).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
+        operatorController.button(5).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(2).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(1).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(3).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(4).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 		operatorController.button(9).onTrue(elbowSubsystem.resetEncoderCommand());
-        operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS));
-        operatorController.button(11).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS));
-        operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS));
+        operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.button(11).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
+        operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 
 
         //// ---------------- Intake Commands ----------------
@@ -272,15 +272,20 @@ public class RobotContainer {
 	private void registerCommands() {
 		// Register the commands here
 		NamedCommands.registerCommand("ArmToLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS));
+                ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, 0.0));
         NamedCommands.registerCommand("ArmHomingAfterLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                elevatorSubsystem.getPosition(), ElbowSubsystem.HOMING_POS));
+                elevatorSubsystem.getPosition(), ElbowSubsystem.HOMING_POS, elbowSubsystem.getElevationPos(), 
+                elbowSubsystem.getRotationPos(), ElevatorSubsystem.LEVEL1_POSITION));
         NamedCommands.registerCommand("ArmToLevel2", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS));
+                ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("ArmToLevel3", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS));
+                ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("ArmToLevel4", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS));
+                ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, ElbowSubsystem.START_POS_ELEVATION, 
+                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
