@@ -16,6 +16,8 @@ public class ElevatorToPosCommand extends Command {
   private boolean incrementalMove = false;
   private boolean manualOverride = false;
 
+  private final double TOLERANCE = 1.0;
+
   public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem) {
     this(positionRevolutions, elevatorSubsystem, false, false);
   }
@@ -56,7 +58,7 @@ public class ElevatorToPosCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-positionRevolutions)<1.0){
+    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition() - positionRevolutions) < 1.0){
       atPosition=true;
     }
   }
