@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class ElbowSubsystem extends SubsystemBase{
     public final static double START_POS_ELEVATION = 0.0;
@@ -126,9 +127,6 @@ public class ElbowSubsystem extends SubsystemBase{
     public void periodic() {
       // Put code here to be run every loop
       if(timer.hasElapsed(2.0)) {
-        // System.out.println("LeftElbowPos" + leftElbowEncoder.getPosition());
-        // System.out.println("RightElbowPos" + rightElbowEncoder.getPosition());
-
         System.out.println("-----------------------");
         System.out.println("Elbow Elevation: " + getElevationPos());
         System.out.println("Elbow Rotation: " + getRotationPos());
@@ -210,6 +208,8 @@ public class ElbowSubsystem extends SubsystemBase{
         if (((newElevationTarget >= MIN_ELEVATION) && (newElevationTarget <= MAX_ELEVATION)) &&
             ((newRotationTarget >= MIN_ROTATION) && (newRotationTarget <= MAX_ROTATION))) {
                 setElevationRotationPos(newElevationTarget, newRotationTarget, true);
+        } else if (RobotContainer.manualOverride) {
+            setElevationRotationPos(newElevationTarget, newRotationTarget, true);
         }
     }
 }

@@ -17,7 +17,6 @@ public class ElbowElevationRotationCommand extends Command {
   double rotation; 
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
-  private boolean manualOverride = false;
 
   private static final double TOLERANCE = 3.0;
   public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
@@ -29,7 +28,6 @@ public class ElbowElevationRotationCommand extends Command {
     this.rotation = rotation;
     this.elbowSubsystem = elbowSubsystem;
     this.addRequirements(elbowSubsystem);
-    this.manualOverride = manualOverride;
   }
   
 
@@ -37,20 +35,6 @@ public class ElbowElevationRotationCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevate");
-
-    // if (!manualOverride) {
-    //   if (elevation < ElbowSubsystem.MIN_ELEVATION) {
-    //     elevation = ElbowSubsystem.MIN_ELEVATION;
-    //   } else if (elevation > ElbowSubsystem.MAX_ELEVATION) {
-    //     elevation = ElbowSubsystem.MAX_ELEVATION;
-    //   }
-
-    //   if (rotation < ElbowSubsystem.MIN_ROTATION) {
-    //     rotation = ElbowSubsystem.MIN_ROTATION;
-    //   } else if (rotation > ElbowSubsystem.MAX_ROTATION) {
-    //     rotation = ElbowSubsystem.MAX_ROTATION;
-    //   }
-    // }
 
     elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
