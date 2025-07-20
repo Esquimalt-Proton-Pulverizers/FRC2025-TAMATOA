@@ -13,8 +13,6 @@ public class WinchManualTestingCommand extends Command {
         targetPosition = speed;
     }
 
-   
-
     @Override
     public void initialize() {
         hangingSubsystem.setWinchPosition(targetPosition);

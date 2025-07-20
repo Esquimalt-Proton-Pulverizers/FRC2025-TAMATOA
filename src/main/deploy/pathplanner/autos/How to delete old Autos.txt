@@ -1,0 +1,4 @@
+In windows explorer go to ftp://10.TE.AM.2/home/lvuser/deploy/pathplanner/autos/
+Delete any unwanted autos, or delete the entire contents and rebuild the robot code.
+
+If prompted to log in, just enter "anonymous" as the user, and no password.

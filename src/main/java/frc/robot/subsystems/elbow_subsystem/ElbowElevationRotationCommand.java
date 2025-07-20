@@ -4,21 +4,32 @@
 
 package frc.robot.subsystems.elbow_subsystem;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
+/** 
+ * An example command that uses an example subsystem. 
+ * */
 public class ElbowElevationRotationCommand extends Command {
   double elevation;
   double rotation; 
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
+  private boolean manualOverride = false;
 
-  private double TOLARCE = 1.0;
-  public ElbowElevationRotationCommand(double elevation, double rotation,ElbowSubsystem elbowSubsystem) {
+  private static final double TOLERANCE = 3.0;
+  public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
+    this(elevation, rotation, elbowSubsystem, false);
+  }
+
+  public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem, boolean manualOverride) {
     this.elevation = elevation;
     this.rotation = rotation;
     this.elbowSubsystem = elbowSubsystem;
     this.addRequirements(elbowSubsystem);
+    this.manualOverride = manualOverride;
   }
   
 
@@ -26,21 +37,39 @@ public class ElbowElevationRotationCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevate");
-    elbowSubsystem.setElevationRotationPos(elevation, rotation);
+
+    // if (!manualOverride) {
+    //   if (elevation < ElbowSubsystem.MIN_ELEVATION) {
+    //     elevation = ElbowSubsystem.MIN_ELEVATION;
+    //   } else if (elevation > ElbowSubsystem.MAX_ELEVATION) {
+    //     elevation = ElbowSubsystem.MAX_ELEVATION;
+    //   }
+
+    //   if (rotation < ElbowSubsystem.MIN_ROTATION) {
+    //     rotation = ElbowSubsystem.MIN_ROTATION;
+    //   } else if (rotation > ElbowSubsystem.MAX_ROTATION) {
+    //     rotation = ElbowSubsystem.MAX_ROTATION;
+    //   }
+    // }
+
+    elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
+
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLARCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLARCE){
+    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override

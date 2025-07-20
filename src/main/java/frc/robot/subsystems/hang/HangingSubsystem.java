@@ -17,13 +17,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public final class HangingSubsystem extends SubsystemBase {
     // Constants 
-
     private final int WINCH_MOTOR_CAN_ID = 10;
     private final int LATCH_SERVO_PORT = 0;
     private final int INTAKE_MOTOR_CANID = 11;
@@ -32,19 +30,14 @@ public final class HangingSubsystem extends SubsystemBase {
     private final double HOLDING_VOLTAGE = 0.0;
 
     // Hardware
-
     private  SparkMax winchMotor;
     private SparkClosedLoopController winchController;
     private RelativeEncoder winchEncoder; 
     private Servo latchServo;
     private SparkMax intakeMotor;
     private SparkClosedLoopController intakeController;
-    private RelativeEncoder intakeMotorEncoder;
 
-    // State
-
-    private Timer winchToPositionTimer;
-
+    
     public HangingSubsystem() {
         winchMotor = new SparkMax(WINCH_MOTOR_CAN_ID, MotorType.kBrushless);
         
@@ -78,7 +71,7 @@ public final class HangingSubsystem extends SubsystemBase {
         
         intakeMotor = new SparkMax(INTAKE_MOTOR_CANID, MotorType.kBrushless);
         intakeMotorConfig.closedLoop.maxMotion
-        // Set MAXMotion parameters for position control. We don't need to pass
+            // Set MAXMotion parameters for position control. We don't need to pass
             // a closed loop slot, as it will default to slot 0.
             .maxVelocity(3000)
             .maxAcceleration(8000)
@@ -88,9 +81,9 @@ public final class HangingSubsystem extends SubsystemBase {
         intakeMotor.configure(intakeMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         intakeController = intakeMotor.getClosedLoopController();
         intakeController.setReference(0, SparkMax.ControlType.kVoltage);
-        intakeMotorEncoder = intakeMotor.getEncoder();    
+        intakeMotor.getEncoder();    
 
-        winchToPositionTimer = new Timer();
+        new Timer();
     }
 
     private void setLatchServoPosition(LatchServoPosition position) {
@@ -109,8 +102,7 @@ public final class HangingSubsystem extends SubsystemBase {
         return winchEncoder.getPosition();
     }
 
-    //Commands
-
+    // Commands
     public SequentialCommandGroup extend() {
         return new SequentialCommandGroup(
             release(),
