@@ -62,6 +62,9 @@ public class ElbowSubsystem extends SubsystemBase{
     public double leftMotorPos = 0;
     public double rightMotorPos = 0;
 
+    public static double targetElevationPos;
+    public static double targetRotationPos;
+
     
     public ElbowSubsystem() {
         timer.start();
@@ -129,15 +132,22 @@ public class ElbowSubsystem extends SubsystemBase{
     }
 
     public void setElevationRotationPos(double elevation, double rotation) {
-        leftMotorPos = -elevation + rotation;
-        rightMotorPos = elevation + rotation;
+        targetElevationPos = elevation;
+        targetRotationPos = rotation;
+
+        leftMotorPos = -targetElevationPos + targetRotationPos;
+        rightMotorPos = targetElevationPos + targetRotationPos;
+
         double ff = calculateFF(elevation);
         leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,-ff);
         rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,ff);
     }
     public void setElevationRotationPos(double elevation, double rotation, boolean slowMode) {
-        leftMotorPos = -elevation + rotation;
-        rightMotorPos = elevation + rotation;
+        targetElevationPos = elevation;
+        targetRotationPos = rotation;
+
+        leftMotorPos = -targetElevationPos + targetRotationPos;
+        rightMotorPos = targetElevationPos + targetRotationPos;
 
         double ff = calculateFF(elevation);
         if (slowMode) {
@@ -178,5 +188,19 @@ public class ElbowSubsystem extends SubsystemBase{
         return Commands.runOnce(() -> {
             resetEncoder();
         });    
+    }
+
+    public double getTargetElevationPosition() {
+        return targetElevationPos;
+    }
+
+    public double getTargetRotationPosition() {
+        return targetRotationPos;
+    }
+
+    public void manualMove(double elevationIncrement, double rotationIncrement){
+        double newElevationTarget = elevationIncrement + targetElevationPos;
+        double newRotationTarget = rotationIncrement + targetRotationPos;
+        setElevationRotationPos(newElevationTarget, newRotationTarget, true);
     }
 }
