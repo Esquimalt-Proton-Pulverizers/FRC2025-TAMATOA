@@ -69,8 +69,8 @@ public class ElbowSubsystem extends SubsystemBase{
         leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
             .velocityConversionFactor(1);
         leftMotorConfig.smartCurrentLimit(30,20,50);
-        double upPIDLimit = 0.6;
-        double downPIDLimit = 0.1;
+        double upPIDLimit = 0.4;
+        double downPIDLimit = 0.4;
 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .p(0.1).d(0.0000)
@@ -148,7 +148,7 @@ public class ElbowSubsystem extends SubsystemBase{
         }
     }
     private double calculateFF(double elevation){
-        return Math.cos(Math.toRadians(-elevation))*0.3;//0.3 would be the power required to hold the arm at 90 degrees horizontally
+        return Math.cos(Math.toRadians(-elevation))*0.1;//0.3 would be the power required to hold the arm at 90 degrees horizontally
     }
 
     public double getElevationPos() {
