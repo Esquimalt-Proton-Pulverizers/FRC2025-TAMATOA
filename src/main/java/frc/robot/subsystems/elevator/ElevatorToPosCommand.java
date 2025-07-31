@@ -10,20 +10,14 @@ import edu.wpi.first.wpilibj2.command.Command;
  * An example command that uses an example subsystem. 
  */
 public class ElevatorToPosCommand extends Command {
-  double positionRevolutions = 0;  
+  double positionInches = 0;  
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
-  private boolean incrementalMove = false;
 
-  public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem) {
-    this(positionRevolutions, elevatorSubsystem, false, false);
-  }
-
-  public ElevatorToPosCommand(double positionRevolutions,ElevatorSubsystem elevatorSubsystem, boolean incrementalMove, boolean manualOverride) {
-    this.positionRevolutions = positionRevolutions;
+  public ElevatorToPosCommand(double positionInches,ElevatorSubsystem elevatorSubsystem) {
+    this.positionInches = positionInches;
     this.elevatorSubsystem = elevatorSubsystem;
     this.addRequirements(elevatorSubsystem);
-    this.incrementalMove = incrementalMove;
   }
   
 
@@ -32,21 +26,14 @@ public class ElevatorToPosCommand extends Command {
   public void initialize() {
     System.out.println("StartingElevatorMove");
 
-    if (incrementalMove) {
-      positionRevolutions = elevatorSubsystem.getPosition() + positionRevolutions;
-      System.out.println("Target Position: " + elevatorSubsystem.getTargetPosition());
-      System.out.println("Current Position: " + elevatorSubsystem.getPosition());
-      System.out.println("Elevator position revolution: " + positionRevolutions);
-    }
-
-    elevatorSubsystem.setTargetPosition(positionRevolutions);
+    elevatorSubsystem.setTargetPosition(positionInches);
     atPosition = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-positionRevolutions)<1.0){
+    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-positionInches)<1.0){
       atPosition=true;
     }
   }

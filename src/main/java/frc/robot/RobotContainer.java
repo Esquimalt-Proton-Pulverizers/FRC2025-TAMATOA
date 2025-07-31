@@ -124,10 +124,10 @@ public class RobotContainer {
         //     )
         // );
 
-		// Reset the field-centric heading on left bumper press
+		// // Reset the field-centric heading on left bumper press
 		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // Brake Mode - Stop robot from being moved
+        // // Brake Mode - Stop robot from being moved
 		// driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
 
 
@@ -148,12 +148,7 @@ public class RobotContainer {
         operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Positions of Elevator and Elbow
-        
         double curElevatorPos = elevatorSubsystem.getPosition();
-
-        //// ------------------- Arm Controls -------------------
-       // operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
-
 
         //// ---------------- Intake Commands ----------------
         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
@@ -164,18 +159,11 @@ public class RobotContainer {
         //// --------------- Elevator Commands ---------------
         operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-
-		//// -------- Manual Override + Encoder Reset --------
-		// If Manual Override is false, become true
-		// If Manual Override is true, reset encoder positions, and then become false
-       
-
+		operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    // DPad Up
 	}
 
 	public Command getAutonomousCommand() {
 		/* Run the path selected from the auto chooser */
 		return autoChooser.getSelected();
 	}
-
-	
 }
