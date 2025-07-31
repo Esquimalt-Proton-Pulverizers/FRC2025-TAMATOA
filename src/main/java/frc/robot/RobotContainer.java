@@ -27,6 +27,7 @@ import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
+import frc.robot.subsystems.elevator.ElevatorInchUpCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
@@ -159,7 +160,9 @@ public class RobotContainer {
         //// --------------- Elevator Commands ---------------
         operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    // DPad Up
+		operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    
+		operatorController.button(10).onTrue(new ElevatorInchUpCommand(1.0, elevatorSubsystem));    
+
 	}
 
 	public Command getAutonomousCommand() {
