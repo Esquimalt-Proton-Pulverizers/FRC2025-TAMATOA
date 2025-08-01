@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ElevatorInchUpCommand extends Command { 
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
+  private double movementDistance;
   private double targetPosition = 0.0; // Target position for the elevator
-  public ElevatorInchUpCommand(ElevatorSubsystem elevatorSubsystem) {
+  public ElevatorInchUpCommand(double movementDistance, ElevatorSubsystem elevatorSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
     this.addRequirements(elevatorSubsystem);
   }
@@ -23,7 +24,7 @@ public class ElevatorInchUpCommand extends Command {
   @Override
   public void initialize() {
     System.out.println("StartingElevatorMove");
-    targetPosition = elevatorSubsystem.getPosition() + 1.0; // Increment target position by 1 inch
+    targetPosition = elevatorSubsystem.getPosition() + movementDistance; // Increment target position by 1 inch
     elevatorSubsystem.setTargetPosition(targetPosition); // Move up by 1 inch
     atPosition = false;
   }
