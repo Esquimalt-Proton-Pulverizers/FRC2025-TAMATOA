@@ -162,6 +162,7 @@ public class RobotContainer {
         operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
 		operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    // Back Button
         operatorController.button(10).onTrue(new ElevatorInchUpCommand(elevatorSubsystem));     // Start Button
+        //operatorController.button(1).onFalse(new ElevatorInchDownCommand(elevatorSubsystem)); // Start Button
 	}  
 
 	public Command getAutonomousCommand() {
