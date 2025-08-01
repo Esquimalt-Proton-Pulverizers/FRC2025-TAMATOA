@@ -30,6 +30,7 @@ public class ElevatorInchUpCommand extends Command {
     atPosition = false;
     targetPosition = (elevatorSubsystem.elevatorEncoder.getPosition()+incrementInches);
     elevatorSubsystem.setTargetPosition(targetPosition);
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
