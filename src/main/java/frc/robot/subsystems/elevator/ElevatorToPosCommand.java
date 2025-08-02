@@ -16,6 +16,7 @@ public class ElevatorToPosCommand extends Command {
   private boolean atPosition = false;
   private final double MAX_VELOCITY = 5.0; // Max speed in inches/sec
   private final double MAX_ACCELERATION = 2.0; // Max acceleration in inches/sec^2
+  private final double MAX_DECELERATION = 1.0; // Max deceleration in inches/sec^2
   private double targetDistance = 0.0; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -33,12 +34,17 @@ public class ElevatorToPosCommand extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+      if (Math.abs(targetDistance) < 0.01) { // Tolerance for "already at position"
+    atPosition = true;
+    return;
+      } else {
       startPosition = elevatorSubsystem.getPosition(); // Get the current position of the elevator
       currentTime = 0.0; // Reset current time
       System.out.println("StartingElevatorMove");
       targetDistance = startPosition - targetPositionInches;
-      trapezoidalMotionProfile = TrapezoidalMotionProfile.generateProfile(MAX_VELOCITY, MAX_ACCELERATION, targetDistance);
+      trapezoidalMotionProfile = TrapezoidalMotionProfile.generateProfile(MAX_DECELERATION, MAX_VELOCITY, MAX_ACCELERATION, targetDistance);
       atPosition = false;
+      }
     }
   
     // Called every time the scheduler runs while the command is scheduled.
@@ -59,11 +65,9 @@ public class ElevatorToPosCommand extends Command {
                          (MAX_VELOCITY * (currentTime - tConstStart));
     } else if (currentTime <= trapezoidalMotionProfile.tTotal) {
         // Deceleration phase
-        double tDecelStart = trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst;
-        double tDecel = currentTime - tDecelStart;
         deltaPosition = (0.5 * MAX_ACCELERATION * trapezoidalMotionProfile.tAccel * trapezoidalMotionProfile.tAccel) +
                          (MAX_VELOCITY * trapezoidalMotionProfile.tConst) +
-                         (MAX_VELOCITY * tDecel - 0.5 * MAX_ACCELERATION * tDecel * tDecel);
+                         (MAX_VELOCITY * trapezoidalMotionProfile.tDeccel - 0.5 * MAX_DECELERATION * trapezoidalMotionProfile.tDeccel * trapezoidalMotionProfile.tDeccel);
     } else {
         // Motion profile complete
         deltaPosition = targetPositionInches;
@@ -94,37 +98,44 @@ public class ElevatorToPosCommand extends Command {
     return atPosition;
   }
 public class TrapezoidalMotionProfile {
-  public static MotionProfileResult generateProfile(double vMax, double aMax, double dTarget) {
+  public static MotionProfileResult generateProfile(double deMax, double vMax, double aMax, double dTarget) {
       double tAccel = vMax / aMax;
       double dAccel = 0.5 * aMax * tAccel * tAccel;
+
+      double tDeccel = vMax / deMax;
+      double dDeccel = 0.5 * deMax * tDeccel * tDeccel;
 
       double vPeak = vMax;
       double tConst = 0;
       double dConst = 0;
 
       // Check if the profile is triangular
-      if (2 * dAccel >= Math.abs(dTarget)) {
-          vPeak = Math.sqrt(aMax * Math.abs(dTarget));
-          tAccel = vPeak / aMax;
-          dAccel = 0.5 * aMax * tAccel * tAccel;
-      } else {
-          dConst = Math.abs(dTarget) - 2 * dAccel;
-          tConst = dConst / vMax;
-      }
+      if (dDeccel + dAccel >= Math.abs(dTarget)) {
+        vPeak = Math.sqrt((2 * Math.abs(dTarget)) / ((1 / aMax) + (1 / deMax)));;
+        tAccel = vPeak / aMax;
+        dAccel = 0.5 * aMax * tAccel * tAccel;
+        tDeccel = vPeak / deMax;
+        dDeccel = 0.5 * deMax * tDeccel * tDeccel;
+    } else {
+        dConst = Math.abs(dTarget) - (dAccel + dDeccel);
+        tConst = dConst / vMax;
+    }
 
       double tTotal = 2 * tAccel + tConst;
 
-      return new MotionProfileResult(tAccel, tConst, tTotal, vPeak);
+      return new MotionProfileResult(tAccel, tDeccel, tConst, tTotal, vPeak);
   }
   // Helper class to store the result
   public static class MotionProfileResult {
       public final double tAccel;
+      public final double tDeccel;
       public final double tConst;
       public final double tTotal;
       public final double vPeak;
 
-      public MotionProfileResult(double tAccel, double tConst, double tTotal, double vPeak) {
+      public MotionProfileResult(double tAccel, double tDeccel, double tConst, double tTotal, double vPeak) {
           this.tAccel = tAccel;
+          this.tDeccel = tDeccel;
           this.tConst = tConst;
           this.tTotal = tTotal;
           this.vPeak = vPeak;
