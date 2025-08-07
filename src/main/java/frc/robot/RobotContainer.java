@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.signals.MotorOutputStatusValue;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -167,8 +168,12 @@ public class RobotContainer {
 		operatorController.povUp().onTrue(Commands.runOnce(() -> motorTesting.kSlotIncrementOne()));
 		operatorController.povDown().onTrue(Commands.runOnce(() -> motorTesting.kSlotDecrementOne()));
 
-		operatorController.povLeft().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,MotorTesting.kSlot)));
-		operatorController.povRight().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,MotorTesting.kSlot)));
+		operatorController.povLeft().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10)));
+		operatorController.povRight().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0)));
+
+		operatorController.rightBumper().onTrue(Commands.runOnce(() -> motorTesting.posDecrease()));
+		operatorController.leftBumper().onTrue(Commands.runOnce(() -> motorTesting.posIncrease()));
+		operatorController.rightStick().onTrue(Commands.runOnce(() -> motorTesting.intakeToPos()));
 
 		// operatorController.button(1).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,0)));  	
 		// operatorController.button(2).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,1)));  	

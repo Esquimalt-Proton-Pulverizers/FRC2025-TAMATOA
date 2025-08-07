@@ -4,7 +4,11 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -18,11 +22,28 @@ public class MotorTesting extends SubsystemBase{
     protected SparkMaxConfig defaultConfig = new SparkMaxConfig();
     private Timer timer = new Timer();
 	public static int kSlot = 0;
+    private static double motorPos = 0;
+
+
+    public void posIncrease(){
+        motorPos += 3;
+    }
+    public void posDecrease(){
+        motorPos -= 3;
+    }
+
+    public Command intakeToPos(){
+        return new StartEndCommand(
+            () -> intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kVoltage), 
+            () -> new InstantCommand(){}, 
+            this);
+    }
+
 
     public MotorTesting(){
         defaultConfig.smartCurrentLimit(30,10,100);
         defaultConfig.closedLoop.pid(1,0,0,ClosedLoopSlot.kSlot0);
-        defaultConfig.closedLoop.pid(10,0,0,ClosedLoopSlot.kSlot1);
+        defaultConfig.closedLoop.pid(.1,0,0,ClosedLoopSlot.kSlot1);
         defaultConfig.closedLoop.pid(1,0,1,ClosedLoopSlot.kSlot2);
         defaultConfig.closedLoop.pid(0,0.00001,0,ClosedLoopSlot.kSlot3);
 
@@ -32,11 +53,24 @@ public class MotorTesting extends SubsystemBase{
     }
 
     public void driveMotorToPos(double position, int slot){
-        ClosedLoopSlot loopSlot = slotFromInt(slot);
+        if (slot == 0){
+            intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot0);
+       } else if (slot == 1){
+           intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot1);
+       }else if (slot == 2){
+           intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot2);
+       }else if (slot == 3){
+           intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot3);
+        } else {
+            System.err.println("Invalid PID slot: " + slot);
+        }
+    }
+    public void driveMotorToPos(double position){
+        ClosedLoopSlot loopSlot = slotFromInt(kSlot);
         if (loopSlot != null) {
             intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition, loopSlot);
         } else {
-            System.err.println("Invalid PID slot: " + slot);
+            System.err.println("Invalid PID slot: " + kSlot);
         }
     }
 
@@ -61,15 +95,7 @@ public class MotorTesting extends SubsystemBase{
             default: return null; 
         }
     }
-    //     if (slot == 0){
-    //          intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot0);
-    //     } else if (slot == 1){
-    //         intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot1);
-    //     }else if (slot == 2){
-    //         intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot2);
-    //     }else if (slot == 3){
-    //         intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot3);
-    //     }
+        
 
     // }
     
@@ -78,6 +104,7 @@ public class MotorTesting extends SubsystemBase{
         if (timer.hasElapsed(2)){
             System.out.println(intakeMotor.getEncoder().getPosition());
             System.out.println("kSlot value: " + kSlot);
+            System.out.println("Motor Pos: " + motorPos);
             timer.reset();
             
         }
