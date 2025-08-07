@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.MotorTesting;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elevator.ElevatorInchUpCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -66,7 +67,9 @@ public class RobotContainer {
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	public final MotorTesting motorTesting = new MotorTesting();
+
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
@@ -146,23 +149,29 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
         //// -------------------- Cancel All --------------------
-        operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
+        // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Positions of Elevator and Elbow
         double curElevatorPos = elevatorSubsystem.getPosition();
 
         //// ---------------- Intake Commands ----------------
-        operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-        operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-        operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-        operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        // operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+
+		//Motor Testing//
+		operatorController.button(7).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10)));  // Left Trigger	
+		operatorController.button(8).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0)));  // Left Trigger	
+
+
 
         //// --------------- Elevator Commands ---------------
-        operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
-        operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
+        // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
+        // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
 		// operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    
-		operatorController.button(10).onTrue(new ElevatorInchUpCommand(1.0, elevatorSubsystem));    
-		operatorController.button(9).onTrue(new ElevatorInchUpCommand(-10.0, elevatorSubsystem));    
+		// operatorController.button(10).onTrue(new ElevatorInchUpCommand(1.0, elevatorSubsystem));    
+		// operatorController.button(9).onTrue(new ElevatorInchUpCommand(-10.0, elevatorSubsystem));    
 
 	}
 
