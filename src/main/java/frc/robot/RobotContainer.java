@@ -173,7 +173,7 @@ public class RobotContainer {
 
 		operatorController.rightBumper().onTrue(Commands.runOnce(() -> motorTesting.posDecrease()));
 		operatorController.leftBumper().onTrue(Commands.runOnce(() -> motorTesting.posIncrease()));
-		operatorController.rightStick().onTrue(Commands.runOnce(() -> motorTesting.intakeToPos()));
+		operatorController.rightStick().onTrue(motorTesting.intakeToPos());
 
 		// operatorController.button(1).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,0)));  	
 		// operatorController.button(2).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,1)));  	

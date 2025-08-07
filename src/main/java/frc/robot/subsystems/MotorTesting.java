@@ -5,7 +5,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
@@ -33,9 +35,8 @@ public class MotorTesting extends SubsystemBase{
     }
 
     public Command intakeToPos(){
-        return new StartEndCommand(
-            () -> intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kVoltage), 
-            () -> new InstantCommand(){}, 
+        return 
+            Commands.runOnce(() -> intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kPosition),
             this);
     }
 
