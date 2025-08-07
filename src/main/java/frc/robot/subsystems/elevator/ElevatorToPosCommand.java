@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems.elevator;
 
+import java.util.ResourceBundle.Control;
+
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
@@ -17,6 +22,8 @@ public class ElevatorToPosCommand extends Command {
   private final double MAX_VELOCITY = 15.0; // Max speed in inches/sec
   private final double MAX_ACCELERATION = 15.0; // Max acceleration in inches/sec^2
   private final double MAX_DECELERATION = 3.0; // Max deceleration in inches/sec^2
+  private final double kV = 0.003; // Feedforward gain for velocity
+  private final double kA = 0.01; // Feedforward gain for acceleration
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -51,6 +58,8 @@ public class ElevatorToPosCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    double targetVelocity = 0.0;
+    double targetAcceleration = 0.0;
     if (atPosition){
       elevatorSubsystem.setTargetPosition(targetPositionInches);
       return;
@@ -63,11 +72,15 @@ public class ElevatorToPosCommand extends Command {
     if (currentTime <= trapezoidalMotionProfile.tAccel) {
       // Acceleration phase
       deltaPosition = 0.5 * MAX_ACCELERATION * currentTime * currentTime;
+      targetAcceleration = MAX_ACCELERATION;
+      targetVelocity = MAX_ACCELERATION * currentTime;
     } else if (currentTime <= trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst) {
       // Constant velocity phase
       double tConstStart = trapezoidalMotionProfile.tAccel;
       deltaPosition = (0.5 * MAX_ACCELERATION * tConstStart * tConstStart) +
                      (MAX_VELOCITY * (currentTime - tConstStart));
+      targetAcceleration = 0;
+      targetVelocity = MAX_VELOCITY;
     } else if (currentTime <= trapezoidalMotionProfile.tTotal) {
       // Deceleration phase
       double tDecelStart = trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst;
@@ -75,6 +88,8 @@ public class ElevatorToPosCommand extends Command {
       deltaPosition = (0.5 * MAX_ACCELERATION * trapezoidalMotionProfile.tAccel * trapezoidalMotionProfile.tAccel) +
                       (MAX_VELOCITY * trapezoidalMotionProfile.tConst) +
                       (MAX_VELOCITY * tSpentDecel - 0.5 * MAX_DECELERATION * tSpentDecel * tSpentDecel);
+      targetAcceleration = -MAX_DECELERATION;
+      targetVelocity = MAX_VELOCITY - MAX_DECELERATION * tSpentDecel;
     } else {
       // Motion profile complete
       deltaPosition = Math.abs(targetDistance);
@@ -83,15 +98,17 @@ public class ElevatorToPosCommand extends Command {
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
-      elevatorSubsystem.setTargetPosition(startPosition - deltaPosition);
+      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration;
+      //elevatorSubsystem.setTargetPosition(startPosition - deltaPosition);
+      elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition - deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
     }
     else {
-      elevatorSubsystem.setTargetPosition(startPosition + deltaPosition);
+      double FFVoltage = kV * targetVelocity + kA * targetAcceleration;
+      elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition + deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
     }
     if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<1.0){
       atPosition=true;
       elevatorSubsystem.setTargetPosition(targetPositionInches);
-
     }
   }
 
