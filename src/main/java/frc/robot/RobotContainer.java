@@ -133,12 +133,12 @@ public class RobotContainer {
 
 
         //// ----------------- Hanging Controls -----------------
-		driverController.povUp().onTrue(hanger.extend());
-        driverController.povDown().onTrue(hanger.retract());
-		driverController.leftBumper().onTrue(hanger.intake());
-        driverController.leftBumper().onFalse(hanger.stop());
-        driverController.back().onTrue(hanger.manualRetract());
-        driverController.back().onFalse(hanger.resetWinch());
+		// driverController.povUp().onTrue(hanger.extend());
+        // driverController.povDown().onTrue(hanger.retract());
+		// driverController.leftBumper().onTrue(hanger.intake());
+        // driverController.leftBumper().onFalse(hanger.stop());
+        // driverController.back().onTrue(hanger.manualRetract());
+        // driverController.back().onFalse(hanger.resetWinch());
 
 
         /////////////////////////////////////////////////////////
@@ -146,22 +146,26 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
         //// -------------------- Cancel All --------------------
-        operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
+        //operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Positions of Elevator and Elbow
         double curElevatorPos = elevatorSubsystem.getPosition();
 
         //// ---------------- Intake Commands ----------------
-        operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-        operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-        operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-        operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        // operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
         //// --------------- Elevator Commands ---------------
-        operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
-        operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(9).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));    // Back Button
-        operatorController.button(10).onTrue(new ElevatorInchUpCommand(1.0, elevatorSubsystem));     // Start Button
+        // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
+        // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
+        operatorController.button(1).whileTrue(new ElevatorToPosCommand(10.0, elevatorSubsystem));
+        operatorController.button(2).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));
+        operatorController.button(3).onTrue(new ElevatorToPosCommand(30.0, elevatorSubsystem));
+        operatorController.button(4).onTrue(new ElevatorToPosCommand(40.0, elevatorSubsystem));
+		operatorController.button(9).onTrue(new ElevatorInchUpCommand(-2.0, elevatorSubsystem));    // Back Button
+        operatorController.button(10).onTrue(new ElevatorInchUpCommand(2.0, elevatorSubsystem));     // Start Button
         //operatorController.button(1).onFalse(new ElevatorInchDownCommand(elevatorSubsystem)); // Start Button
 	}  
 

@@ -16,6 +16,7 @@ public class ElevatorInchUpCommand extends Command {
   private double targetPosition = 0.0; // Target position for the elevator
   public ElevatorInchUpCommand(double movementDistance, ElevatorSubsystem elevatorSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
+    this.movementDistance = movementDistance;
     this.addRequirements(elevatorSubsystem);
   }
   
