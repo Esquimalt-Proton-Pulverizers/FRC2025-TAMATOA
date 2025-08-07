@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.elevator;
 
-import java.util.ResourceBundle.Control;
-
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 
@@ -19,11 +17,12 @@ public class ElevatorToPosCommand extends Command {
   private double startPosition;
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
-  private final double MAX_VELOCITY = 15.0; // Max speed in inches/sec
+  private final double MAX_VELOCITY = 25.0; // Max speed in inches/sec
   private final double MAX_ACCELERATION = 15.0; // Max acceleration in inches/sec^2
   private final double MAX_DECELERATION = 3.0; // Max deceleration in inches/sec^2
+  private final double kG= 0.26; // Max deceleration in inches/sec^2
   private final double kV = 0.003; // Feedforward gain for velocity
-  private final double kA = 0.01; // Feedforward gain for acceleration
+  private final double kA = 0.002; // Feedforward gain for acceleration
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -98,15 +97,15 @@ public class ElevatorToPosCommand extends Command {
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
-      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration;
+      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + kG;
       //elevatorSubsystem.setTargetPosition(startPosition - deltaPosition);
       elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition - deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
     }
     else {
-      double FFVoltage = kV * targetVelocity + kA * targetAcceleration;
+      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
       elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition + deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
     }
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<1.0){
+    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
       atPosition=true;
       elevatorSubsystem.setTargetPosition(targetPositionInches);
     }

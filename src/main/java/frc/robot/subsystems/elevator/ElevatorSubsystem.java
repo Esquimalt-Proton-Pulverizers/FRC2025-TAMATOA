@@ -51,8 +51,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       elevatorConfig.smartCurrentLimit(8,8,50);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .p(1).i(0.00000).d(0.0000)
-      .outputRange(-.3, .7, ClosedLoopSlot.kSlot0);
+      .p(.1).i(0.00000).d(0.0000)
+      .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)
@@ -68,7 +68,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         
     elevatorMotor.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    elevatorClosedLoopController.setReference(LOW_POSITION, SparkMax.ControlType.kPosition);    
+    elevatorClosedLoopController.setReference(0, ControlType.kVoltage);    
   }
 
   @Override
