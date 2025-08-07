@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.custom_lib.CommandLogitecController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -58,7 +59,7 @@ public class RobotContainer {
 
 	// Controllers
 	private final CommandXboxController driverController = new CommandXboxController(0);
-	private final CommandGenericHID operatorController = new CommandGenericHID(1);
+	private final CommandLogitecController operatorController = new CommandLogitecController(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.05;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
@@ -87,6 +88,8 @@ public class RobotContainer {
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
+
+
 
 
 	/**
@@ -160,9 +163,22 @@ public class RobotContainer {
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
-		//Motor Testing//
-		operatorController.button(7).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10)));  // Left Trigger	
-		operatorController.button(8).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0)));  // Left Trigger	
+		//Motor Testing
+		operatorController.povUp().onTrue(Commands.runOnce(() -> motorTesting.kSlotIncrementOne()));
+		operatorController.povDown().onTrue(Commands.runOnce(() -> motorTesting.kSlotDecrementOne()));
+
+		operatorController.povLeft().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,MotorTesting.kSlot)));
+		operatorController.povRight().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,MotorTesting.kSlot)));
+
+		// operatorController.button(1).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,0)));  	
+		// operatorController.button(2).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,1)));  	
+		// operatorController.button(3).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,2)));  
+		// operatorController.button(4).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,3)));  	
+		// operatorController.button(5).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,0)));  	
+		// operatorController.button(6).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,1)));	
+		// operatorController.button(7).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,2)));  	
+		// operatorController.button(8).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0,3)));  	
+
 
 
 
