@@ -3,6 +3,9 @@ package frc.robot.subsystems.intakeSubsystem;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+
+import java.util.function.Supplier;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -10,6 +13,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -59,6 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void setTargetVoltage(double targetVelocity){
         intakeMotorController.setReference(targetVelocity, ControlType.kVoltage);
+        // setTargetVoltage(targetVelocity);
     }
 
     public void intake(){
@@ -71,5 +77,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void stop(){
         setTargetVoltage(HOLDING_VELOCITY);
+    }
+
+    public Command applyRequest(Supplier<Double> requestSupplier) {
+        return run(() -> this.setTargetVoltage(requestSupplier.get()));
     }
 }

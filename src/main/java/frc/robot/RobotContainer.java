@@ -21,8 +21,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.custom_lib.CommandLogitecController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -57,7 +59,7 @@ public class RobotContainer {
 
 	// Controllers
 	private final CommandXboxController driverController = new CommandXboxController(0);
-	private final CommandGenericHID operatorController = new CommandGenericHID(1);
+	private final CommandLogitecController operatorController = new CommandLogitecController(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.05;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
@@ -156,6 +158,17 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        intakeSubsystem.setDefaultCommand(
+            new RunCommand(
+                () -> {
+                    double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
+                    double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
+                    intakeSubsystem.setTargetVoltage(voltage);
+                },
+                intakeSubsystem
+            )
+        );
+
 
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
@@ -166,6 +179,9 @@ public class RobotContainer {
         operatorController.button(4).onTrue(new ElevatorToPosCommand(40.0, elevatorSubsystem));
 		operatorController.button(9).onTrue(new ElevatorInchUpCommand(-2.0, elevatorSubsystem));    // Back Button
         operatorController.button(10).onTrue(new ElevatorInchUpCommand(2.0, elevatorSubsystem));     // Start Button
+        
+        //for variable speed intake movement
+        double intakeSpeed = operatorController.getLeftY();
         //operatorController.button(1).onFalse(new ElevatorInchDownCommand(elevatorSubsystem)); // Start Button
 	}  
 
