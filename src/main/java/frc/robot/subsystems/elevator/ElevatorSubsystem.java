@@ -49,11 +49,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
       .velocityConversionFactor(1);
-    elevatorConfig.smartCurrentLimit(8,8,50);
+    elevatorConfig.smartCurrentLimit(4,4,50);
     elevatorConfig.idleMode(IdleMode.kCoast);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .p(.001).i(0.00000).d(0.0000)
+      .p(.3).i(0.00000).d(0.0000)
       .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
@@ -76,7 +76,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Put code here to be run every loop
-    if(timer.hasElapsed(2.0)) {
+    if(timer.hasElapsed(0.50)) {
        System.out.println("Elevator target position"+getTargetPosition());
       // System.out.println("Is inverted: " + !isCompetitionRobot);
       System.out.println("Elevator Level: " + getPosition());
