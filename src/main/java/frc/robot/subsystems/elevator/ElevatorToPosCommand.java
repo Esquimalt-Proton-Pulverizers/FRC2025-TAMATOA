@@ -7,6 +7,7 @@ package frc.robot.subsystems.elevator;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
@@ -20,9 +21,9 @@ public class ElevatorToPosCommand extends Command {
   private final double MAX_VELOCITY = 25.0; // Max speed in inches/sec
   private final double MAX_ACCELERATION = 15.0; // Max acceleration in inches/sec^2
   private final double MAX_DECELERATION = 3.0; // Max deceleration in inches/sec^2
-  private final double kG= 0.26; // Max deceleration in inches/sec^2
-  private final double kV = 0.003; // Feedforward gain for velocity
-  private final double kA = 0.002; // Feedforward gain for acceleration
+  private final double kG= 0.18; // Max deceleration in inches/sec^2
+  private static double kV = 0.003; // Feedforward gain for velocity
+  private static double kA = 0.002; // Feedforward gain for acceleration
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -40,6 +41,10 @@ public class ElevatorToPosCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
+    // Update kV and kA from SmartDashboard values
+    kV = SmartDashboard.getNumber("Elevator kV", kV);
+    kA = SmartDashboard.getNumber("Elevator kA", kA);
     startPosition = elevatorSubsystem.getPosition(); // Get the current position of the elevator
     targetDistance = targetPositionInches - startPosition;
     if (Math.abs(targetDistance) < 0.3) { // Tolerance for "already at position"
@@ -60,7 +65,8 @@ public class ElevatorToPosCommand extends Command {
     double targetVelocity = 0.0;
     double targetAcceleration = 0.0;
     if (atPosition){
-      elevatorSubsystem.setTargetPosition(targetPositionInches);
+      elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
+      System.out.println("atPos "+ targetPositionInches);
       return;
     }
     
@@ -99,21 +105,24 @@ public class ElevatorToPosCommand extends Command {
     if (targetDistance < 0) {
       double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + kG;
       //elevatorSubsystem.setTargetPosition(startPosition - deltaPosition);
-      elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition - deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
+      elevatorSubsystem.setTargetPosition(startPosition - deltaPosition, FFVoltage);
     }
     else {
       double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
-      elevatorSubsystem.elevatorClosedLoopController.setReference(startPosition + deltaPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
+      elevatorSubsystem.setTargetPosition(startPosition + deltaPosition, FFVoltage);
+      System.out.println("deltaP = "+ deltaPosition);
     }
     if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
       atPosition=true;
-      elevatorSubsystem.setTargetPosition(targetPositionInches);
+      elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    elevatorSubsystem.setTargetPosition(elevatorSubsystem.getPosition());
+  }
 
   // Returns true when the command should end.
   @Override

@@ -46,7 +46,7 @@ public class ElevatorHomingCommand extends Command {
   public void end(boolean interrupted) {
     if (!interrupted){
       elevatorSubsystem.elevatorEncoder.setPosition(0);
-      elevatorSubsystem.elevatorClosedLoopController.setReference(0, SparkMax.ControlType.kPosition);
+      elevatorSubsystem.setTargetPosition(0);
     }
     ElevatorSubsystem.elevatorMotor.configure(elevatorSubsystem.elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
