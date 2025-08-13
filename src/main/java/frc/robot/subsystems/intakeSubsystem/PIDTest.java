@@ -77,5 +77,6 @@ public class PIDTest extends SubsystemBase  {
             inMotor.getClosedLoopController().setReference(targetPosition, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);
         },this); 
     };
+    
 }
 

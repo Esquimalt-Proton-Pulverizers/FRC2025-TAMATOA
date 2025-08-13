@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -179,7 +180,7 @@ public class RobotContainer {
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-        operatorController.button(1).whileTrue(pidTest.incrementStick(() -> operatorController.getRightTriggerAxis(),1));
+        operatorController.button(1).whileTrue(new RepeatCommand(pidTest.incrementStick(() -> operatorController.getRightTriggerAxis(),1)));
         operatorController.button(2).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));
         operatorController.button(3).onTrue(new ElevatorToPosCommand(30.0, elevatorSubsystem));
         operatorController.button(4).onTrue(new ElevatorToPosCommand(40.0, elevatorSubsystem));
