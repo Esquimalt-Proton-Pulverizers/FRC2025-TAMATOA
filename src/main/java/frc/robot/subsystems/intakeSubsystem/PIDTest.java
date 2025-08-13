@@ -16,6 +16,7 @@ public class PIDTest extends SubsystemBase  {
     protected SparkMaxConfig baseConfig = new SparkMaxConfig();
     private Timer timer = new Timer();
     public static int kSlot = 0;
+    private double targetPosition = 0.0;
     
     public PIDTest ()   {
         baseConfig.smartCurrentLimit(3,3,50);
@@ -49,7 +50,8 @@ public class PIDTest extends SubsystemBase  {
             default:
                 System.out.println("Invalid kSlot value: " + kSlot);
         }
-        inMotor.getClosedLoopController().setReference(pos, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        targetPosition = pos;
+        inMotor.getClosedLoopController().setReference(targetPosition, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
     public Command pidCommand(double pos, int kSlot) {
         return new InstantCommand(() -> {
@@ -68,4 +70,11 @@ public class PIDTest extends SubsystemBase  {
         timer.reset();
         }
     }
+    public Command incrementStick(Supplier<Double> rpsSupplier, double speedMultiplier) {
+        return new InstantCommand(() -> {
+            double increment = rpsSupplier.get() / 50 * speedMultiplier;
+            targetPosition += increment;
+            inMotor.getClosedLoopController().setReference(targetPosition, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        }); 
+    };
 }

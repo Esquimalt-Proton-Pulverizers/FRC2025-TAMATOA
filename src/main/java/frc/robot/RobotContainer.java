@@ -34,6 +34,7 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
+import frc.robot.subsystems.intakeSubsystem.PIDTest;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
@@ -47,6 +48,7 @@ public class RobotContainer {
     private double MaxControlSpeed = 3.0;
 	private final double DRIVE_DEADBAND = 0.0;
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
+    private double intakeTarget = 0.0; // Variable to hold the target position for the intake motor
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -58,17 +60,18 @@ public class RobotContainer {
 	private final Telemetry logger = new Telemetry(MaxSpeed);
 
 	// Controllers
-	//private final CommandXboxController driverController = new CommandXboxController(0);
+	private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandLogitecController operatorController = new CommandLogitecController(1);
-    //private final CommandCustomController CustomController = new CommandCustomController(2);
+    private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.05;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	// public final HangingSubsystem hanger = new HangingSubsystem();
-    // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	public final HangingSubsystem hanger = new HangingSubsystem();
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final PIDTest pidTest = new PIDTest();
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
@@ -116,7 +119,7 @@ public class RobotContainer {
         ////// ------------- Driver Controls ------------- //////
         /////////////////////////////////////////////////////////
         
-		//// ----------------- Driving Commands -----------------
+		// ----------------- Driving Commands -----------------
         // Drive Controls
         // drivetrain.setDefaultCommand(
         //     // Drivetrain will execute this command periodically
@@ -158,16 +161,19 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-        // intakeSubsystem.setDefaultCommand(
-        //     new RunCommand(
-        //         () -> {
-        //             double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
-        //             double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
-        //             intakeSubsystem.setTargetVoltage(voltage);
-        //         },
-        //         intakeSubsystem
-        //     )
-        // );
+        intakeSubsystem.setDefaultCommand(
+            new RunCommand(
+                () -> {
+                    double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
+                    double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
+                    intakeSubsystem.setTargetVoltage(voltage);
+                },
+                intakeSubsystem
+            )
+        );
+        pidTest.setDefaultCommand(
+             pidTest.incrementStick(() -> operatorController.getLeftY(),1) // Scale to full voltage range (-12 to +12);
+        );
 
 
         //// --------------- Elevator Commands ---------------
@@ -179,9 +185,12 @@ public class RobotContainer {
         operatorController.button(4).onTrue(new ElevatorToPosCommand(40.0, elevatorSubsystem));
 		operatorController.button(9).onTrue(new ElevatorInchUpCommand(-2.0, elevatorSubsystem));    // Back Button
         operatorController.button(10).onTrue(new ElevatorInchUpCommand(2.0, elevatorSubsystem));     // Start Button
+        operatorController.button(5).onTrue(pidTest.pidCommand(10.0, 0));
+        operatorController.button(6).onTrue(new InstantCommand(()-> pidTest.toPos(15,0),pidTest));
         
         //for variable speed intake movement
-        double intakeSpeed = operatorController.getLeftY();
+        // double intakeSpeed = operatorController.getLeftY();
+        double intakeSpeed2 = -operatorController.getLeftY(); // Negate if forward should be positive
         //operatorController.button(1).onFalse(new ElevatorInchDownCommand(elevatorSubsystem)); // Start Button
 	}  
 
