@@ -70,11 +70,11 @@ public class PIDTest extends SubsystemBase  {
         timer.reset();
         }
     }
-    public Command incrementStick(Supplier<Double> rpsSupplier, double speedMultiplier) {
+    public Command incrementStick(Supplier<Double> rpsSupplier, double speedMultiplier, PIDTest subsystem) {
         return new InstantCommand(() -> {
             double increment = rpsSupplier.get() / 50 * speedMultiplier;
             targetPosition += increment;
             inMotor.getClosedLoopController().setReference(targetPosition, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);
-        }); 
+        },subsystem); 
     };
 }

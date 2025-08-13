@@ -70,7 +70,7 @@ public class RobotContainer {
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    //public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final PIDTest pidTest = new PIDTest();
 
     // Manual Movement
@@ -161,18 +161,18 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-        intakeSubsystem.setDefaultCommand(
-            new RunCommand(
-                () -> {
-                    double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
-                    double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
-                    intakeSubsystem.setTargetVoltage(voltage);
-                },
-                intakeSubsystem
-            )
-        );
+        // intakeSubsystem.setDefaultCommand(
+        //     new RunCommand(
+        //         () -> {
+        //             double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
+        //             double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
+        //             intakeSubsystem.setTargetVoltage(voltage);
+        //         },
+        //         intakeSubsystem
+        //     )
+        // );
         pidTest.setDefaultCommand(
-             pidTest.incrementStick(() -> operatorController.getLeftY(),1) // Scale to full voltage range (-12 to +12);
+             pidTest.incrementStick(() -> operatorController.getLeftY(),1,pidTest) // Scale to full voltage range (-12 to +12);
         );
 
 
