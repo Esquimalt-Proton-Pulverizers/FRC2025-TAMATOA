@@ -58,17 +58,17 @@ public class RobotContainer {
 	private final Telemetry logger = new Telemetry(MaxSpeed);
 
 	// Controllers
-	private final CommandXboxController driverController = new CommandXboxController(0);
+	//private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandLogitecController operatorController = new CommandLogitecController(1);
-    private final CommandCustomController CustomController = new CommandCustomController(2);
+    //private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.05;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	public final HangingSubsystem hanger = new HangingSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	// public final HangingSubsystem hanger = new HangingSubsystem();
+    // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
@@ -158,16 +158,16 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-        intakeSubsystem.setDefaultCommand(
-            new RunCommand(
-                () -> {
-                    double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
-                    double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
-                    intakeSubsystem.setTargetVoltage(voltage);
-                },
-                intakeSubsystem
-            )
-        );
+        // intakeSubsystem.setDefaultCommand(
+        //     new RunCommand(
+        //         () -> {
+        //             double yValue = -operatorController.getLeftY(); // Negate if forward should be positive
+        //             double voltage = yValue * 12.0; // Scale to full voltage range (-12 to +12)
+        //             intakeSubsystem.setTargetVoltage(voltage);
+        //         },
+        //         intakeSubsystem
+        //     )
+        // );
 
 
         //// --------------- Elevator Commands ---------------
