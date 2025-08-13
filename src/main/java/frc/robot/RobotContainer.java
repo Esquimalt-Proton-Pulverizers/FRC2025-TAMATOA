@@ -172,14 +172,14 @@ public class RobotContainer {
         //     )
         // );
         pidTest.setDefaultCommand(
-             pidTest.incrementStick(() -> operatorController.getLeftY(),1,pidTest) // Scale to full voltage range (-12 to +12);
+             pidTest.incrementStick(() -> operatorController.getLeftY(),1) // Scale to full voltage range (-12 to +12)
         );
 
 
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-        operatorController.button(1).whileTrue(new ElevatorToPosCommand(10.0, elevatorSubsystem));
+        operatorController.button(1).whileTrue(pidTest.incrementStick(() -> operatorController.getRightTriggerAxis(),1));
         operatorController.button(2).onTrue(new ElevatorToPosCommand(20.0, elevatorSubsystem));
         operatorController.button(3).onTrue(new ElevatorToPosCommand(30.0, elevatorSubsystem));
         operatorController.button(4).onTrue(new ElevatorToPosCommand(40.0, elevatorSubsystem));
