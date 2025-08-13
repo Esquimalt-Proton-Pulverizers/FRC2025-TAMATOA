@@ -63,7 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setTargetVoltage(double targetVelocity){
-        intakeMotorController.setReference(targetVelocity, ControlType.kVoltage);
+        intakeMotorController.setReference(targetVelocity, ControlType.kVelocity);
         // setTargetVoltage(targetVelocity);
     }
 
