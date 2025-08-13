@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.MotorTesting;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -35,16 +35,21 @@ public class MotorTesting extends SubsystemBase{
     }
 
     public Command intakeToPos(){
-        return 
-            Commands.runOnce(() -> intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kPosition),
+        return new RunCommand(() -> intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kPosition),
             this);
     }
 
+    protected void runMotorToPos(double position){
+        intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition);
+    }
+    protected void runMotorToPos(){
+        intakeMotor.getClosedLoopController().setReference(motorPos, ControlType.kPosition);
+    }
 
     public MotorTesting(){
         defaultConfig.smartCurrentLimit(30,10,100);
         defaultConfig.closedLoop.pid(1,0,0,ClosedLoopSlot.kSlot0);
-        defaultConfig.closedLoop.pid(.1,0,0,ClosedLoopSlot.kSlot1);
+        defaultConfig.closedLoop.pid(.1,0,1,ClosedLoopSlot.kSlot1);
         defaultConfig.closedLoop.pid(1,0,1,ClosedLoopSlot.kSlot2);
         defaultConfig.closedLoop.pid(0,0.00001,0,ClosedLoopSlot.kSlot3);
 

@@ -28,7 +28,8 @@ import frc.custom_lib.CommandLogitecController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.MotorTesting;
+import frc.robot.subsystems.MotorTesting.IntakeCommandFactory;
+import frc.robot.subsystems.MotorTesting.MotorTesting;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elevator.ElevatorInchUpCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -173,7 +174,8 @@ public class RobotContainer {
 
 		operatorController.rightBumper().onTrue(Commands.runOnce(() -> motorTesting.posDecrease()));
 		operatorController.leftBumper().onTrue(Commands.runOnce(() -> motorTesting.posIncrease()));
-		operatorController.rightStick().onTrue(motorTesting.intakeToPos());
+		// operatorController.rightStick().onTrue(motorTesting.intakeToPos());
+		operatorController.a().onTrue(IntakeCommandFactory.createIntakeToPosCommand(motorTesting));
 
 		// operatorController.button(1).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,0)));  	
 		// operatorController.button(2).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,1)));  	
