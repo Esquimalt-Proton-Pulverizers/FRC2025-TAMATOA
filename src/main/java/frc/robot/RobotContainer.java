@@ -172,8 +172,8 @@ public class RobotContainer {
 		operatorController.povUp().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotIncrementOne()));
 		operatorController.povDown().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotDecrementOne()));
 
-		operatorController.povLeft().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(10, 0)));
-		operatorController.povRight().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(0, 0)));
+		operatorController.povLeft().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(10, ArmMotorSubsystem.kSlot)));
+		operatorController.povRight().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(0, ArmMotorSubsystem.kSlot)));
 
 		operatorController.leftTrigger().onTrue(new ArmThenIntakeCommand(armMotorSS,intakeMotorSS,10,10)); 
 
