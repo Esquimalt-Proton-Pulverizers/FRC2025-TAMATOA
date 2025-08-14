@@ -27,9 +27,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.custom_lib.CommandLogitecController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ArmMotorSubsystem;
+import frc.robot.subsystems.ArmThenIntakeCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.MotorTesting.IntakeCommandFactory;
-import frc.robot.subsystems.MotorTesting.MotorTesting;
+import frc.robot.subsystems.IntakeMotorSubsystem;
+//import frc.robot.subsystems.MotorTesting.IntakeCommandFactory;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elevator.ElevatorInchUpCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -71,7 +73,8 @@ public class RobotContainer {
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-	public final MotorTesting motorTesting = new MotorTesting();
+	public final IntakeMotorSubsystem intakeMotorSS = new IntakeMotorSubsystem();
+	public final ArmMotorSubsystem armMotorSS = new ArmMotorSubsystem();
 
 
     // Manual Movement
@@ -166,16 +169,21 @@ public class RobotContainer {
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
 		//Motor Testing
-		operatorController.povUp().onTrue(Commands.runOnce(() -> motorTesting.kSlotIncrementOne()));
-		operatorController.povDown().onTrue(Commands.runOnce(() -> motorTesting.kSlotDecrementOne()));
+		operatorController.povUp().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotIncrementOne()));
+		operatorController.povDown().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotDecrementOne()));
 
-		operatorController.povLeft().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10)));
-		operatorController.povRight().onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(0)));
+		operatorController.povLeft().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(10, 0)));
+		operatorController.povRight().onTrue(Commands.runOnce(() -> intakeMotorSS.driveMotorToPos(0, 0)));
 
-		operatorController.rightBumper().onTrue(Commands.runOnce(() -> motorTesting.posDecrease()));
-		operatorController.leftBumper().onTrue(Commands.runOnce(() -> motorTesting.posIncrease()));
-		// operatorController.rightStick().onTrue(motorTesting.intakeToPos());
-		operatorController.a().onTrue(IntakeCommandFactory.createIntakeToPosCommand(motorTesting));
+		operatorController.leftTrigger().onTrue(new ArmThenIntakeCommand(armMotorSS,intakeMotorSS,10,10)); 
+
+		//operatorController.leftTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(10,ArmMotorSubsystem.kSlot))); 
+		operatorController.rightTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(0,ArmMotorSubsystem.kSlot)));
+
+		// operatorController.rightBumper().onTrue(Commands.runOnce(() -> motorTesting.posDecrease()));
+		// operatorController.leftBumper().onTrue(Commands.runOnce(() -> motorTesting.posIncrease()));
+		// // operatorController.rightStick().onTrue(motorTesting.intakeToPos());
+		// operatorController.a().onTrue(IntakeCommandFactory.createIntakeToPosCommand(motorTesting));
 
 		// operatorController.button(1).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,0)));  	
 		// operatorController.button(2).onTrue(Commands.runOnce(() -> motorTesting.driveMotorToPos(10,1)));  	
