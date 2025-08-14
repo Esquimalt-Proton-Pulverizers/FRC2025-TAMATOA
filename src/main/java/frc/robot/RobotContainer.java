@@ -25,22 +25,11 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.custom_lib.CommandLogitecController;
-import frc.robot.commands.ArmToPosCommand;
-import frc.robot.generated.TunerConstants;
+import frc.robot.TunerConstants;
 import frc.robot.subsystems.ArmMotorSubsystem;
 import frc.robot.subsystems.ArmThenIntakeCommand;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeMotorSubsystem;
 //import frc.robot.subsystems.MotorTesting.IntakeCommandFactory;
-import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
-import frc.robot.subsystems.elevator.ElevatorInchUpCommand;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
-import frc.robot.subsystems.hang.HangingSubsystem;
-import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
-import frc.robot.commands.AutoPickup;
-import frc.robot.commands.AutoPlace;
-import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
 
@@ -69,9 +58,6 @@ public class RobotContainer {
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
-	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	public final HangingSubsystem hanger = new HangingSubsystem();
     // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final IntakeMotorSubsystem intakeMotorSS = new IntakeMotorSubsystem();
 	public final ArmMotorSubsystem armMotorSS = new ArmMotorSubsystem();
@@ -86,10 +72,6 @@ public class RobotContainer {
     public static boolean manualOverride = false;
     private boolean encoderReset = false;
 
-    // Auto scoring variables
-	private int level = 0;
-	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
-	private AutoPlace.Side side = AutoPlace.Side.one;
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
@@ -121,53 +103,7 @@ public class RobotContainer {
 	 * Configure all bindings for the robot's controls.
 	 */
 	private void configureBindings() {
-        /////////////////////////////////////////////////////////
-        ////// ------------- Driver Controls ------------- //////
-        /////////////////////////////////////////////////////////
-        
-		//// ----------------- Driving Commands -----------------
-        // Drive Controls
-        // drivetrain.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     drivetrain.applyRequest(() ->
-        //         drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-        //             .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-        //             .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-        //     )
-        // );
-
-		// // Reset the field-centric heading on left bumper press
-		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        // // Brake Mode - Stop robot from being moved
-		// driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
-
-
-        //// ----------------- Hanging Controls -----------------
-		driverController.povUp().onTrue(hanger.extend());
-        driverController.povDown().onTrue(hanger.retract());
-		driverController.leftBumper().onTrue(hanger.intake());
-        driverController.leftBumper().onFalse(hanger.stop());
-        driverController.back().onTrue(hanger.manualRetract());
-        driverController.back().onFalse(hanger.resetWinch());
-
-
-        /////////////////////////////////////////////////////////
-        ////// ------------ Operator Controls ------------ //////
-        /////////////////////////////////////////////////////////
-        
-        //// -------------------- Cancel All --------------------
-        // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
-
-        // Positions of Elevator and Elbow
-        double curElevatorPos = elevatorSubsystem.getPosition();
-
-        //// ---------------- Intake Commands ----------------
-        // operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-        // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-        // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-        // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-
+  
 		//Motor Testing
 		operatorController.povUp().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotIncrementOne()));
 		operatorController.povDown().onTrue(Commands.runOnce(() -> intakeMotorSS.kSlotDecrementOne()));
