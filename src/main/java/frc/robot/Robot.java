@@ -12,6 +12,7 @@ package frc.robot;
 // import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,6 +22,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private Joystick simJoystick = new Joystick(0);
 
   public Robot() {
     PortForwarder.add(5801, "172.29.0.1", 5801);
@@ -101,5 +103,13 @@ public class Robot extends TimedRobot {
   public void testExit() {}
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    if (simJoystick.getRawButton(1)) {
+        m_robotContainer.getArmMotorSubsystem().increaseVoltage();
+    }
+    if (simJoystick.getRawButton(2)) {
+      m_robotContainer.getArmMotorSubsystem().decreaseVoltage();
+    }
+  }
+
 }

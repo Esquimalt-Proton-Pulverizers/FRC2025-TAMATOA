@@ -48,6 +48,10 @@ public class RobotContainer {
 	public final IntakeMotorSubsystem intakeMotorSS = new IntakeMotorSubsystem();
 	public final ArmMotorSubsystem armMotorSS = new ArmMotorSubsystem();
 
+	public ArmMotorSubsystem getArmMotorSubsystem() {
+		return armMotorSS;
+	}
+
 
 	/**
 	 * RobotContainer constructor initializes the robot.
@@ -82,6 +86,9 @@ public class RobotContainer {
 
 		//operatorController.leftTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(10,ArmMotorSubsystem.kSlot))); 
 		operatorController.rightTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(0,ArmMotorSubsystem.kSlot)));
+
+		operatorController.a().onTrue(Commands.runOnce(() -> armMotorSS.increaseVoltage()));
+		operatorController.b().onTrue(Commands.runOnce(() -> armMotorSS.decreaseVoltage()));
 
 	}
 

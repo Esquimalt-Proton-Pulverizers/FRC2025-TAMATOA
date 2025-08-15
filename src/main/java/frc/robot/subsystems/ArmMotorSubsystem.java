@@ -21,15 +21,29 @@ public class ArmMotorSubsystem extends SubsystemBase {
 
     private double simulatedPosition = 0.0;
     private double simulatedVelocity = 0.0;
+    private double targetKVoltage = 0.0;
 
     public ArmMotorSubsystem() {
         defaultConfig.smartCurrentLimit(30, 10, 100);
         defaultConfig.closedLoop.pid(1, 0, 0, ClosedLoopSlot.kSlot0);
 
         armMotor.configure(defaultConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        armMotor.getClosedLoopController().setReference(0, ControlType.kVoltage);
 
         timer.start();
+    }
+
+    public void applyVoltage(){
+        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
+    }
+
+    public void increaseVoltage() {
+        targetKVoltage += 0.1;
+        applyVoltage();
+    }
+
+    public void decreaseVoltage() {
+        targetKVoltage -= 0.1;
+        applyVoltage();
     }
 
     public void driveMotorToPos(double position, int slot) {
