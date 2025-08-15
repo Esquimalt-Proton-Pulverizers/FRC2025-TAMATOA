@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType; 
-import com.revrobotics.spark.config.SparkMaxConfig; 
-import edu.wpi.first.wpilibj.Timer; 
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase; 
 import com.revrobotics.spark.ClosedLoopSlot; 
 import com.revrobotics.spark.SparkBase.ControlType; 
@@ -16,14 +19,20 @@ public class IntakeMotorSubsystem extends SubsystemBase{
     protected SparkMaxConfig defaultConfig = new SparkMaxConfig(); 
     private Timer timer = new Timer(); 
     public static int kSlot = 0; 
+
+    private double simulatedPosition = 0.0;
+    private double simulatedVelocity = 0.0;
+
     
     public IntakeMotorSubsystem(){ defaultConfig.smartCurrentLimit(30,10,100); 
         defaultConfig.closedLoop.pid(1,0,0,ClosedLoopSlot.kSlot0); 
         defaultConfig.closedLoop.pid(10,0,0,ClosedLoopSlot.kSlot1); 
         defaultConfig.closedLoop.pid(1,0,1,ClosedLoopSlot.kSlot2); 
-        defaultConfig.closedLoop.pid(0,0.00001,0,ClosedLoopSlot.kSlot3); 
+        defaultConfig.closedLoop.pid(0,0.00001,0,ClosedLoopSlot.kSlot3);
+
         intakeMotor.configure(defaultConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters); 
         intakeMotor.getClosedLoopController().setReference(0, ControlType.kVoltage); 
+
         timer.start(); 
     } 
     
@@ -70,10 +79,26 @@ public class IntakeMotorSubsystem extends SubsystemBase{
         } 
     }
 
-    @Override public void periodic() { 
-                if (timer.hasElapsed(2)){ System.out.println(intakeMotor.getEncoder().getPosition()); 
-                System.out.println("kSlot value: " + kSlot); timer.reset();}
+    @Override 
+    public void periodic() { 
+        SmartDashboard.putNumber("Intake Position", intakeMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("Intake Velocity", intakeMotor.getEncoder().getVelocity());
+
+        if (timer.hasElapsed(2)){ System.out.println(intakeMotor.getEncoder().getPosition()); 
+        System.out.println("kSlot value: " + kSlot); timer.reset();}
     } 
+
+    @Override
+    public void simulationPeriodic() {
+        double appliedVolts = intakeMotor.getAppliedOutput() * 12.0;
+        simulatedVelocity = appliedVolts * 0.1;
+        simulatedPosition += simulatedVelocity * 0.02; // 20 ms loop
+
+        intakeMotor.getEncoder().setPosition(simulatedPosition);
+
+        SmartDashboard.putNumber("Sim Intake Position", simulatedPosition);
+        SmartDashboard.putNumber("Sim Intake Velocity", simulatedVelocity);
+    }
 }    
             // if (slot == 0){ // intakeMotor.getClosedLoopController().setReference(position, ControlType.kPosition,ClosedLoopSlot.kSlot0); 
             // } else if (slot == 1){ 
