@@ -32,6 +32,7 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
+import frc.robot.subsystems.lights.LEDlights;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
@@ -42,7 +43,7 @@ public class RobotContainer {
     // Swerve Drive variables
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    private double MaxControlSpeed = 3.0;
+    private double MaxControlSpeed = 0.5;
 	private final double DRIVE_DEADBAND = 0.0;
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
@@ -59,7 +60,7 @@ public class RobotContainer {
 	private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandGenericHID operatorController = new CommandGenericHID(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
-	private static final double XBOX_DEADBAND = 0.05;
+	private static final double XBOX_DEADBAND = 0.1;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
@@ -68,6 +69,7 @@ public class RobotContainer {
 	public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	public final LEDlights ledLights = new LEDlights();
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
