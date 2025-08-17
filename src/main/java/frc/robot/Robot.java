@@ -14,6 +14,7 @@ package frc.robot;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 //import edu.wpi.first.wpilibj2.command.Commands;
@@ -51,6 +52,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+    SmartDashboard.putBoolean("Button 1 Pressed?", simJoystick.getRawButton(1));
   }
 
   @Override
@@ -110,6 +112,7 @@ public class Robot extends TimedRobot {
     if (simJoystick.getRawButton(2)) {
       m_robotContainer.getArmMotorSubsystem().decreaseVoltage();
     }
+    
   }
 
 }

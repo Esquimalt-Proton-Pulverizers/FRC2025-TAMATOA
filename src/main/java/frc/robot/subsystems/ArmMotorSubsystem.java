@@ -28,7 +28,6 @@ public class ArmMotorSubsystem extends SubsystemBase {
         defaultConfig.closedLoop.pid(1, 0, 0, ClosedLoopSlot.kSlot0);
 
         armMotor.configure(defaultConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
 
         timer.start();
     }
@@ -36,10 +35,16 @@ public class ArmMotorSubsystem extends SubsystemBase {
         
     public void increaseVoltage() {
         targetKVoltage += 0.1;
+
+        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
+        SmartDashboard.putNumber("Arm Commanded Voltage", targetKVoltage);
     }
 
     public void decreaseVoltage() {
         targetKVoltage -= 0.1;
+
+        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
+        SmartDashboard.putNumber("Arm Commanded Voltage", targetKVoltage);
     }
 
     public void driveMotorToPos(double position, int slot) {
