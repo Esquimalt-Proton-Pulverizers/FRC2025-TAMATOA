@@ -18,12 +18,12 @@ public class ElevatorToPosCommand extends Command {
   private double startPosition;
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
-  private static double MAX_VELOCITY = 45.0; // Max speed in inches/sec
-  private static double MAX_ACCELERATION = 55.0; // Max acceleration in inches/sec^2
-  private static double MAX_DECELERATION = 45.0; // Max deceleration in inches/sec^2
-  private final double kG= 0.18; // Max deceleration in inches/sec^2
-  private static double kV = 0.20; // Feedforward gain for velocity
-  private static double kA = 0.03; // Feedforward gain for acceleration
+  private static double MAX_VELOCITY = 15.0; // 45 Max speed in inches/sec
+  private static double MAX_ACCELERATION = 25.0; // Max acceleration in inches/sec^2
+  private static double MAX_DECELERATION = 25.0; // Max deceleration in inches/sec^2
+  private static double kG= 0.18; // Max deceleration in inches/sec^2
+  private static double kV = 0.21; // Feedforward gain for velocity
+  private static double kA = 0.02; // Feedforward gain for acceleration
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -43,6 +43,7 @@ public class ElevatorToPosCommand extends Command {
       SmartDashboard.putNumber("Elevator maxA-", MAX_DECELERATION);
       SmartDashboard.putNumber("Elevator kA", kA);   
       SmartDashboard.putNumber("Elevator kV", kV);
+      SmartDashboard.putNumber("Elevator kG", kG);
     }
   }
     
@@ -52,6 +53,7 @@ public class ElevatorToPosCommand extends Command {
   public void initialize() {
 
     // Update kV and kA from SmartDashboard values
+    kG = SmartDashboard.getNumber("Elevator kG", kG);
     kV = SmartDashboard.getNumber("Elevator kV", kV);
     kA = SmartDashboard.getNumber("Elevator kA", kA);
     MAX_VELOCITY = SmartDashboard.getNumber("Elevator maxV", MAX_VELOCITY);
@@ -113,6 +115,8 @@ public class ElevatorToPosCommand extends Command {
       // System.out.println("tspentdecel = "+ tSpentDecel);
     } else {
       // Motion profile complete
+      targetAcceleration = 0;
+      targetVelocity = 0;
       deltaPosition = Math.abs(targetDistance);
       //atPosition = true;
     }
@@ -127,11 +131,15 @@ public class ElevatorToPosCommand extends Command {
       double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
       elevatorSubsystem.setTargetPosition(startPosition + deltaPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
+      if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
+        atPosition=true;
+        //elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
+      }
     }
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
-      atPosition=true;
-      elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
-    }
+    // if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
+    //   atPosition=true;
+    //   //elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
+    // }
   }
 
   // Called once the command ends or is interrupted.
@@ -141,7 +149,8 @@ public class ElevatorToPosCommand extends Command {
       elevatorSubsystem.setTargetPosition(elevatorSubsystem.getPosition());
 
     } else{
-      elevatorSubsystem.setTargetPosition(targetPositionInches);
+      //elevatorSubsystem.setTargetPosition(targetPositionInches);
+      elevatorSubsystem.stopMotorWithFF(kG);
     }
     
   }

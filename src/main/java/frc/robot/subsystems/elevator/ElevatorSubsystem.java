@@ -49,12 +49,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
       .velocityConversionFactor(1);
-    elevatorConfig.smartCurrentLimit(4,4,50);
+    elevatorConfig.smartCurrentLimit(22,22,10);
     elevatorConfig.idleMode(IdleMode.kCoast);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .p(.3).i(0.00000).d(0.0000)
-      .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
+      .p(.0000).i(0.00000).d(0.0000)
+      .outputRange(-.5, .8, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)
@@ -89,6 +89,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   protected void setTargetPosition(double targetPosition, double FFVoltage){
     elevatorTargetPosition = targetPosition;
     elevatorClosedLoopController.setReference(elevatorTargetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
+  }
+  protected void stopMotor(){
+    elevatorClosedLoopController.setReference(0, ControlType.kVoltage);
+  }
+  protected void stopMotorWithFF(double FF){
+    elevatorClosedLoopController.setReference(FF, ControlType.kVoltage);
   }
 
   public static void resetEncoder() {
