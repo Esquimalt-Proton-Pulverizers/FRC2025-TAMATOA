@@ -18,12 +18,12 @@ public class ElevatorToPosCommand extends Command {
   private double startPosition;
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
-  private final double MAX_VELOCITY = 25.0; // Max speed in inches/sec
-  private final double MAX_ACCELERATION = 15.0; // Max acceleration in inches/sec^2
-  private final double MAX_DECELERATION = 3.0; // Max deceleration in inches/sec^2
+  private final double MAX_VELOCITY = 45.0; // Max speed in inches/sec
+  private final double MAX_ACCELERATION = 35.0; // Max acceleration in inches/sec^2
+  private final double MAX_DECELERATION = 35.0; // Max deceleration in inches/sec^2
   private final double kG= 0.18; // Max deceleration in inches/sec^2
-  private static double kV = 0.003; // Feedforward gain for velocity
-  private static double kA = 0.002; // Feedforward gain for acceleration
+  private static double kV = 0.20; // Feedforward gain for velocity
+  private static double kA = 0.03; // Feedforward gain for acceleration
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -43,8 +43,8 @@ public class ElevatorToPosCommand extends Command {
   public void initialize() {
 
     // Update kV and kA from SmartDashboard values
-    kV = SmartDashboard.getNumber("Elevator kV", kV);
-    kA = SmartDashboard.getNumber("Elevator kA", kA);
+    // kV = SmartDashboard.getNumber("Elevator kV", kV);
+    // kA = SmartDashboard.getNumber("Elevator kA", kA);
     startPosition = elevatorSubsystem.getPosition(); // Get the current position of the elevator
     targetDistance = targetPositionInches - startPosition;
     if (Math.abs(targetDistance) < 0.3) { // Tolerance for "already at position"
@@ -77,6 +77,7 @@ public class ElevatorToPosCommand extends Command {
     if (currentTime <= trapezoidalMotionProfile.tAccel) {
       // Acceleration phase
       deltaPosition = 0.5 * MAX_ACCELERATION * currentTime * currentTime;
+      // System.out.println("accel dP = "+ deltaPosition);
       targetAcceleration = MAX_ACCELERATION;
       targetVelocity = MAX_ACCELERATION * currentTime;
     } else if (currentTime <= trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst) {
@@ -92,9 +93,11 @@ public class ElevatorToPosCommand extends Command {
       double tSpentDecel = currentTime - tDecelStart;
       deltaPosition = (0.5 * MAX_ACCELERATION * trapezoidalMotionProfile.tAccel * trapezoidalMotionProfile.tAccel) +
                       (MAX_VELOCITY * trapezoidalMotionProfile.tConst) +
-                      (MAX_VELOCITY * tSpentDecel - 0.5 * MAX_DECELERATION * tSpentDecel * tSpentDecel);
+                      (trapezoidalMotionProfile.vPeak * tSpentDecel - 0.5 * MAX_DECELERATION * tSpentDecel * tSpentDecel);
       targetAcceleration = -MAX_DECELERATION;
-      targetVelocity = MAX_VELOCITY - MAX_DECELERATION * tSpentDecel;
+      targetVelocity = trapezoidalMotionProfile.vPeak - MAX_DECELERATION * tSpentDecel;
+      // System.out.println("decel dP = "+ deltaPosition);
+      // System.out.println("tspentdecel = "+ tSpentDecel);
     } else {
       // Motion profile complete
       deltaPosition = Math.abs(targetDistance);
@@ -110,7 +113,7 @@ public class ElevatorToPosCommand extends Command {
     else {
       double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
       elevatorSubsystem.setTargetPosition(startPosition + deltaPosition, FFVoltage);
-      System.out.println("deltaP = "+ deltaPosition);
+      //System.out.println("deltaP = "+ deltaPosition);
     }
     if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
       atPosition=true;
@@ -121,7 +124,13 @@ public class ElevatorToPosCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    elevatorSubsystem.setTargetPosition(elevatorSubsystem.getPosition());
+    if (interrupted){
+      elevatorSubsystem.setTargetPosition(elevatorSubsystem.getPosition());
+
+    } else{
+      elevatorSubsystem.setTargetPosition(targetPositionInches);
+    }
+    
   }
 
   // Returns true when the command should end.
