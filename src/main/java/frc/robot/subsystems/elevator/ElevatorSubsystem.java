@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -40,7 +41,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   // Elevator Motor Config
   protected static SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
   protected SparkMaxConfig elevatorConfig = new SparkMaxConfig();
-  protected SparkClosedLoopController elevatorClosedLoopController = elevatorMotor.getClosedLoopController();
+  private SparkClosedLoopController elevatorClosedLoopController = elevatorMotor.getClosedLoopController();
   public RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
   
  
@@ -48,11 +49,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
       .velocityConversionFactor(1);
-      elevatorConfig.smartCurrentLimit(1,8,50);
+    elevatorConfig.smartCurrentLimit(8,8,50);
+    elevatorConfig.idleMode(IdleMode.kCoast);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .p(0.1).i(0.000001).d(0.0000)
-      .outputRange(-.3, .7, ClosedLoopSlot.kSlot0);
+      .p(.001).i(0.00000).d(0.0000)
+      .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)
@@ -68,7 +70,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       .allowedClosedLoopError(1).positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
         
     elevatorMotor.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    elevatorClosedLoopController.setReference(LOW_POSITION, SparkMax.ControlType.kPosition);    
+    elevatorClosedLoopController.setReference(0, ControlType.kVoltage);    
   }
 
   @Override
@@ -82,8 +84,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
   protected void setTargetPosition(double targetPosition){
+    setTargetPosition(targetPosition,0);
+  }
+  protected void setTargetPosition(double targetPosition, double FFVoltage){
     elevatorTargetPosition = targetPosition;
-    elevatorClosedLoopController.setReference(elevatorTargetPosition, ControlType.kPosition);
+    elevatorClosedLoopController.setReference(elevatorTargetPosition, ControlType.kPosition, ClosedLoopSlot.kSlot0, FFVoltage);
   }
 
   public static void resetEncoder() {
@@ -107,4 +112,4 @@ public class ElevatorSubsystem extends SubsystemBase {
       setTargetPosition(newTarget);
     }
   }
-}
+} 
