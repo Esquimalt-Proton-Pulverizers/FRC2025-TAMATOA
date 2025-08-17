@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,29 +24,28 @@ public class ArmMotorSubsystem extends SubsystemBase {
     private double simulatedVelocity = 0.0;
     private double targetKVoltage = 0.0;
 
+    private double simulatedAppliedOutput = 0.0;
+
     public ArmMotorSubsystem() {
         defaultConfig.smartCurrentLimit(30, 10, 100);
         defaultConfig.closedLoop.pid(1, 0, 0, ClosedLoopSlot.kSlot0);
 
         armMotor.configure(defaultConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        armMotor.getClosedLoopController().setReference(0, ControlType.kVoltage);
 
         timer.start();
     }
 
-        
-    public void increaseVoltage() {
-        targetKVoltage += 0.1;
-
-        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
-        SmartDashboard.putNumber("Arm Commanded Voltage", targetKVoltage);
-    }
-
-    public void decreaseVoltage() {
-        targetKVoltage -= 0.1;
-
-        armMotor.getClosedLoopController().setReference(targetKVoltage, ControlType.kVoltage);
-        SmartDashboard.putNumber("Arm Commanded Voltage", targetKVoltage);
-    }
+    //for sim
+    public void setMotorVoltage(double volts) {
+        targetKVoltage = volts;
+    
+        if (RobotBase.isSimulation()) {
+            simulatedAppliedOutput = volts / 12.0;   
+        } else {
+            armMotor.getClosedLoopController().setReference(volts, ControlType.kVoltage);
+        }
+    }    
 
     public void driveMotorToPos(double position, int slot) {
         ClosedLoopSlot loopSlot = slotFromInt(slot);
@@ -72,15 +72,33 @@ public class ArmMotorSubsystem extends SubsystemBase {
         }
     }
 
+    public double getSimAppliedOutput() {
+        if (RobotBase.isSimulation()) {
+        return simulatedAppliedOutput;
+        } else {
+        return armMotor.getAppliedOutput(); 
+        }
+    }
+
     @Override
     public void simulationPeriodic() {
-        double appliedVolts = armMotor.getAppliedOutput() * 12.0;
-        simulatedVelocity = appliedVolts * 0.1;
-        simulatedPosition += simulatedVelocity * 0.02; // 20 ms loop
+    // Use sim-tracked output instead of real JNI
+    double appliedVolts;
+    if (RobotBase.isSimulation()) {
+    appliedVolts = getSimAppliedOutput() * 12.0; // fake output
+    } else {
+    appliedVolts = armMotor.getAppliedOutput() * 12.0; // real output
+    }
 
-        armMotor.getEncoder().setPosition(simulatedPosition);
+    // Update sim physics
+    simulatedVelocity = appliedVolts * 0.1;          // simple gain factor
+    simulatedPosition += simulatedVelocity * 0.02;   // 20 ms loop
 
-        SmartDashboard.putNumber("Sim Arm Position", simulatedPosition);
-        SmartDashboard.putNumber("Sim Arm Velocity", simulatedVelocity);
+    // Feed fake encoder values back
+    armMotor.getEncoder().setPosition(simulatedPosition);
+
+    // Dashboard feedback
+    SmartDashboard.putNumber("Sim Arm Position", simulatedPosition);
+    SmartDashboard.putNumber("Sim Arm Velocity", simulatedVelocity);
     }
 }

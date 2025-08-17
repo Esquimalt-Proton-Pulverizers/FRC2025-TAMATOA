@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
     SmartDashboard.putBoolean("Button 1 Pressed?", simJoystick.getRawButton(1));
+    
   }
 
   @Override
@@ -106,12 +107,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {
-    if (simJoystick.getRawButton(1)) {
-        m_robotContainer.getArmMotorSubsystem().increaseVoltage();
-    }
-    if (simJoystick.getRawButton(2)) {
-      m_robotContainer.getArmMotorSubsystem().decreaseVoltage();
-    }
     
   }
 

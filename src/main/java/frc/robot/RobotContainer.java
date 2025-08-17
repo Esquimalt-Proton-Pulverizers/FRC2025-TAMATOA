@@ -87,8 +87,10 @@ public class RobotContainer {
 		//operatorController.leftTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(10,ArmMotorSubsystem.kSlot))); 
 		operatorController.rightTrigger().onTrue(Commands.runOnce(() -> armMotorSS.driveMotorToPos(0,ArmMotorSubsystem.kSlot)));
 
-		operatorController.a().onTrue(Commands.runOnce(() -> armMotorSS.increaseVoltage()));
-		operatorController.b().onTrue(Commands.runOnce(() -> armMotorSS.decreaseVoltage()));
+		// operatorController.a().onTrue(Commands.runOnce(() -> armMotorSS.increaseVoltage()));
+		// operatorController.b().onTrue(Commands.runOnce(() -> armMotorSS.decreaseVoltage()));
+
+		//operatorController.a().onTrue(Commands.runOnce(() -> armMotorSS.));
 
 	}
 
