@@ -59,7 +59,7 @@ public class RobotContainer {
 	private final CommandXboxController driverController = new CommandXboxController(0);
 	private final CommandGenericHID operatorController = new CommandGenericHID(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
-	private static final double XBOX_DEADBAND = 0.05;
+	private static final double XBOX_DEADBAND = 0.09;
 	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
@@ -148,7 +148,7 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
         //// -------------------- Cancel All --------------------
-        operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
+        // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 
         // Positions of Elevator and Elbow
         double curElbowElevationPos = elbowSubsystem.getElevationPos();
@@ -173,8 +173,8 @@ public class RobotContainer {
         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
         //// --------------- Elevator Commands ---------------
-        operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
-        operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
+        // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
+        // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
 
 		//// ----------------- Elbow Commands ----------------
 		operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
