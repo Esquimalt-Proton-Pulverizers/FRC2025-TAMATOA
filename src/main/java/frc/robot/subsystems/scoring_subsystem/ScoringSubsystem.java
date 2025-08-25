@@ -1,36 +1,83 @@
 package frc.robot.subsystems.scoring_subsystem;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import javax.naming.spi.StateFactory;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
 public class ScoringSubsystem {
     State currentState = State.CORAL_GROUND_INTAKE;
     State targetState = State.SCORE_L2;
-    double[] targetVals;
+    double[] targetVals; // 1; Wrist pos, 2; Diff pos, 3; Elevator pos
+    double elbElevation;
+    double elbRotation;
+    double elevation;
 
     public Command moveArm(State currentState, State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
-        if (targetState == State.CORAL_GROUND_INTAKE)   {
-                targetVals = new double[]{0.0, 0, 0};
-        } else if (targetState == State.ALGAE_GROUND_INTAKE)   {
-                targetVals = new double[]{0.0, 0, 0};
+        double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
+        double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+
+        elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
+        elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
+        if (currentState == targetState) {
+            return new InstantCommand(); // No movement needed
         }
 
         S seq = getSequence(currentState, targetState);
+        switch (targetState)    {
+            case CORAL_GROUND_INTAKE:
+                targetVals = new double[]{0.0, 0, 0};
+            case ALGAE_GROUND_INTAKE:
+                targetVals = new double[]{0.0, 0, 0};
+            case CORAL_STATION_INTAKE: 
+                targetVals = new double[]{0.0, 0, 0};
+            case ALGAE_LOLLIPOP_INTAKE:
+                targetVals = new double[]{0.0, 0, 0};
+            case HOME_CLIMB:
+                targetVals = new double[]{0.0, 0, 0};
+            case SET_CORAL_POSITION_LEFT:
+                targetVals = new double[]{0.0, 0, 0};
+            case SET_CORAL_POSITION_RIGHT:
+                targetVals = new double[]{0.0, 0, 0};
+            case SCORE_L1:
+                targetVals = new double[]{0.0, 0, 0};
+            case SCORE_L2: 
+                targetVals = new double[]{0.0, 0, 0}; 
+            case SCORE_L3:
+                targetVals = new double[]{0.0, 0, 0};
+            case SCORE_L4:  
+                targetVals = new double[]{0.0, 0, 0};
+            case SCORE_NET:
+                targetVals = new double[]{0.0, 0, 0};
+            case SCORE_PROCESSOR:
+                targetVals = new double[]{0.0, 0, 0};
+            case DRIVE_EMPTY:
+                targetVals = new double[]{0.0, 0, 0};
+            case DRIVE_WITH_CORAL:
+                targetVals = new double[]{0.0, 0, 0};
+            case DRIVE_WITH_ALGAE:
+                targetVals = new double[]{0.0, 0, 0};
+            case OTHER:
+                targetVals = new double[]{0.0, 0, 0};
+                break;
+        }
     
         return switch (seq) {
-            case WDE -> returnWDECommand();
-            case WED -> returnWEDCommand();
-            case DWE -> returnDWECommand();
-            case DEW -> returnDEWCommand();
-            case EDW -> returnEDWCommand();
-            case EWD -> returnEWDCommand();
+            case WDE -> returnWDECommand(targetVals, elevatorSubsystem, elbowSubsystem);
+            case WED -> returnWEDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
+            case DWE -> returnDWECommand(targetVals, elevatorSubsystem, elbowSubsystem);
+            case DEW -> returnDEWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
+            case EDW -> returnEDWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
+            case EWD -> returnEWDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             //case OOO -> returnOther();
-            case XXX -> returnWDECommand();
+            case XXX -> returnWDECommand(targetVals, elevatorSubsystem, elbowSubsystem); // Default to WDE if no movement needed
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };
@@ -38,27 +85,45 @@ public class ScoringSubsystem {
     
     
     
-    private Command returnWDECommand() {
+    private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnWEDCommand() {
+    private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
+        new ElbowElevationRotationCommand(elbElevation,targetVals[1], elbowSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnDWECommand() {
+    private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnDEWCommand() {
+    private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnEDWCommand() {
+    private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnEWDCommand() {
+    private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
         return new InstantCommand();
     }
 

@@ -43,8 +43,8 @@ public class ElbowSubsystem extends SubsystemBase{
 
     public static boolean hasBeenInitialized = false;
 
-    protected static SparkMax leftElbowMotor  = new SparkMax(2, MotorType.kBrushless);
-    protected static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
+    public static SparkMax leftElbowMotor  = new SparkMax(2, MotorType.kBrushless);
+    public static SparkMax rightElbowMotor = new SparkMax(3, MotorType.kBrushless);
 
     public SparkMaxConfig leftMotorConfig = new SparkMaxConfig();
     public SparkMaxConfig rightMotorConfig = new SparkMaxConfig();
@@ -71,7 +71,7 @@ public class ElbowSubsystem extends SubsystemBase{
     public static final double MIN_ROTATION =  -180.0;
     public static final double MAX_ROTATION =   180.0;
 
-    
+
     public ElbowSubsystem() {
         timer.start();
 
