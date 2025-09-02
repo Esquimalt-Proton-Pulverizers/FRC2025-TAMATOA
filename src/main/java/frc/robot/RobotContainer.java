@@ -32,6 +32,8 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.State;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
@@ -68,6 +70,7 @@ public class RobotContainer {
 	public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
@@ -156,15 +159,14 @@ public class RobotContainer {
         double curElevatorPos = elevatorSubsystem.getPosition();
 
         //// ------------------- Arm Controls -------------------
-        operatorController.button(5).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.INTAKE_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // Left Bumper
-        operatorController.button(2).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // A
-        operatorController.button(1).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // X
-        operatorController.button(3).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // B
-        operatorController.button(4).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // Y
-        operatorController.button(6).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOW_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));  // Right Bumper
-        operatorController.button(9).onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.LOCK_POSITION, ElbowSubsystem.HOMING_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos)); // Back Button
-        // operatorController.povRight().onTrue(new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, ElevatorSubsystem.CORAL_STATION_POSITION, ElbowSubsystem.CORAL_POS, curElbowElevationPos, curElbowRotationPos, curElevatorPos));
 
+		operatorController.button(5).onTrue(scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem)); // Left Bumper
+		operatorController.button(2).onTrue(scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem)); // A
+		operatorController.button(1).onTrue(scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem)); // X
+		operatorController.button(3).onTrue(scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem)); // B
+		operatorController.button(4).onTrue(scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem)); // Y
+		operatorController.button(6).onTrue(scoringSubsystem.moveArm(State.CORAL_STATION_INTAKE, elevatorSubsystem, elbowSubsystem)); // Right Bumper
+		operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
 
         //// ---------------- Intake Commands ----------------
         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	

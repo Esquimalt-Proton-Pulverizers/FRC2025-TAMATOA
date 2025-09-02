@@ -13,14 +13,14 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
 public class ScoringSubsystem {
-    State currentState = State.CORAL_GROUND_INTAKE;
-    State targetState = State.SCORE_L2;
+    static State currentState = State.HOME_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
+    State targetState = State.SCORE_L2; // Example target state, will be changed dynamically before use
     double[] targetVals; // 1; Wrist pos, 2; Diff pos, 3; Elevator pos
     double elbElevation;
     double elbRotation;
     double elevation;
 
-    public Command moveArm(State currentState, State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
+    public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
         double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
 
@@ -33,39 +33,39 @@ public class ScoringSubsystem {
         S seq = getSequence(currentState, targetState);
         switch (targetState)    {
             case CORAL_GROUND_INTAKE:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-98.0, 90.0, 3.0}; 
             case ALGAE_GROUND_INTAKE:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case CORAL_STATION_INTAKE: 
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case ALGAE_LOLLIPOP_INTAKE:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case HOME_CLIMB:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-5.0, 0, 0}; 
             case SET_CORAL_POSITION_LEFT:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case SET_CORAL_POSITION_RIGHT:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case SCORE_L1:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-26.0, 90.0, 5.0}; 
             case SCORE_L2: 
-                targetVals = new double[]{0.0, 0, 0}; 
+                targetVals = new double[]{-51.5, 0, 16.5}; 
             case SCORE_L3:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-51.5, 0, 32.5}; 
             case SCORE_L4:  
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-51.5, 0.0, 58.0}; 
             case SCORE_NET:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case SCORE_PROCESSOR:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case DRIVE_EMPTY:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{-5.0, 0, 2.0}; 
             case DRIVE_WITH_CORAL:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case DRIVE_WITH_ALGAE:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
             case OTHER:
-                targetVals = new double[]{0.0, 0, 0};
+                targetVals = new double[]{0.0, 0, 0}; // not yet determined
                 break;
         }
     
