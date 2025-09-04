@@ -173,12 +173,12 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-
+		double[] targetVals = new double[]{-30, 90, 10};
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(7).onTrue(new ElbowElevationRotationCommand(-10, 0, elbowSubsystem));
-		operatorController.button(8).onTrue(new ElbowElevationRotationCommand(-30, 0, elbowSubsystem));
+		operatorController.button(7).onTrue(scoringSubsystem.returnDWECommand(targetVals,elevatorSubsystem,elbowSubsystem));
+		operatorController.button(8).onTrue(scoringSubsystem.moveArm( State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem));
 
 		//// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));

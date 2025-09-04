@@ -12,7 +12,7 @@ import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 public class ScoringSubsystem {
     public static State currentState = State.HOME_FOR_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
     private State targetState = State.SCORE_L2; // Example target state, will be changed dynamically before use
-    private double[] targetVals; // 1; Wrist pos, 2; Diff pos, 3; Elevator pos
+    private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
     private double elbElevation;
     private double elbRotation;
     private double elevation;
@@ -105,11 +105,11 @@ public class ScoringSubsystem {
     private Command returnInstantCommand() {
         return new InstantCommand();
     }
-    private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
-        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        return new InstantCommand();
+    public Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
+        .andThen(new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
+        .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
+        
     }
 
     private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
