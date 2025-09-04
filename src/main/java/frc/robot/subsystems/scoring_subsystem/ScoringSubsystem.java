@@ -18,17 +18,22 @@ public class ScoringSubsystem {
     private double elevation;
 
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
+
+
+
         double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
         double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
         // this.addRequirements(elevatorSubsystem, elbowSubsystem);
 
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
         elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
+        System.out.println("moveArmCalled");
         if (currentState == targetState) {
             return new InstantCommand(); // No movement needed
         }
 
         S seq = getSequence(currentState, targetState);
+        System.out.println(seq);
 
         switch (targetState) {
             case CORAL_GROUND_INTAKE:
@@ -85,7 +90,7 @@ public class ScoringSubsystem {
             default:
                 throw new IllegalStateException("Unexpected value: " + targetState);
         }
-    
+        System.out.println("Switch 1");
         return switch (seq) {
             case WDE -> returnWDECommand(targetVals, elevatorSubsystem, elbowSubsystem);
             case WED -> returnWEDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
@@ -98,6 +103,7 @@ public class ScoringSubsystem {
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };
+        
     }
     
     
@@ -106,6 +112,7 @@ public class ScoringSubsystem {
         return new InstantCommand();
     }
     public Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        System.out.println("DWE run");
         return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
         .andThen(new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
