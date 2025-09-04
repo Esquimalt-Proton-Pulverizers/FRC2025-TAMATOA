@@ -49,10 +49,10 @@ public class RobotContainer {
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
 	// Setting up bindings for necessary control of the swerve drive platform
-	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
-			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+	// private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+	// 		.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
+	// 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+	// private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
 	// Telemetry
 	private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -121,29 +121,29 @@ public class RobotContainer {
         
 		//// ----------------- Driving Commands -----------------
         // Drive Controls
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-            )
-        );
+        // drivetrain.setDefaultCommand(
+        //     // Drivetrain will execute this command periodically
+        //     drivetrain.applyRequest(() ->
+        //         drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+        //             .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+        //             .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
+        //     )
+        // );
 
 		// Reset the field-centric heading on left bumper press
-		driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // Brake Mode - Stop robot from being moved
-		driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
+		// driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
 
 
         //// ----------------- Hanging Controls -----------------
-		driverController.povUp().onTrue(hanger.extend());
-        driverController.povDown().onTrue(hanger.retract());
-		driverController.leftBumper().onTrue(hanger.intake());
-        driverController.leftBumper().onFalse(hanger.stop());
-        driverController.back().onTrue(hanger.manualRetract());
-        driverController.back().onFalse(hanger.resetWinch());
+		// driverController.povUp().onTrue(hanger.extend());
+        // driverController.povDown().onTrue(hanger.retract());
+		// driverController.leftBumper().onTrue(hanger.intake());
+        // driverController.leftBumper().onFalse(hanger.stop());
+        // driverController.back().onTrue(hanger.manualRetract());
+        // driverController.back().onFalse(hanger.resetWinch());
 
 
         /////////////////////////////////////////////////////////
@@ -160,43 +160,45 @@ public class RobotContainer {
 
         //// ------------------- Arm Controls -------------------
 
-		operatorController.button(5).onTrue(scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem)); // Left Bumper
-		operatorController.button(2).onTrue(scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem)); // A
-		operatorController.button(1).onTrue(scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem)); // X
-		operatorController.button(3).onTrue(scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem)); // B
-		operatorController.button(4).onTrue(scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem)); // Y
-		operatorController.button(6).onTrue(scoringSubsystem.moveArm(State.CORAL_STATION_INTAKE, elevatorSubsystem, elbowSubsystem)); // Right Bumper
-		operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
+		// operatorController.button(5).onTrue(scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem)); // Left Bumper
+		// operatorController.button(2).onTrue(scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem)); // A
+		// operatorController.button(1).onTrue(scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem)); // X
+		// operatorController.button(3).onTrue(scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem)); // B
+		// operatorController.button(4).onTrue(scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem)); // Y
+		// operatorController.button(6).onTrue(scoringSubsystem.moveArm(State.CORAL_STATION_INTAKE, elevatorSubsystem, elbowSubsystem)); // Right Bumper
+		// operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
 
         //// ---------------- Intake Commands ----------------
-        operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-        operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-        operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-        operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        // operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
 
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
+		operatorController.button(7).onTrue(new ElbowElevationRotationCommand(-10, 0, elbowSubsystem));
+		operatorController.button(8).onTrue(new ElbowElevationRotationCommand(-30, 0, elbowSubsystem));
 
 		//// ----------------- Elbow Commands ----------------
-		operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
-		operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
-		operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
-		operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
+		// operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
+		// operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
+		// operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
+		// operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
 		// If Manual Override is true, reset encoder positions, and then become false
-        operatorController.button(10).onTrue(Commands.runOnce(() -> 
-			new ConditionalCommand(
-				new ParallelCommandGroup(
-					Commands.runOnce(() -> ElevatorSubsystem.resetEncoder()),
-					Commands.runOnce(() -> ElbowSubsystem.resetEncoder()),
-					Commands.runOnce(() -> manualOverride = false)
-				), 
-				Commands.runOnce(() -> manualOverride = true),
-				() -> manualOverride)
-			));
+        // operatorController.button(10).onTrue(Commands.runOnce(() -> 
+		// 	new ConditionalCommand(
+		// 		new ParallelCommandGroup(
+		// 			Commands.runOnce(() -> ElevatorSubsystem.resetEncoder()),
+		// 			Commands.runOnce(() -> ElbowSubsystem.resetEncoder()),
+		// 			Commands.runOnce(() -> manualOverride = false)
+		// 		), 
+		// 		Commands.runOnce(() -> manualOverride = true),
+		// 		() -> manualOverride)
+		// 	));
 
 
         /////////////////////////////////////////////////////////

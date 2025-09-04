@@ -1,9 +1,5 @@
 package frc.robot.subsystems.scoring_subsystem;
 
-import static edu.wpi.first.units.Units.Rotation;
-
-import javax.naming.spi.StateFactory;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -12,17 +8,19 @@ import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
+
 public class ScoringSubsystem {
-    static State currentState = State.HOME_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
-    State targetState = State.SCORE_L2; // Example target state, will be changed dynamically before use
-    double[] targetVals; // 1; Wrist pos, 2; Diff pos, 3; Elevator pos
-    double elbElevation;
-    double elbRotation;
-    double elevation;
+    public static State currentState = State.HOME_FOR_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
+    private State targetState = State.SCORE_L2; // Example target state, will be changed dynamically before use
+    private double[] targetVals; // 1; Wrist pos, 2; Diff pos, 3; Elevator pos
+    private double elbElevation;
+    private double elbRotation;
+    private double elevation;
 
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
         double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+        // this.addRequirements(elevatorSubsystem, elbowSubsystem);
 
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
         elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
@@ -31,42 +29,61 @@ public class ScoringSubsystem {
         }
 
         S seq = getSequence(currentState, targetState);
-        switch (targetState)    {
+
+        switch (targetState) {
             case CORAL_GROUND_INTAKE:
                 targetVals = new double[]{-98.0, 90.0, 3.0}; 
+                break;
             case ALGAE_GROUND_INTAKE:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                targetVals = new double[]{-115.0, -90.0, 5.2}; // not yet tested
+                break;
             case CORAL_STATION_INTAKE: 
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                break;
             case ALGAE_LOLLIPOP_INTAKE:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
-            case HOME_CLIMB:
+                targetVals = new double[]{-115.0, -90.0, 11.25}; // not yet tested
+                break;
+            case HOME_FOR_CLIMB:
                 targetVals = new double[]{-5.0, 0, 0}; 
+                break;
             case SET_CORAL_POSITION_LEFT:
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                break;
             case SET_CORAL_POSITION_RIGHT:
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                break;
             case SCORE_L1:
                 targetVals = new double[]{-26.0, 90.0, 5.0}; 
+                break;
             case SCORE_L2: 
                 targetVals = new double[]{-51.5, 0, 16.5}; 
+                break;
             case SCORE_L3:
                 targetVals = new double[]{-51.5, 0, 32.5}; 
+                break;
             case SCORE_L4:  
                 targetVals = new double[]{-51.5, 0.0, 58.0}; 
+                break;
             case SCORE_NET:
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                break;
             case SCORE_PROCESSOR:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                targetVals = new double[]{-90, 180, 4.0}; // not yet tested
+                break;
             case DRIVE_EMPTY:
                 targetVals = new double[]{-5.0, 0, 2.0}; 
+                break;
             case DRIVE_WITH_CORAL:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                targetVals = new double[]{20, 90, 2.0}; // not yet tested
+                break;
             case DRIVE_WITH_ALGAE:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                targetVals = new double[]{30.0, 180, 2.0}; // not yet tested
+                break;
             case OTHER:
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + targetState);
         }
     
         return switch (seq) {
@@ -76,8 +93,8 @@ public class ScoringSubsystem {
             case DEW -> returnDEWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             case EDW -> returnEDWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             case EWD -> returnEWDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
-            //case OOO -> returnOther();
-            case XXX -> returnWDECommand(targetVals, elevatorSubsystem, elbowSubsystem); // Default to WDE if no movement needed
+            // case OOO -> returnOther();
+            // case XXX -> returnInstantCommand();
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };
@@ -85,42 +102,45 @@ public class ScoringSubsystem {
     
     
     
-    private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnInstantCommand() {
+        return new InstantCommand();
+    }
+    private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
         new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         new ElbowElevationRotationCommand(elbElevation,targetVals[1], elbowSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
         new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         return new InstantCommand();
     }
 
-    private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
         new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
-        return new InstantCommand();
-    }
-
-    private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
         new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         return new InstantCommand();
     }
 
     private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
+        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
+        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
+        return new InstantCommand();
+    }
+
+    private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
         new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
         new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
@@ -137,7 +157,7 @@ public class ScoringSubsystem {
         ALGAE_GROUND_INTAKE,
         CORAL_STATION_INTAKE,
         ALGAE_LOLLIPOP_INTAKE,
-        HOME_CLIMB,
+        HOME_FOR_CLIMB,
         SET_CORAL_POSITION_LEFT,
         SET_CORAL_POSITION_RIGHT,
         SCORE_L1,
@@ -152,9 +172,12 @@ public class ScoringSubsystem {
         OTHER // wrist/elbow/elevator block if needed
     }
 
-    public enum S {//W is wrist, D is differential (sometimes called elbow), and E is elevator
-        //x is default, O is other, and U is still unknown and needs to be solved
-        //they are three letters because Colin is OCD and the matrix is easier to read
+    /** 
+     * W is wrist, D is differential (sometimes called elbow), and E is elevator
+     * is default, O is other, and U is still unknown and needs to be solved
+     * they are three letters because the matrix is easier to read
+     */
+    public enum S {
         WDE("1"), WED("2"), DWE("3"), DEW("4"), EDW("5"), EWD("6"),
         OOO("O"), UUU("U"), XXX("x");
 
@@ -166,7 +189,7 @@ public class ScoringSubsystem {
 
     // Matrix layout: rows = from state, cols = to state
     private static final S[][] matrix = {
-        // CG_IN AG_IN CS_IN AL_LO HOME SET_L SET_R L1 L2 L3 L4 NET PROC DR_EMP DR_COR DR_ALG OTHER
+        //           CG_IN  AG_IN  CS_IN  AL_LO  HOME   SET_L  SET_R  L1     L2     L3     L4     NET    PROC   DR_EMP DR_COR DR_ALG OTHER
         /*CG_IN*/   {S.XXX, S.EDW, S.XXX, S.XXX, S.WDE, S.OOO, S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.OOO},
         /*AG_IN*/   {S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.OOO, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX},
         /*CS_IN*/   {S.WDE, S.WDE, S.XXX, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.XXX, S.WED, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
