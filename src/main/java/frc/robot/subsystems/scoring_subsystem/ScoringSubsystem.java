@@ -220,17 +220,17 @@ public class ScoringSubsystem {
         State newCurState = targetState; // Default to target state if no match found (no Motion will ensue)
         if (Math.abs(elbElevation - (-98.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 3.0) < 2.0) {
             newCurState = State.CORAL_GROUND_INTAKE;
-        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 2.0) {
+        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 1.0) {
             newCurState = State.ALGAE_GROUND_INTAKE;
-        } else if (Math.abs(elbElevation - (0.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 2.0) {
+        } else if (Math.abs(elbElevation - (0.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
             newCurState = State.CORAL_STATION_INTAKE;
-        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 11.25) < 2.0) {
+        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 11.25) < 1.0) {
             newCurState = State.ALGAE_LOLLIPOP_INTAKE;
-        } else if (Math.abs(elbElevation - (-5.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 2.0) {
+        } else if (Math.abs(elbElevation - (-5.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
             newCurState = State.HOME_FOR_CLIMB;
-        } else if (Math.abs(elbElevation - (20.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 2.0) {
+        } else if (Math.abs(elbElevation - (20.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
             newCurState = State.DRIVE_WITH_CORAL;
-        } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 2.0) {
+        } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
             newCurState = State.DRIVE_WITH_ALGAE;
         } else newCurState = targetState; // Default to target state if no match found (no Motion will ensue))
         return newCurState;
