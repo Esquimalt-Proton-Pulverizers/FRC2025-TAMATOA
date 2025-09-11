@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Set;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -87,7 +89,7 @@ public class RobotContainer {
 	private AutoPlace.Side side = AutoPlace.Side.one;
 
 	// Path follower
-	private final SendableChooser<Command> autoChooser;
+	//private final SendableChooser<Command> autoChooser;
 
 
 	/**
@@ -97,8 +99,8 @@ public class RobotContainer {
 		// Register the named commands for auto
 		registerCommands();
         configureBindings();
-		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
-		SmartDashboard.putData("Auto Mode", autoChooser);
+		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
+		//SmartDashboard.putData("Auto Mode", autoChooser);
     }
 	private static double applyDeadband(double value) {
         if (Math.abs(value) < XBOX_DEADBAND) {
@@ -173,12 +175,12 @@ public class RobotContainer {
         // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
         // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
         // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-		double[] targetVals = new double[]{-30, 90, 10};
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
-        // operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(7).onTrue(scoringSubsystem.returnDWECommand(targetVals,elevatorSubsystem,elbowSubsystem));
-		operatorController.button(8).onTrue(scoringSubsystem.moveArm( State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem));
+        //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
+		operatorController.button(8).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+
+
 
 		//// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
@@ -286,10 +288,10 @@ public class RobotContainer {
         //     () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), false));
 	}
 
-	public Command getAutonomousCommand() {
+	//public Command getAutonomousCommand() {
 		/* Run the path selected from the auto chooser */
-		return autoChooser.getSelected();
-	}
+		//return autoChooser.getSelected();
+	//}
 
 	private void registerCommands() {
 		// Register the commands here

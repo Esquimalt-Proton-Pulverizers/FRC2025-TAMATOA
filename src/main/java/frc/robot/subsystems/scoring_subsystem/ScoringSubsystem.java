@@ -11,7 +11,6 @@ import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
 public class ScoringSubsystem {
     public static State currentState = State.HOME_FOR_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
-    private State targetState = State.SCORE_L2; // Example target state, will be changed dynamically before use
     private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
     private double elbElevation;
     private double elbRotation;
@@ -19,7 +18,9 @@ public class ScoringSubsystem {
     private ElevatorSubsystem elevatorSubsystem;
 
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
-        currentState = getCurState();
+        this.elevatorSubsystem = elevatorSubsystem;
+        //currentState = getCurState(targetState);
+        currentState = State.HOME_FOR_CLIMB;
         System.out.println("moveArmCalled");
         if (currentState == targetState) {
             return new InstantCommand(); // No movement needed
@@ -80,7 +81,6 @@ public class ScoringSubsystem {
                 throw new IllegalStateException("Unexpected value: " + targetState);
         }
         S seq = getSequence(currentState, targetState);
-        System.out.println(seq);
 
         System.out.println("Switch 1");
         return switch (seq) {
@@ -91,7 +91,7 @@ public class ScoringSubsystem {
             case EDW -> returnEDWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             case EWD -> returnEWDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             // case OOO -> returnOther();
-            // case XXX -> returnInstantCommand();
+            //case XXX -> returnInstantCommand();
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };
@@ -211,7 +211,7 @@ public class ScoringSubsystem {
     public static S getSequence(State from, State to) {
         return matrix[from.ordinal()][to.ordinal()];    
     }
-    private State getCurState() {
+    private State getCurState(State targetState) {
         double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
         double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
@@ -232,7 +232,7 @@ public class ScoringSubsystem {
             newCurState = State.DRIVE_WITH_CORAL;
         } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
             newCurState = State.DRIVE_WITH_ALGAE;
-        } else newCurState = targetState; // Default to target state if no match found (no Motion will ensue))
+        } 
         return newCurState;
     }
  
