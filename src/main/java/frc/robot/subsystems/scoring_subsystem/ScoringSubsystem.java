@@ -19,8 +19,7 @@ public class ScoringSubsystem {
 
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
-        //currentState = getCurState(targetState);
-        currentState = State.HOME_FOR_CLIMB;
+        currentState = getCurState(targetState);
         System.out.println("moveArmCalled");
         if (currentState == targetState) {
             return new InstantCommand(); // No movement needed
@@ -39,7 +38,7 @@ public class ScoringSubsystem {
                 targetVals = new double[]{-115.0, -90.0, 11.25}; // not yet tested
                 break;
             case HOME_FOR_CLIMB:
-                targetVals = new double[]{-5.0, 0, 0}; 
+                targetVals = new double[]{-5.0, 0, 2}; 
                 break;
             case SET_CORAL_POSITION_LEFT:
                 targetVals = new double[]{0.0, 0, 0}; // not yet determined
@@ -75,7 +74,7 @@ public class ScoringSubsystem {
                 targetVals = new double[]{30.0, 180, 2.0}; // not yet tested
                 break;
             case OTHER:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
+                targetVals = new double[]{-45, 0, 5}; // not yet determined
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + targetState);
@@ -112,10 +111,10 @@ public class ScoringSubsystem {
     }
 
     private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem);
-        return new InstantCommand();
+        System.out.println("DEW run");
+        return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
+        .andThan(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
+        .andThan(new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
     }
 
     private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
@@ -168,7 +167,8 @@ public class ScoringSubsystem {
         DRIVE_EMPTY,
         DRIVE_WITH_CORAL,
         DRIVE_WITH_ALGAE,
-        OTHER // wrist/elbow/elevator block if needed
+        OTHER, // Safe position for unknown states
+        UNKNOWN // Used when current state cannot be determined, not any one actual position
     }
 
     /** 
@@ -189,23 +189,24 @@ public class ScoringSubsystem {
     // Matrix layout: rows = from state, cols = to state
     private static final S[][] matrix = {
         //           CG_IN  AG_IN  CS_IN  AL_LO  HOME   SET_L  SET_R  L1     L2     L3     L4     NET    PROC   DR_EMP DR_COR DR_ALG OTHER
-        /*CG_IN*/   {S.XXX, S.EDW, S.XXX, S.XXX, S.WDE, S.OOO, S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.OOO},
-        /*AG_IN*/   {S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.OOO, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*CS_IN*/   {S.WDE, S.WDE, S.XXX, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.XXX, S.WED, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*AL_LO*/   {S.UUU, S.UUU, S.XXX, S.UUU, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.UUU, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*SET_L*/   {S.UUU, S.UUU, S.XXX, S.XXX, S.WDE, S.OOO, S.XXX, S.WDE, S.XXX, S.XXX, S.EDW, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*SET_R*/   {S.UUU, S.UUU, S.XXX, S.XXX, S.OOO, S.XXX, S.OOO, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*L1*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*L2*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*L3*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*L4*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*NET*/     {S.WDE, S.WDE, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*PROC*/    {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*DR_COR*/  {S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*DR_ALG*/  {S.UUU, S.UUU, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX},
-        /*OTHER*/   {S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX}
+        /*CG_IN*/   {S.XXX, S.EDW, S.XXX, S.XXX, S.WDE, S.OOO, S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.DWE},
+        /*AG_IN*/   {S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.OOO, S.WDE, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*CS_IN*/   {S.WDE, S.WDE, S.XXX, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.XXX, S.WED, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*AL_LO*/   {S.UUU, S.UUU, S.XXX, S.UUU, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.UUU, S.UUU, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*SET_L*/   {S.UUU, S.UUU, S.XXX, S.XXX, S.WDE, S.OOO, S.XXX, S.WDE, S.XXX, S.XXX, S.EDW, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*SET_R*/   {S.UUU, S.UUU, S.XXX, S.XXX, S.OOO, S.XXX, S.OOO, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*L1*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*L2*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*L3*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*L4*/      {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.WDE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*NET*/     {S.WDE, S.WDE, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.WDE, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*PROC*/    {S.WDE, S.WDE, S.XXX, S.XXX, S.WED, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*DR_COR*/  {S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*DR_ALG*/  {S.UUU, S.UUU, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.DWE},
+        /*OTHER*/   {S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
+        /*UNKNOWN*/ {S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE}
     };
 
     public static S getSequence(State from, State to) {
@@ -217,7 +218,7 @@ public class ScoringSubsystem {
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
         elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
         double elevatorPos = elevatorSubsystem.getPosition();
-        State newCurState = targetState; // Default to target state if no match found (no Motion will ensue)
+        State newCurState = State.UNKNOWN; // Default to target state if no match found (no Motion will ensue)
         if (Math.abs(elbElevation - (-98.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 3.0) < 2.0) {
             newCurState = State.CORAL_GROUND_INTAKE;
         } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 1.0) {
@@ -232,7 +233,7 @@ public class ScoringSubsystem {
             newCurState = State.DRIVE_WITH_CORAL;
         } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
             newCurState = State.DRIVE_WITH_ALGAE;
-        } 
+        } else targetState = State.OTHER;
         return newCurState;
     }
  
