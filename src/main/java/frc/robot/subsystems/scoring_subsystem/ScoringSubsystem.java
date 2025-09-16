@@ -20,6 +20,10 @@ public class ScoringSubsystem {
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
         currentState = getCurState(targetState);
+        if (currentState == State.UNKNOWN) {
+            targetState = State.OTHER; // If current state is unknown, move to safe OTHER position first
+        }
+        System.out.println("Current State: " + currentState);
         System.out.println("moveArmCalled");
         if (currentState == targetState) {
             return new InstantCommand(); // No movement needed
@@ -74,7 +78,8 @@ public class ScoringSubsystem {
                 targetVals = new double[]{30.0, 180, 2.0}; // not yet tested
                 break;
             case OTHER:
-                targetVals = new double[]{-45, 0, 5}; // not yet determined
+                targetVals = new double[]{-45, 0, 5}; 
+                System.out.println("Position Unknown, moving to safe position. press again to go to any target position");
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + targetState);
@@ -113,36 +118,36 @@ public class ScoringSubsystem {
     private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("DEW run");
         return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
-        .andThan(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
-        .andThan(new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
+        .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
+        .andThen(new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
     }
 
     private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem);
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        return new InstantCommand();
+        System.out.println("WDE run");
+        return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
+        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem))
+        .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
     }
 
     private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem);
-        return new InstantCommand();
+        System.out.println("WED run");
+        return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
+        .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
+        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
     }
 
     private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem);
-        return new InstantCommand();
+        System.out.println("EWD run");
+        return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
+        .andThen(new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
+        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
     }
 
     private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
-        new ElevatorToPosCommand(targetVals[2], elevatorSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem);
-        new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem);
-        return new InstantCommand();
+        System.out.println("EDW run");
+        return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
+        .andThen(new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem))
+        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
     }
 
 
@@ -205,7 +210,7 @@ public class ScoringSubsystem {
         /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
         /*DR_COR*/  {S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.DWE, S.DWE, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE},
         /*DR_ALG*/  {S.UUU, S.UUU, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.UUU, S.XXX, S.XXX, S.XXX, S.DWE},
-        /*OTHER*/   {S.OOO, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX},
+        /*OTHER*/   {S.WDE, S.WED, S.UUU, S.WED, S.EWD, S.UUU, S.UUU, S.WDE, S.WDE, S.WDE, S.WDE, S.UUU, S.DWE, S.EWD, S.WED, S.WED, S.XXX},
         /*UNKNOWN*/ {S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.XXX, S.DWE}
     };
 
@@ -233,7 +238,9 @@ public class ScoringSubsystem {
             newCurState = State.DRIVE_WITH_CORAL;
         } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
             newCurState = State.DRIVE_WITH_ALGAE;
-        } else targetState = State.OTHER;
+        } else if (Math.abs(elbElevation - (-45.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 5.0) < 1.0) {
+            newCurState = State.OTHER;
+        }
         return newCurState;
     }
  

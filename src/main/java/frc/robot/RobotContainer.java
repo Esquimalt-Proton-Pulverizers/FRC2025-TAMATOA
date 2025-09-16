@@ -171,21 +171,26 @@ public class RobotContainer {
 		// operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
 
         //// ---------------- Intake Commands ----------------
-        // operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-        // operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-        // operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-        // operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+         operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+         operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(8).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 
 
 
 		//// ----------------- Elbow Commands ----------------
 		// operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
 		// operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
-		// operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
+		// operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualcMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 		// operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 
 		//// -------- Manual Override + Encoder Reset --------
