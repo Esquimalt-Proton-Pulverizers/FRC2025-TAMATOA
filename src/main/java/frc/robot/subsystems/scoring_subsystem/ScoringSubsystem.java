@@ -35,21 +35,21 @@ public class ScoringSubsystem {
             case ALGAE_GROUND_INTAKE:
                 targetVals = new double[]{-115.0, -90.0, 5.2}; // not yet tested
                 break;
-            case CORAL_STATION_INTAKE: 
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
-                break;
+            // case CORAL_STATION_INTAKE: 
+            //     targetVals = new double[]{0.0, 0, 0}; // not yet determined
+            //     break;
             case ALGAE_LOLLIPOP_INTAKE:
                 targetVals = new double[]{-115.0, -90.0, 11.25}; // not yet tested
                 break;
             case HOME_FOR_CLIMB:
                 targetVals = new double[]{-5.0, 0, 2}; 
                 break;
-            case SET_CORAL_POSITION_LEFT:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
-                break;
-            case SET_CORAL_POSITION_RIGHT:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
-                break;
+            // case SET_CORAL_POSITION_LEFT:
+            //     targetVals = new double[]{0.0, 0, 0}; // not yet determined
+            //     break;
+            // case SET_CORAL_POSITION_RIGHT:
+            //     targetVals = new double[]{0.0, 0, 0}; // not yet determined
+            //     break;
             case SCORE_L1:
                 targetVals = new double[]{-26.0, 90.0, 5.0}; 
                 break;
@@ -62,9 +62,9 @@ public class ScoringSubsystem {
             case SCORE_L4:  
                 targetVals = new double[]{-51.5, 0.0, 58.0}; 
                 break;
-            case SCORE_NET:
-                targetVals = new double[]{0.0, 0, 0}; // not yet determined
-                break;
+            // case SCORE_NET:
+            //     targetVals = new double[]{0.0, 0, 0}; // not yet determined
+            //     break;
             case SCORE_PROCESSOR:
                 targetVals = new double[]{-90, 180, 4.0}; // not yet tested
                 break;
@@ -95,7 +95,7 @@ public class ScoringSubsystem {
             case EDW -> returnEDWCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             case EWD -> returnEWDCommand(targetVals, elevatorSubsystem, elbowSubsystem);
             // case OOO -> returnOther();
-            //case XXX -> returnInstantCommand();
+            case XXX -> returnDWECommand(targetVals, elevatorSubsystem, elbowSubsystem);
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };

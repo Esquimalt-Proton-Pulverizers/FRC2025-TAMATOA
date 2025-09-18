@@ -17,6 +17,7 @@ public class ElbowElevationRotationCommand extends Command {
   double rotation; 
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
+  private boolean debuggingMode = false;
 
   private static final double TOLERANCE = 3.0;
   public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
@@ -34,7 +35,7 @@ public class ElbowElevationRotationCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("StartingElevate");
+    System.out.println("StartingElevate to: " + elevation + " Rotate to: " + rotation);
 
     elbowSubsystem.setElevationRotationPos(elevation, rotation, true);
     atPosition = false;
@@ -53,6 +54,13 @@ public class ElbowElevationRotationCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    if (debuggingMode) {
+      if (interrupted) {
+        System.out.println("Interrupted Elevate to: " + elevation + " Rotate to: " + rotation);
+      } else {
+        System.out.println("Completed Elevate to: " + elevation + " Rotate to: " + rotation);
+      }
+    }
   }
 
   // Returns true when the command should end.
