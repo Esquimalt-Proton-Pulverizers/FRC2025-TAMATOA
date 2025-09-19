@@ -1,6 +1,7 @@
 package frc.robot.subsystems.scoring_subsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
@@ -10,13 +11,14 @@ import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
 
 public class ScoringSubsystem {
+
     public static State currentState = State.HOME_FOR_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
     private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
     private double elbElevation;
     private double elbRotation;
     private double elevation;
     private ElevatorSubsystem elevatorSubsystem;
-
+    
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
         currentState = getCurState(targetState);
@@ -228,8 +230,8 @@ public class ScoringSubsystem {
             newCurState = State.CORAL_GROUND_INTAKE;
         } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 1.0) {
             newCurState = State.ALGAE_GROUND_INTAKE;
-        } else if (Math.abs(elbElevation - (0.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
-            newCurState = State.CORAL_STATION_INTAKE;
+        // } else if (Math.abs(elbElevation - (0.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
+            // newCurState = State.CORAL_STATION_INTAKE;
         } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 11.25) < 1.0) {
             newCurState = State.ALGAE_LOLLIPOP_INTAKE;
         } else if (Math.abs(elbElevation - (-5.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
