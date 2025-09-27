@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems.elbow_subsystem;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** 
@@ -45,7 +42,7 @@ public class ElbowElevationRotationCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
+    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorTargetPos)< TOLERANCE && Math.abs(ElbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorTargetPos) < TOLERANCE){
       atPosition=true;
     }
   }

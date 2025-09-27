@@ -16,9 +16,11 @@ public class ScoringSubsystem {
     private double elbRotation;
     private double elevation;
     private ElevatorSubsystem elevatorSubsystem;
+    private ElbowSubsystem elbowSubsystem;
 
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
+        this.elbowSubsystem = elbowSubsystem;
         currentState = getCurState(targetState);
         if (currentState == State.UNKNOWN) {
             targetState = State.OTHER; // If current state is unknown, move to safe OTHER position first
@@ -218,10 +220,8 @@ public class ScoringSubsystem {
         return matrix[from.ordinal()][to.ordinal()];    
     }
     private State getCurState(State targetState) {
-        double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
-        double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
-        elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
-        elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
+        elbElevation = elbowSubsystem.getElevationPos();
+        elbRotation = elbowSubsystem.getRotationPos();
         double elevatorPos = elevatorSubsystem.getPosition();
         State newCurState = State.UNKNOWN; // Default to target state if no match found (no Motion will ensue)
         if (Math.abs(elbElevation - (-98.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 3.0) < 2.0) {
