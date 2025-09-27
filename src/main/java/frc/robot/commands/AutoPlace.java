@@ -176,20 +176,21 @@ public class AutoPlace extends SequentialCommandGroup {
     }
 
     public Command elevatorToLevel(int level, ElevatorSubsystem elevatorSubsystem) {
-        if (level == 1) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem);
-        }
-        else if (level == 2) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem);
-        }
-        else if (level == 3) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem);
-        }
-        else if (level == 4) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem);
-        }
-        else {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem);
-        }
+        // if (level == 1) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 2) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 3) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 4) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem);
+        // }
+        // else {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem);
+        // }
+        return new InstantCommand(); //TODO repair this with Scoring Subsystem
     }
 }

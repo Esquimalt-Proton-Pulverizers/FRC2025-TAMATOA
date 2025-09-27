@@ -14,6 +14,7 @@ import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 public class ScoringSubsystem extends SubsystemBase{
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 	private final DifferentialSubsystem differentialSubsystem = new DifferentialSubsystem();
+    private static final double SAFE_ELEVATOR_HEIGHT = 5.0; // Minimum safe height for elevator to avoid collisions
     public static Position currentPosition = Position.UNDEFINED; // Initial state; NOTE robot must start in this position or collisions may occur
     private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
     private double startDiffElevationAngle;
@@ -91,7 +92,7 @@ public class ScoringSubsystem extends SubsystemBase{
                     withinTolerance =
                         Math.abs(current[0] - target[0]) <= tolerances[0] + safetyBonustolerance &&
                         Math.abs(current[1] - target[1]) <= tolerances[1] + safetyBonustolerance && 
-                        current[2] > 5.0; //elevator just needs to be above 5 inches TODO go over this logic
+                        current[2] > SAFE_ELEVATOR_HEIGHT; //elevator just needs to be above x inches TODO go over this logic
                 }
 
                 if (withinTolerance) {
@@ -144,7 +145,11 @@ public class ScoringSubsystem extends SubsystemBase{
         if (currentPosition == Position.UNDEFINED){
             System.out.println("Current position is undefined, moving to safe position first");
             // Move to a safe intermediate position before proceeding to the target
-            double[] safeVals = {Position.SAFETY.getTargetVals()[0], Position.SAFETY.getTargetVals()[1], startElevPos};
+            double[] safeVals = {
+                Position.SAFETY.getTargetVals()[0],
+                Position.SAFETY.getTargetVals()[1], 
+                startElevPos>SAFE_ELEVATOR_HEIGHT ? startElevPos : SAFE_ELEVATOR_HEIGHT + 2}; //keep current elev if above 5, otherwise go above it by a margin
+                
             return returnDWECommand(safeVals, elevatorSubsystem,differentialSubsystem)
             .andThen(moveArm(targetPosition)); //TODO, see if recursion works, if not, this should all be in a big sequential command
             //.andThen(returnDEWCommand(targetPosition.getTargetVals(), elevatorSubsystem, differentialSubsystem)); //TODO try this

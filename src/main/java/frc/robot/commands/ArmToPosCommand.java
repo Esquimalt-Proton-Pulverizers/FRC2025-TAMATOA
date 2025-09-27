@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
@@ -63,7 +64,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
             // If elevator too low, move it up
             new ConditionalCommand(
                 new SequentialCommandGroup(
-                    new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem),
+                    new ElevatorToPosCommand(ScoringSubsystem.LOW_POSITION, elevatorSubsystem),
                     Commands.waitSeconds(0.5)), 
                 new InstantCommand(){}, 
                 () -> elevatorTooLow),
