@@ -62,6 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intake(){
+        System.out.println("INTAKING :))))");
         setTargetVoltage(INTAKE_VELOCITY);
     }
 

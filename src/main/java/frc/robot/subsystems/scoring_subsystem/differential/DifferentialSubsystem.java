@@ -99,13 +99,13 @@ public class DifferentialSubsystem extends SubsystemBase{
         if(!hasBeenInitialized) {
             resetEncoder();
 
-            leftElbowEncoder.setPosition(startPosElevation);
-            rightElbowEncoder.setPosition(startPosElevation);
+            leftElbowEncoder.setPosition(startingPosition.leftMotorPos);
+            rightElbowEncoder.setPosition(startingPosition.rightMotorPos);
             hasBeenInitialized = true;
         }
 
-        leftElbowMotor.getClosedLoopController().setReference(startPosElevation, SparkMax.ControlType.kPosition); 
-        rightElbowMotor.getClosedLoopController().setReference(-startPosElevation, SparkMax.ControlType.kPosition); 
+        leftElbowMotor.getClosedLoopController().setReference(startingPosition.leftMotorPos, SparkMax.ControlType.kPosition); 
+        rightElbowMotor.getClosedLoopController().setReference(startingPosition.rightMotorPos, SparkMax.ControlType.kPosition); //TODO verify this works with other starting positions
     }
 
     @Override

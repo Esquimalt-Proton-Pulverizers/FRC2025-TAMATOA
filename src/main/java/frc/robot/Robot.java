@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,6 +21,7 @@ import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private Timer printTimer = new Timer();
 
   private final RobotContainer m_robotContainer;
 
@@ -45,11 +47,17 @@ public class Robot extends TimedRobot {
     PortForwarder.add(5819, "172.29.1.1", 5809);
 
     m_robotContainer = new RobotContainer();
+    printTimer.start();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+    if(printTimer.hasElapsed(2)){
+      printTimer.reset();
+      m_robotContainer.printPose();
+    }
+  
   }
 
   @Override

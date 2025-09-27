@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -14,7 +15,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
@@ -50,11 +52,20 @@ public class RobotContainer {
 	private final double DRIVE_DEADBAND = 0.0;
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
+	private CoralPosition coralPosition = CoralPosition.DEFAULT;
+
+	enum CoralPosition {
+		DEFAULT,
+		LEFT,
+		MID,
+		RIGHT
+	}
+
 	// Setting up bindings for necessary control of the swerve drive platform
-	// private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-	// 		.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
-	// 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-	// private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
+			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+	private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
 	// Telemetry
 	private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -111,6 +122,22 @@ public class RobotContainer {
         return sign * adjusted;
     }
 
+	private final Command selectL2Command = new SelectCommand<>(
+		Map.ofEntries(
+			Map.entry(Position.SCORE_L2_LEFT, scoringSubsystem.moveArm(Position.SCORE_L2_LEFT)),
+			Map.entry(Position.SCORE_L2_MID, scoringSubsystem.moveArm(Position.SCORE_L2_MID)),
+			Map.entry(Position.SCORE_L2_RIGHT, scoringSubsystem.moveArm(Position.SCORE_L2_RIGHT))
+		)
+		
+	, this::getL2PositionFromCoral);
+	public void printPose(){
+		Pose2d test = drivetrain.getState().Pose;
+		System.out.println("x " + test.getX());
+		System.out.println("y " + test.getY());
+		System.out.println("rot " + test.getRotation());
+	}
+
+	
 	/**
 	 * Configure all bindings for the robot's controls.
 	 */
@@ -121,17 +148,22 @@ public class RobotContainer {
         
 		//// ----------------- Driving Commands -----------------
         // Drive Controls
-        // drivetrain.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     drivetrain.applyRequest(() ->
-        //         drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-        //             .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-        //             .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-        //     )
-        // );
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            // drivetrain.applyRequest(() ->
+            //     drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+            //         .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+            //         .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
+            // )
+			drivetrain.applyRequest(() ->
+                drive.withVelocityX(applyDeadband(-operatorController.getRawAxis(1)) /* ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) */) // Drive forward with negative Y (forward)
+                    .withVelocityY(applyDeadband(-operatorController.getRawAxis(0)) /* ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )*/) // Drive left with negative X (left)
+                    .withRotationalRate(applyDeadband(-operatorController.getRawAxis(2))/*  * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE)*/ ) // Drive counterclockwise with negative X (left)
+            )
+        );
 
 		// Reset the field-centric heading on left bumper press
-		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		operatorController.button(10).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // Brake Mode - Stop robot from being moved
 		// driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -171,13 +203,22 @@ public class RobotContainer {
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		
+		// operatorController.povLeft().onTrue(new InstantCommand(() -> coralPosition = CoralPosition.LEFT));
+		// operatorController.povUp().onTrue(new InstantCommand(() -> coralPosition = CoralPosition.MID));
+		// operatorController.povRight().onTrue(new InstantCommand(() -> coralPosition = CoralPosition.RIGHT));
+		// operatorController.povDown().onTrue(new InstantCommand(() -> System.out.println(coralPosition)));
 
+		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // L Trigger
+		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); // A
+		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2_MID), Set.of(scoringSubsystem))); // A
+		// operatorController.button(1).onTrue(selectL2Command); //X
+
+		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3_MID), Set.of(scoringSubsystem))); // B
+		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4_MID), Set.of(scoringSubsystem))); //Y
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); // Start
+		
+		operatorController.button(10).onTrue(Commands.defer(() -> scoringSubsystem.moveElevator(16.5), Set.of(scoringSubsystem)));
 
 
 		//// ----------------- Elbow Commands ----------------
@@ -290,6 +331,21 @@ public class RobotContainer {
 		/* Run the path selected from the auto chooser */
 		//return autoChooser.getSelected();
 	//}
+
+	private Position getL2PositionFromCoral() {
+		Position pos;
+
+		switch (coralPosition) {
+			case LEFT:
+				pos = Position.SCORE_L2_LEFT;
+			case RIGHT:
+				pos = Position.SCORE_L2_RIGHT;
+			default:
+				pos = Position.SCORE_L2_MID;
+		}
+		System.out.println("L2 Position: " + pos);
+		return pos;
+	}
 
 	private void registerCommands() {
 		// Register the commands here
