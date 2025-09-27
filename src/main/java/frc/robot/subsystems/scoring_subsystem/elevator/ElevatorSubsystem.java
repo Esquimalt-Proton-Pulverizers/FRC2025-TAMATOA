@@ -20,15 +20,6 @@ import frc.robot.RobotContainer;
 
 
 public class ElevatorSubsystem extends SubsystemBase {
-  // Position Constants
-  public static final double LOCK_POSITION   =  0.0;
-  public static final double LOW_POSITION    =  3.0; // Correct Low position value 2.0 
-  public static final double LEVEL1_POSITION =  5.0;
-  public static final double LEVEL2_POSITION = 16.5;
-  public static final double LEVEL3_POSITION = LEVEL2_POSITION + 16.0;
-  public static final double LEVEL4_POSITION = 58.0;
-  public static final double NET_POSITION    = 50;
-  public static final double CORAL_STATION_POSITION = 19.0;
 
   private static double elevatorTargetPosition;
 

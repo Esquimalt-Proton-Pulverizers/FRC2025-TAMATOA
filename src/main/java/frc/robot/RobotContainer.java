@@ -31,7 +31,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
-import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.State;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
@@ -68,8 +68,6 @@ public class RobotContainer {
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	public final DifferentialSubsystem elbowSubsystem = new DifferentialSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
@@ -153,12 +151,7 @@ public class RobotContainer {
         /////////////////////////////////////////////////////////
         
         //// -------------------- Cancel All --------------------
-        // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
-
-        // Positions of Elevator and Elbow
-        double curElbowElevationPos = elbowSubsystem.getElevationPos();
-        double curElbowRotationPos = elbowSubsystem.getRotationPos();
-        double curElevatorPos = elevatorSubsystem.getPosition();
+        // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
         //// ------------------- Arm Controls -------------------
 
@@ -178,12 +171,12 @@ public class RobotContainer {
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 
 
 
@@ -321,4 +314,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
 	}
+    public void initialize() {
+        scoringSubsystem.initialize();
+    }
 }
