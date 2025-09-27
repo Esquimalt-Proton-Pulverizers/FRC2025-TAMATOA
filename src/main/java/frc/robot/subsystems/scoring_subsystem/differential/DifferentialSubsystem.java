@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elbow_subsystem;
+package frc.robot.subsystems.scoring_subsystem.differential;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 
-public class ElbowSubsystem extends SubsystemBase{
+public class DifferentialSubsystem extends SubsystemBase{
     private final static double START_POS_ELEVATION = 0.0;
     private final static double START_POS_ROTATION  = 0.0;
 
@@ -67,7 +67,7 @@ public class ElbowSubsystem extends SubsystemBase{
     private static final double MAX_ROTATION =   180.0;
 
 
-    public ElbowSubsystem() {
+    public DifferentialSubsystem() {
         timer.start();
 
         leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)

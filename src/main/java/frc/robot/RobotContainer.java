@@ -28,14 +28,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.State;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
@@ -69,7 +69,7 @@ public class RobotContainer {
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
+	public final DifferentialSubsystem elbowSubsystem = new DifferentialSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();

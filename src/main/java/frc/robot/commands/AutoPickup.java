@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 public class AutoPickup extends SequentialCommandGroup {
 
