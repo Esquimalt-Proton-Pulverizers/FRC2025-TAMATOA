@@ -30,6 +30,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
+import frc.robot.subsystems.elbow_subsystem.SmartElbowElevationCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 import frc.robot.subsystems.hang.HangingSubsystem;
@@ -189,6 +190,8 @@ public class RobotContainer {
 		driverController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_PROCESSOR, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 		driverController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_LOLLIPOP_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 
+		// driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-45.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
+		// driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-20.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
 
 
 		//// ----------------- Elbow Commands ----------------

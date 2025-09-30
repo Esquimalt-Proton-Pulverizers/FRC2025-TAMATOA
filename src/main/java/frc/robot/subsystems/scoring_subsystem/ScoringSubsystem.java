@@ -4,13 +4,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
 import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
+import frc.robot.subsystems.elbow_subsystem.SmartElbowElevationCommand;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.elevator.ElevatorToPosCommand;
 
 
-public class ScoringSubsystem {
+public class ScoringSubsystem extends SubsystemBase{
 
     public static State currentState = State.HOME_FOR_CLIMB; // Initial state; NOTE robot must start in this position or collisions may occur
     private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
@@ -18,10 +20,11 @@ public class ScoringSubsystem {
     private double elbRotation;
     private double elevation;
     private ElevatorSubsystem elevatorSubsystem;
-    
+    private ElbowSubsystem elbowSubsystem;
+
     public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
-        currentState = getCurState(targetState);
+        currentState = getCurState();
         if (currentState == State.UNKNOWN) {
             targetState = State.OTHER; // If current state is unknown, move to safe OTHER position first
         }
@@ -111,7 +114,7 @@ public class ScoringSubsystem {
     }
     public Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("DWE run");
-        return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
+        return new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem)
         .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
         
@@ -119,7 +122,7 @@ public class ScoringSubsystem {
 
     private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("DEW run");
-        return new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem)
+        return new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
         .andThen(new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
     }
@@ -127,7 +130,7 @@ public class ScoringSubsystem {
     private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("WDE run");
         return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem))
+        .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
     }
 
@@ -135,20 +138,20 @@ public class ScoringSubsystem {
         System.out.println("WED run");
         return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
+        .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem));
     }
 
     private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("EWD run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
         .andThen(new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
+        .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem));
     }
 
     private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
         System.out.println("EDW run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], elbRotation, elbowSubsystem))
+        .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem))
         .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
     }
 
@@ -219,32 +222,32 @@ public class ScoringSubsystem {
     public static S getSequence(State from, State to) {
         return matrix[from.ordinal()][to.ordinal()];    
     }
-    private State getCurState(State targetState) {
+    private State getCurState() {
         double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
         double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
         elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
         double elevatorPos = elevatorSubsystem.getPosition();
         State newCurState = State.UNKNOWN; // Default to target state if no match found (no Motion will ensue)
-        if (Math.abs(elbElevation - (-98.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 3.0) < 2.0) {
+        if (Math.abs(elbElevation - (-98.0)) < 10.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 3.0) < 2.0) {
             newCurState = State.CORAL_GROUND_INTAKE;
-        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 1.0) {
+        } else if (Math.abs(elbElevation - (-115.0)) < 10.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 5.2) < 2.0) {
             newCurState = State.ALGAE_GROUND_INTAKE;
         // } else if (Math.abs(elbElevation - (0.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
             // newCurState = State.CORAL_STATION_INTAKE;
-        } else if (Math.abs(elbElevation - (-115.0)) < 5.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 11.25) < 1.0) {
+        } else if (Math.abs(elbElevation - (-115.0)) < 10.0 && Math.abs(elbRotation - (-90.0)) < 10.0 && Math.abs(elevatorPos - 11.25) < 2.0) {
             newCurState = State.ALGAE_LOLLIPOP_INTAKE;
-        } else if (Math.abs(elbElevation - (-5.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 1.0) {
+        } else if (Math.abs(elbElevation - (-5.0)) < 10.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 0.0) < 2.0) {
             newCurState = State.HOME_FOR_CLIMB;
-        } else if (Math.abs(elbElevation - (20.0)) < 5.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
+        } else if (Math.abs(elbElevation - (20.0)) < 10.0 && Math.abs(elbRotation - 90.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 2.0) {
             newCurState = State.DRIVE_WITH_CORAL;
-        } else if (Math.abs(elbElevation - (30.0)) < 5.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 1.0) {
+        } else if (Math.abs(elbElevation - (30.0)) < 10.0 && Math.abs(elbRotation - 180.0) < 10.0 && Math.abs(elevatorPos - 2.0) < 2.0) {
             newCurState = State.DRIVE_WITH_ALGAE;
-        } else if (Math.abs(elbElevation - (-45.0)) < 5.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 5.0) < 1.0) {
+        } else if (Math.abs(elbElevation - (-45.0)) < 10.0 && Math.abs(elbRotation - 0.0) < 10.0 && Math.abs(elevatorPos - 5.0) < 2.0) {
             newCurState = State.OTHER;
         }
         return newCurState;
     }
- 
+    
 }
 

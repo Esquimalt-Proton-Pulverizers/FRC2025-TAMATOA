@@ -119,8 +119,8 @@ public class ElbowSubsystem extends SubsystemBase{
             hasBeenInitialized = true;
         }
 
-        leftElbowMotor.getClosedLoopController().setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
-        rightElbowMotor.getClosedLoopController().setReference(-START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
+        leftElbowMotor.getClosedLoopController().setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition,ClosedLoopSlot.kSlot1); 
+        rightElbowMotor.getClosedLoopController().setReference(-START_POS_ELEVATION, SparkMax.ControlType.kPosition,ClosedLoopSlot.kSlot1); 
     }
 
     @Override
@@ -133,7 +133,17 @@ public class ElbowSubsystem extends SubsystemBase{
         timer.reset();
       }
     }
+    public void setElevationRotationPos(double elevation, double rotation, double feedForward) {
+        targetElevationPos = elevation;
+        targetRotationPos = rotation;
 
+        leftMotorPos = -targetElevationPos + targetRotationPos;
+        rightMotorPos = targetElevationPos + targetRotationPos;
+
+        double ff = feedForward;
+        leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,-ff);
+        rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,ff);
+    }
     public void setElevationRotationPos(double elevation, double rotation) {
         targetElevationPos = elevation;
         targetRotationPos = rotation;
@@ -211,5 +221,9 @@ public class ElbowSubsystem extends SubsystemBase{
         } else if (RobotContainer.manualOverride) {
             setElevationRotationPos(newElevationTarget, newRotationTarget, true);
         }
+    }
+
+    public void setTargetElevation(double targetElevation, double FFVoltage) {
+        setElevationRotationPos(targetElevation, getRotationPos(), FFVoltage);
     }
 }
