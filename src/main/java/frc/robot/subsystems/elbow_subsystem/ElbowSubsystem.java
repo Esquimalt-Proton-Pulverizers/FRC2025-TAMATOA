@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -71,6 +72,9 @@ public class ElbowSubsystem extends SubsystemBase{
     public static final double MIN_ROTATION =  -180.0;
     public static final double MAX_ROTATION =   180.0;
 
+    public static double kA;
+    public static double kV;
+    public static double kG = 0.3;
 
     public ElbowSubsystem() {
         timer.start();
@@ -80,14 +84,17 @@ public class ElbowSubsystem extends SubsystemBase{
         leftMotorConfig.smartCurrentLimit(30,20,50);
         double upPIDLimit = 0.4;
         double downPIDLimit = 0.4;
+        SmartDashboard.putNumber("Differential kV", kV);
+        SmartDashboard.putNumber("Differential kA", kA);
+        SmartDashboard.putNumber("Differential kG", kG);
 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.1).d(0.0000)
+            .p(0.001).d(0.0000)
             .outputRange(-upPIDLimit, downPIDLimit, ClosedLoopSlot.kSlot0);
         
         
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
+            .p(0.001, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
             .outputRange(-upPIDLimit/2, downPIDLimit/2, ClosedLoopSlot.kSlot1);
 
         rightMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
@@ -95,12 +102,12 @@ public class ElbowSubsystem extends SubsystemBase{
         rightMotorConfig.smartCurrentLimit(30,20,50);
 
         rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.1).d(0.0000)
+            .p(0.001).d(0.0000)
             .outputRange(-downPIDLimit, upPIDLimit, ClosedLoopSlot.kSlot0);
         
         
         rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.1, ClosedLoopSlot.kSlot1).d(0.005, ClosedLoopSlot.kSlot1)
+            .p(0.001, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
             .outputRange(-downPIDLimit/2, upPIDLimit/2, ClosedLoopSlot.kSlot1);
            
 
@@ -131,6 +138,7 @@ public class ElbowSubsystem extends SubsystemBase{
         System.out.println("Elbow Elevation: " + getElevationPos());
         System.out.println("Elbow Rotation: " + getRotationPos());
         timer.reset();
+        // System.out.println("FFG: " + calculateGravityFF(getElevationPos()));
       }
     }
     public void setElevationRotationPos(double elevation, double rotation, double feedForward) {
@@ -151,7 +159,7 @@ public class ElbowSubsystem extends SubsystemBase{
         leftMotorPos = -targetElevationPos + targetRotationPos;
         rightMotorPos = targetElevationPos + targetRotationPos;
 
-        double ff = calculateFF(elevation);
+        double ff = calculateGravityFF(elevation);
         leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,-ff);
         rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot0,ff);
     }
@@ -162,7 +170,7 @@ public class ElbowSubsystem extends SubsystemBase{
         leftMotorPos = -targetElevationPos + targetRotationPos;
         rightMotorPos = targetElevationPos + targetRotationPos;
 
-        double ff = calculateFF(elevation);
+        double ff = calculateGravityFF(elevation);
         if (slowMode) {
             leftElbowClosedLoopController.setReference(leftMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1, -ff);
             rightElbowClosedLoopController.setReference(rightMotorPos, ControlType.kPosition, ClosedLoopSlot.kSlot1, ff);
@@ -170,8 +178,8 @@ public class ElbowSubsystem extends SubsystemBase{
             setElevationRotationPos(elevation, rotation);
         }
     }
-    private double calculateFF(double elevation){
-        return Math.cos(Math.toRadians(-elevation))*0.1;//0.3 would be the power required to hold the arm at 90 degrees horizontally
+    private double calculateGravityFF(double elevation){
+        return Math.sin(Math.toRadians(-elevation)) * kG;//0.3 would be the power required to hold the arm at 90 degrees horizontally
     }
 
     public double getElevationPos() {
@@ -225,5 +233,8 @@ public class ElbowSubsystem extends SubsystemBase{
 
     public void setTargetElevation(double targetElevation, double FFVoltage) {
         setElevationRotationPos(targetElevation, getRotationPos(), FFVoltage);
+    }
+    public void setTargetElevation(double targetElevation) {
+        setElevationRotationPos(targetElevation, getRotationPos());
     }
 }

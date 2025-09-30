@@ -172,26 +172,26 @@ public class RobotContainer {
 		// operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
 
         //// ---------------- Intake Commands ----------------
-         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-         operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-         operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        //  operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        //  operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        //  operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        //  operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		driverController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.DRIVE_WITH_ALGAE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		driverController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_PROCESSOR, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
-		driverController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_LOLLIPOP_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// driverController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.DRIVE_WITH_ALGAE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// driverController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_PROCESSOR, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		// driverController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_LOLLIPOP_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 
-		// driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-45.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
-		// driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-20.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-90.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-20.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
 
 
 		//// ----------------- Elbow Commands ----------------

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elbow_subsystem;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 
@@ -13,10 +14,9 @@ public class SmartElbowElevationCommand extends Command {
   private final double MAX_VELOCITY = 45.0; // Max speed in deg/sec
   private final double MAX_ACCELERATION = 35.0; // Max acceleration in deg/sec^2
   private final double MAX_DECELERATION = 35.0; // Max deceleration in deg/sec^2
-  private final double GRAVITY_CONSTANT = 0;//0.18; // Feedforward gain for gravity
   private static double kV = 0;// 0.20; // Feedforward gain for velocity
   private static double kA =  0;//0.03; // Feedforward gain for acceleration
-  // private static double kG = 0.0; // Feedforward gain for gravity
+  private static double kG = 0.0; // Feedforward gain for gravity
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -35,8 +35,9 @@ public class SmartElbowElevationCommand extends Command {
   public void initialize() {
 
     // Update kV and kA from SmartDashboard values
-    // kV = SmartDashboard.getNumber("Elevator kV", kV);
-    // kA = SmartDashboard.getNumber("Elevator kA", kA);
+    kV = SmartDashboard.getNumber("Differential kV", kV);
+    kA = SmartDashboard.getNumber("Differential kA", kA);
+    kG = SmartDashboard.getNumber("Differential kG", kG);
     double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
     double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
     startElevation = (rightMotorPos - leftMotorPos) / 2.0;
@@ -54,14 +55,13 @@ public class SmartElbowElevationCommand extends Command {
   }
   @Override
   public void execute() {
-    // double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
-    // double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
-    // double newElevation = (rightMotorPos - leftMotorPos) / 2.0;
+    double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
+    double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+    double newElevation = (rightMotorPos - leftMotorPos) / 2.0;
     double targetVelocity = 0.0;
     double targetAcceleration = 0.0;
-    double kG = 0;// TODO move GRAVITY_CONSTANT * Math.cos(Math.toRadians(newElevation));
     if (atPosition){
-      // elbowSubsystem.setTargetElevation(targetElevation,kG);
+      // elbowSubsystem.setTargetElevation(targetElevation,FFG);
       System.out.println("atPos "+ targetElevation);
       return;
     }
@@ -101,23 +101,34 @@ public class SmartElbowElevationCommand extends Command {
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
-      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration - kG;
+      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration - (kG * Math.sin(Math.toRadians(newElevation)));
       elbowSubsystem.setTargetElevation(startElevation - deltaPosition, FFVoltage);
     }
     else {
-      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
+      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + (kG * Math.sin(Math.toRadians(newElevation)));
       elbowSubsystem.setTargetElevation(startElevation + deltaPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
     }
     if (Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<.2){
       atPosition=true;
-      elbowSubsystem.setTargetElevation(targetElevation,kG);
+      elbowSubsystem.setTargetElevation(targetElevation,kG * Math.sin(Math.toRadians(newElevation)));
     }
   }
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return atPosition;
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    if (interrupted){
+      elbowSubsystem.setTargetElevation(elbowSubsystem.getElevationPos(), 0);
+
+    } else{
+      elbowSubsystem.setTargetElevation(targetElevation, (kG * Math.sin(Math.toRadians(targetElevation))));
+    }
+    
   }
   public class TrapezoidalMotionProfile {
     public static MotionProfileResult generateProfile(double deMax, double vMax, double aMax, double dTarget) {
