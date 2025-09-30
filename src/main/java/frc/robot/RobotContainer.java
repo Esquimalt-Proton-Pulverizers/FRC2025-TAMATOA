@@ -184,6 +184,10 @@ public class RobotContainer {
 		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.DRIVE_WITH_ALGAE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.SCORE_PROCESSOR, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
+		driverController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(State.ALGAE_LOLLIPOP_INTAKE, elevatorSubsystem, elbowSubsystem), Set.of(elevatorSubsystem)));
 
 
 

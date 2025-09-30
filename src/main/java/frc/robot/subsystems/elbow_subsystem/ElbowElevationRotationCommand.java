@@ -17,7 +17,7 @@ public class ElbowElevationRotationCommand extends Command {
   double rotation; 
   private ElbowSubsystem elbowSubsystem; 
   private boolean atPosition = false;
-  private boolean debuggingMode = false;
+  private boolean debuggingMode = true;
 
   private static final double TOLERANCE = 3.0;
   public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
