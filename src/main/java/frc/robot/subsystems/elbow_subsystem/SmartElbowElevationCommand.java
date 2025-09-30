@@ -101,17 +101,17 @@ public class SmartElbowElevationCommand extends Command {
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
-      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration - (kG * Math.sin(Math.toRadians(newElevation)));
+      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
       elbowSubsystem.setTargetElevation(startElevation - deltaPosition, FFVoltage);
     }
     else {
-      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + (kG * Math.sin(Math.toRadians(newElevation)));
+      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
       elbowSubsystem.setTargetElevation(startElevation + deltaPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
     }
     if (Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<.2){
       atPosition=true;
-      elbowSubsystem.setTargetElevation(targetElevation,kG * Math.sin(Math.toRadians(newElevation)));
+      elbowSubsystem.setTargetElevation(targetElevation);
     }
   }
   // Returns true when the command should end.
@@ -126,7 +126,7 @@ public class SmartElbowElevationCommand extends Command {
       elbowSubsystem.setTargetElevation(elbowSubsystem.getElevationPos(), 0);
 
     } else{
-      elbowSubsystem.setTargetElevation(targetElevation, (kG * Math.sin(Math.toRadians(targetElevation))));
+      elbowSubsystem.setTargetElevation(targetElevation);
     }
     
   }

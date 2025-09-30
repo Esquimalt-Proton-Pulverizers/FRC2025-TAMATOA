@@ -74,7 +74,7 @@ public class ElbowSubsystem extends SubsystemBase{
 
     public static double kA;
     public static double kV;
-    public static double kG = 0.3;
+    public static final double kG = 0.3;
 
     public ElbowSubsystem() {
         timer.start();
@@ -138,7 +138,7 @@ public class ElbowSubsystem extends SubsystemBase{
         System.out.println("Elbow Elevation: " + getElevationPos());
         System.out.println("Elbow Rotation: " + getRotationPos());
         timer.reset();
-        // System.out.println("FFG: " + calculateGravityFF(getElevationPos()));
+        System.out.println("FFG: " + calculateGravityFF(getElevationPos()));
       }
     }
     public void setElevationRotationPos(double elevation, double rotation, double feedForward) {
@@ -178,7 +178,7 @@ public class ElbowSubsystem extends SubsystemBase{
             setElevationRotationPos(elevation, rotation);
         }
     }
-    private double calculateGravityFF(double elevation){
+    public double calculateGravityFF(double elevation){
         return Math.sin(Math.toRadians(-elevation)) * kG;//0.3 would be the power required to hold the arm at 90 degrees horizontally
     }
 
