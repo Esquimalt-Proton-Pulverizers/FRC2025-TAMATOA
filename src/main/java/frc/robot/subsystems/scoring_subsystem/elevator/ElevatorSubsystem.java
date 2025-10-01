@@ -44,7 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorConfig.idleMode(IdleMode.kCoast);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      .p(.001).i(0.00000).d(0.0000)
+      .p(.1).i(0.00000).d(0.0000) // 0.01
       .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
   
     elevatorMotor.configure(elevatorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);

@@ -115,8 +115,7 @@ public class ScoringSubsystem extends SubsystemBase{
         if(timer.hasElapsed(2.0)) {
             if (debugMode==true){
                 double[] current = {differentialSubsystem.getElevationPos(), differentialSubsystem.getRotationPos(), elevatorSubsystem.getPosition()};
-                currentPosition = Position.fromCurrentVals(current);
-                System.out.println("Current ScoringSystem position"+currentPosition);
+                System.out.println("Current ScoringSystem position" + Position.fromCurrentVals(current));
             }
             timer.reset();
          }
@@ -133,7 +132,7 @@ public class ScoringSubsystem extends SubsystemBase{
         startElevPos = elevatorSubsystem.getPosition();
         double[] current = {startDiffElevationAngle, startDiffWristAngle, startElevPos}; 
         currentPosition = Position.fromCurrentVals(current);
-        System.out.println("Current position is: " + currentPosition);
+        System.out.println("Starting position is: " + currentPosition);
         
         if (currentPosition == targetPosition) {
             System.out.println("moveArm not Skipped, but went to same position");
@@ -150,15 +149,15 @@ public class ScoringSubsystem extends SubsystemBase{
                 Position.SAFETY.getTargetVals()[1], 
                 startElevPos>SAFE_ELEVATOR_HEIGHT ? startElevPos : SAFE_ELEVATOR_HEIGHT + 2}; //keep current elev if above 5, otherwise go above it by a margin
                 
-            return returnDWECommand(safeVals, elevatorSubsystem,differentialSubsystem)
-            .andThen(moveArm(targetPosition)); //TODO, see if recursion works, if not, this should all be in a big sequential command
+            return returnDWECommand(safeVals, elevatorSubsystem,differentialSubsystem);
+            //.andThen(moveArm(targetPosition)); //TODO, see if recursion works, if not, this should all be in a big sequential command
             //.andThen(returnDEWCommand(targetPosition.getTargetVals(), elevatorSubsystem, differentialSubsystem)); //TODO try this
         }
         targetVals = targetPosition.getTargetVals();
         
         S seq = getSequence(currentPosition, targetPosition);
 
-        System.out.println("Switch 1");
+        System.out.println("Switch 1: " + seq);
         return switch (seq) {
             case WDE -> returnWDECommand(targetVals, elevatorSubsystem, differentialSubsystem);
             case WED -> returnWEDCommand(targetVals, elevatorSubsystem, differentialSubsystem);
@@ -167,7 +166,7 @@ public class ScoringSubsystem extends SubsystemBase{
             case EDW -> returnEDWCommand(targetVals, elevatorSubsystem, differentialSubsystem);
             case EWD -> returnEWDCommand(targetVals, elevatorSubsystem, differentialSubsystem);
             // case OOO -> returnOther();
-            case x__ -> returnWDECommand(targetVals, elevatorSubsystem, differentialSubsystem); // order doesn't matter, so just pick one
+            case x__ -> returnDWECommand(targetVals, elevatorSubsystem, differentialSubsystem); // order doesn't matter, so just pick one
             
             default -> throw new IllegalStateException("Unexpected sequence: " + seq);
         };
@@ -198,7 +197,7 @@ public class ScoringSubsystem extends SubsystemBase{
         /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Algae Ground Intake
         /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Coral Station Intake
         /*AL_LO*/   {S.UUU, S.UUU, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.UUU, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
-        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Home for Climb
+        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
         /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Left
         /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Right
         /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 1
