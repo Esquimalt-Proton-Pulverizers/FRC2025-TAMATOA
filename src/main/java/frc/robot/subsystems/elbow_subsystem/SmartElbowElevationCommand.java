@@ -11,17 +11,19 @@ public class SmartElbowElevationCommand extends Command {
   private ElevatorSubsystem elevatorSubsystem;  
   private boolean atPosition = false;
   private final double TOLERANCE = 2.0; // Tolerance for position check
-  private final double MAX_VELOCITY = 45.0; // Max speed in deg/sec
-  private final double MAX_ACCELERATION = 35.0; // Max acceleration in deg/sec^2
-  private final double MAX_DECELERATION = 35.0; // Max deceleration in deg/sec^2
-  private static double kV = 0;// 0.20; // Feedforward gain for velocity
-  private static double kA =  0;//0.03; // Feedforward gain for acceleration
-  private static double kG = 0.0; // Feedforward gain for gravity
+  private static double MAX_VELOCITY = 200.0; // Max speed in deg/sec
+  private static double MAX_ACCELERATION = 45.0; // Max acceleration in deg/sec^2
+  private static double MAX_DECELERATION = 45.0; // Max deceleration in deg/sec^2
+  private static double kV = ElbowSubsystem.kV;// 0.010; // Feedforward gain for velocity
+  private static double kA =  ElbowSubsystem.kA;//0.013; // Feedforward gain for acceleration
+  private static double kG = ElbowSubsystem.kG; // Feedforward gain for gravity
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
   private double deltaPosition = 0.0; // Current target position for the elevator
   private final double PERIOD = 0.02; // 20ms periodic update (typical for FRC)
+  private int aCounter,cvCounter, dCounter;
+  private double wristStartPosition;
 
   public SmartElbowElevationCommand(double targetElevation, ElbowSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
       this.targetElevation = targetElevation;
@@ -34,14 +36,20 @@ public class SmartElbowElevationCommand extends Command {
   @Override
   public void initialize() {
 
+    aCounter=0;
+    cvCounter=0;
+    dCounter=0;
     // Update kV and kA from SmartDashboard values
     kV = SmartDashboard.getNumber("Differential kV", kV);
     kA = SmartDashboard.getNumber("Differential kA", kA);
-    kG = SmartDashboard.getNumber("Differential kG", kG);
-    double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
-    double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
-    startElevation = (rightMotorPos - leftMotorPos) / 2.0;
+    MAX_ACCELERATION = SmartDashboard.getNumber("Differential MaxA", MAX_ACCELERATION);
+    MAX_DECELERATION = SmartDashboard.getNumber("Differential MaxD", MAX_DECELERATION);
+    MAX_VELOCITY = SmartDashboard.getNumber("Differential MAxV", MAX_VELOCITY);
+    ElbowSubsystem.kG = SmartDashboard.getNumber("Differential kG", kG);
+    startElevation = elbowSubsystem.getElevationPos();
     targetDistance = targetElevation - startElevation;
+    wristStartPosition = elbowSubsystem.getRotationPos();
+    System.out.println("Start Elevation: Target distance " + startElevation + ": " + targetDistance);
     if (Math.abs(targetDistance) < TOLERANCE) { // Tolerance for "already at position"
       atPosition = true;
       System.out.println("SkippingElevatorMove");
@@ -61,7 +69,7 @@ public class SmartElbowElevationCommand extends Command {
     double targetVelocity = 0.0;
     double targetAcceleration = 0.0;
     if (atPosition){
-      // elbowSubsystem.setTargetElevation(targetElevation,FFG);
+      // elbowSubsystem.setElevationRotationPos(targetElevation,FFG);
       System.out.println("atPos "+ targetElevation);
       return;
     }
@@ -70,6 +78,7 @@ public class SmartElbowElevationCommand extends Command {
 
     // Determine the current phase of the motion profile
     if (currentTime <= trapezoidalMotionProfile.tAccel) {
+      aCounter++;
       // Acceleration phase
       deltaPosition = 0.5 * MAX_ACCELERATION * currentTime * currentTime;
       // System.out.println("accel dP = "+ deltaPosition);
@@ -77,6 +86,7 @@ public class SmartElbowElevationCommand extends Command {
       targetVelocity = MAX_ACCELERATION * currentTime;
     } else if (currentTime <= trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst) {
       // Constant velocity phase
+      cvCounter++;
       double tConstStart = trapezoidalMotionProfile.tAccel;
       deltaPosition = (0.5 * MAX_ACCELERATION * tConstStart * tConstStart) +
                       (MAX_VELOCITY * (currentTime - tConstStart));
@@ -84,6 +94,7 @@ public class SmartElbowElevationCommand extends Command {
       targetVelocity = MAX_VELOCITY;
     } else if (currentTime <= trapezoidalMotionProfile.tTotal) {
       // Deceleration phase
+      dCounter++;
       double tDecelStart = trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst;
       double tSpentDecel = currentTime - tDecelStart;
       deltaPosition = (0.5 * MAX_ACCELERATION * trapezoidalMotionProfile.tAccel * trapezoidalMotionProfile.tAccel) +
@@ -97,21 +108,25 @@ public class SmartElbowElevationCommand extends Command {
       // Motion profile complete
       deltaPosition = Math.abs(targetDistance);
       atPosition = true;
+      System.out.println("Counters a, cv, d =" + aCounter + ", " + cvCounter + ", " + dCounter);
+
     }
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
       double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
-      elbowSubsystem.setTargetElevation(startElevation - deltaPosition, FFVoltage);
+      elbowSubsystem.setElevationRotationPos(startElevation - deltaPosition, wristStartPosition, FFVoltage);
     }
     else {
       double FFVoltage = kV * targetVelocity + kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
-      elbowSubsystem.setTargetElevation(startElevation + deltaPosition, FFVoltage);
+      elbowSubsystem.setElevationRotationPos(startElevation + deltaPosition, wristStartPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
     }
     if (Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<.2){
       atPosition=true;
-      elbowSubsystem.setTargetElevation(targetElevation);
+      elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
+      System.out.println("Command set atPosition to true");
+
     }
   }
   // Returns true when the command should end.
@@ -123,57 +138,60 @@ public class SmartElbowElevationCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     if (interrupted){
-      elbowSubsystem.setTargetElevation(elbowSubsystem.getElevationPos(), 0);
+      elbowSubsystem.setElevationRotationPos(elbowSubsystem.getElevationPos(), wristStartPosition, 0);
+      System.out.println("CommandInterrupted");
 
     } else{
-      elbowSubsystem.setTargetElevation(targetElevation);
+      elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
+      System.out.println("CommandCompleted");
+
     }
     
   }
   public class TrapezoidalMotionProfile {
-    public static MotionProfileResult generateProfile(double deMax, double vMax, double aMax, double dTarget) {
-        double tAccel = vMax / aMax;
-        double dAccel = 0.5 * aMax * tAccel * tAccel;
-  
-        double tDecel = vMax / deMax;
-        double dDecel = 0.5 * deMax * tDecel * tDecel;
-  
-        double vPeak = vMax;
-        double tConst = 0;
-        double dConst = 0;
-  
-        // Check if the profile is triangular
-        if (dDecel + dAccel >= Math.abs(dTarget)) {
-          vPeak = Math.sqrt((2 * Math.abs(dTarget)) / ((1 / aMax) + (1 / deMax)));;
-          tAccel = vPeak / aMax;
-          dAccel = 0.5 * aMax * tAccel * tAccel;
-          tDecel = vPeak / deMax;
-          dDecel = 0.5 * deMax * tDecel * tDecel;
-      } else {
-          dConst = Math.abs(dTarget) - (dAccel + dDecel);
-          tConst = dConst / vMax;
-      }
-  
-        double tTotal = tDecel + tAccel + tConst;
-  
-        return new MotionProfileResult(tAccel, tDecel, tConst, tTotal, vPeak);
+  public static MotionProfileResult generateProfile(double deMax, double vMax, double aMax, double dTarget) {
+      double tAccel = vMax / aMax;
+      double dAccel = 0.5 * aMax * tAccel * tAccel;
+
+      double tDecel = vMax / deMax;
+      double dDecel = 0.5 * deMax * tDecel * tDecel;
+
+      double vPeak = vMax;
+      double tConst = 0;
+      double dConst = 0;
+
+      // Check if the profile is triangular
+      if (dDecel + dAccel >= Math.abs(dTarget)) {
+        vPeak = Math.sqrt((2 * Math.abs(dTarget)) / ((1 / aMax) + (1 / deMax)));;
+        tAccel = vPeak / aMax;
+        dAccel = 0.5 * aMax * tAccel * tAccel;
+        tDecel = vPeak / deMax;
+        dDecel = 0.5 * deMax * tDecel * tDecel;
+    } else {
+        dConst = Math.abs(dTarget) - (dAccel + dDecel);
+        tConst = dConst / vMax;
     }
+
+      double tTotal = tDecel + tAccel + tConst;
+
+      return new MotionProfileResult(tAccel, tDecel, tConst, tTotal, vPeak);
+  }
   // Helper class to store the result
   public static class MotionProfileResult {
-    public final double tAccel;
-    public final double tDecel;
-    public final double tConst;
-    public final double tTotal;
-    public final double vPeak;
+      public final double tAccel;
+      public final double tDecel;
+      public final double tConst;
+      public final double tTotal;
+      public final double vPeak;
 
-    public MotionProfileResult(double tAccel, double tDecel, double tConst, double tTotal, double vPeak) {
-        this.tAccel = tAccel;
-        this.tDecel = tDecel;
-        this.tConst = tConst;
-        this.tTotal = tTotal;
-        this.vPeak = vPeak;
-    }
+      public MotionProfileResult(double tAccel, double tDecel, double tConst, double tTotal, double vPeak) {
+          this.tAccel = tAccel;
+          this.tDecel = tDecel;
+          this.tConst = tConst;
+          this.tTotal = tTotal;
+          this.vPeak = vPeak;
+      }
   }
- }
+}
 }
 

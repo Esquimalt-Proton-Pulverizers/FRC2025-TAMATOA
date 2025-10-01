@@ -28,17 +28,26 @@ public class ElbowSubsystem extends SubsystemBase{
     public final static double HORIZONTAL_POS_ROTATION  =  90.0;
     public final static double CORAL_COMPENSATION       =  45.0;
 
-    // public final static double MIN_ELEVATION =    0.0;
-    // public final static double MIN_ROTATION  =    0.0;
-    // public final static double MAX_ELEVATION = -100.0;
-    // public final static double MAX_ROTATION  =  100.0;
-
     public final static double[] HOMING_POS = {START_POS_ELEVATION - 5.0, START_POS_ROTATION};
     public final static double[] INTAKE_POS = {-98.0, 90.0};
     public final static double[] LOW_POS    = {-26.0, 90.0};
     public final static double[] MIDS_POS   = {-51.5,  0.0};
     public final static double[] HIGH_POS   = {-51.5,  0.0};
     public final static double[] CORAL_POS  = {-26.0, 90.0};
+
+    public static final double MIN_ELEVATION = -105.0;
+    public static final double MAX_ELEVATION =    0.0;
+    public static final double MIN_ROTATION =  -180.0;
+    public static final double MAX_ROTATION =   180.0;
+
+    public static  double kA = 0.0007;
+    public static  double kV = 0.0008;
+    public static  double kG = 0.6;
+    public static  double MAX_ACCELERATION = 350;
+    public static  double MAX_VELOCITY = 850;
+    public static  double MAX_DECELERATION = 350;
+
+    public double ELBOW_MOTORS_GEAR_RATIO = 360/48.0 ;
 
     private Timer timer = new Timer();
 
@@ -56,8 +65,6 @@ public class ElbowSubsystem extends SubsystemBase{
     public static RelativeEncoder rightElbowEncoder = rightElbowMotor.getEncoder();
     protected SparkClosedLoopController rightElbowClosedLoopController = rightElbowMotor.getClosedLoopController();
 
-    public double ELBOW_MOTORS_GEAR_RATIO = 360/48.0 ;
-
     public double elevation = 0;
     public double rotation = 0;
 
@@ -67,34 +74,29 @@ public class ElbowSubsystem extends SubsystemBase{
     public static double targetElevationPos;
     public static double targetRotationPos;
 
-    public static final double MIN_ELEVATION = -105.0;
-    public static final double MAX_ELEVATION =    0.0;
-    public static final double MIN_ROTATION =  -180.0;
-    public static final double MAX_ROTATION =   180.0;
-
-    public static double kA;
-    public static double kV;
-    public static final double kG = 0.3;
-
     public ElbowSubsystem() {
         timer.start();
 
         leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
             .velocityConversionFactor(1);
         leftMotorConfig.smartCurrentLimit(30,20,50);
-        double upPIDLimit = 0.4;
-        double downPIDLimit = 0.4;
+        double upPIDLimit = 0.5;
+        double downPIDLimit = 0.5;
+        double P = 0.05;
         SmartDashboard.putNumber("Differential kV", kV);
         SmartDashboard.putNumber("Differential kA", kA);
         SmartDashboard.putNumber("Differential kG", kG);
+        SmartDashboard.putNumber("Differential MaxA", MAX_ACCELERATION);
+        SmartDashboard.putNumber("Differential MaxD", MAX_DECELERATION);
+        SmartDashboard.putNumber("Differential MAxV", MAX_VELOCITY);
 
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.001).d(0.0000)
+            .p(P).d(0.0000)
             .outputRange(-upPIDLimit, downPIDLimit, ClosedLoopSlot.kSlot0);
         
         
         leftMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.001, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
+            .p(P, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
             .outputRange(-upPIDLimit/2, downPIDLimit/2, ClosedLoopSlot.kSlot1);
 
         rightMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
@@ -102,12 +104,12 @@ public class ElbowSubsystem extends SubsystemBase{
         rightMotorConfig.smartCurrentLimit(30,20,50);
 
         rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.001).d(0.0000)
+            .p(P).d(0.0000)
             .outputRange(-downPIDLimit, upPIDLimit, ClosedLoopSlot.kSlot0);
         
         
         rightMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(0.001, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
+            .p(P, ClosedLoopSlot.kSlot1).d(0.0000, ClosedLoopSlot.kSlot1)
             .outputRange(-downPIDLimit/2, upPIDLimit/2, ClosedLoopSlot.kSlot1);
            
 
@@ -133,7 +135,7 @@ public class ElbowSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
       // Put code here to be run every loop
-      if(timer.hasElapsed(2.0)) {
+      if(timer.hasElapsed(1.0)) {
         System.out.println("-----------------------");
         System.out.println("Elbow Elevation: " + getElevationPos());
         System.out.println("Elbow Rotation: " + getRotationPos());
@@ -231,10 +233,10 @@ public class ElbowSubsystem extends SubsystemBase{
         }
     }
 
-    public void setTargetElevation(double targetElevation, double FFVoltage) {
+    private void setTargetElevation(double targetElevation, double FFVoltage) {
         setElevationRotationPos(targetElevation, getRotationPos(), FFVoltage);
     }
-    public void setTargetElevation(double targetElevation) {
+    private void setTargetElevation(double targetElevation) {
         setElevationRotationPos(targetElevation, getRotationPos());
     }
 }
