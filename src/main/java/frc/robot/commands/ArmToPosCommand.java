@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowElevationRotationCommand;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
@@ -23,7 +23,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
      * @param elevatorPos - Elevator position to go to (Inch)
      * @param elbowTargetPos = Elbow position to go to (Degrees)
      */
-    public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, double elevatorPos, 
+    public ArmToPosCommand(ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem, double elevatorPos, 
             double[] elbowTargetPos, double curElbowElevationPos, double curElbowRotationPos, double curElevatorPos) {
 
         
@@ -75,7 +75,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
             new ConditionalCommand(
                 new InstantCommand(){}, 
                 new SequentialCommandGroup(
-                    new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, curElbowRotationPos, elbowSubsystem),
+                    new DifferentialElevationRotationCommand(SAFE_ELEVATE_POS, curElbowRotationPos, elbowSubsystem),
                     Commands.waitSeconds(0.5)), 
                 () -> elbowElevationSafe
             ),
@@ -86,7 +86,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
                 new ConditionalCommand(
                     new InstantCommand(){}, 
                     new SequentialCommandGroup(
-                        new ElbowElevationRotationCommand(curElbowRotationPos, SAFE_ROTATE_POS, elbowSubsystem),
+                        new DifferentialElevationRotationCommand(curElbowRotationPos, SAFE_ROTATE_POS, elbowSubsystem),
                         Commands.waitSeconds(0.5)), 
                     () -> elbowRotationSafe
                 ),
@@ -94,7 +94,7 @@ public class ArmToPosCommand extends SequentialCommandGroup {
                 new ConditionalCommand(
                     new InstantCommand(){}, 
                     new SequentialCommandGroup(
-                        new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, SAFE_ROTATE_POS, elbowSubsystem),
+                        new DifferentialElevationRotationCommand(SAFE_ELEVATE_POS, SAFE_ROTATE_POS, elbowSubsystem),
                         Commands.waitSeconds(0.5)), 
                     () -> elbowRotationSafe
                 ),
@@ -103,10 +103,10 @@ public class ArmToPosCommand extends SequentialCommandGroup {
             //// Elbow now in safe position, move Elbow first, then Elevator to target position
             // Move Elbow to target position
             new ConditionalCommand(
-                new ElbowElevationRotationCommand(curElbowElevationPos, elbowTargetPos[1], elbowSubsystem), 
-                new ElbowElevationRotationCommand(SAFE_ELEVATE_POS, elbowTargetPos[1], elbowSubsystem), 
+                new DifferentialElevationRotationCommand(curElbowElevationPos, elbowTargetPos[1], elbowSubsystem), 
+                new DifferentialElevationRotationCommand(SAFE_ELEVATE_POS, elbowTargetPos[1], elbowSubsystem), 
                 () -> elbowElevationSafe),
-            new ElbowElevationRotationCommand(elbowTargetPos[0], elbowTargetPos[1], elbowSubsystem),
+            new DifferentialElevationRotationCommand(elbowTargetPos[0], elbowTargetPos[1], elbowSubsystem),
 
             Commands.waitSeconds(0.5),
 

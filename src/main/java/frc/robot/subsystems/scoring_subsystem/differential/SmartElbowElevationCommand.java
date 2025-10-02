@@ -7,16 +7,16 @@ import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 public class SmartElbowElevationCommand extends Command {
   double targetElevation;
   double startElevation;
-  private ElbowSubsystem elbowSubsystem;
+  private DifferentialSubsystem elbowSubsystem;
   private ElevatorSubsystem elevatorSubsystem;  
   private boolean atPosition = false;
   private final double TOLERANCE = 2.0; // Tolerance for position check
   private static double MAX_VELOCITY = 200.0; // Max speed in deg/sec
   private static double MAX_ACCELERATION = 45.0; // Max acceleration in deg/sec^2
   private static double MAX_DECELERATION = 45.0; // Max deceleration in deg/sec^2
-  private static double kV = ElbowSubsystem.kV;// 0.010; // Feedforward gain for velocity
-  private static double kA =  ElbowSubsystem.kA;//0.013; // Feedforward gain for acceleration
-  private static double kG = ElbowSubsystem.kG; // Feedforward gain for gravity
+  private static double kV = DifferentialSubsystem.kV;// 0.010; // Feedforward gain for velocity
+  private static double kA =  DifferentialSubsystem.kA;//0.013; // Feedforward gain for acceleration
+  private static double kG = DifferentialSubsystem.kG; // Feedforward gain for gravity
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
@@ -25,7 +25,7 @@ public class SmartElbowElevationCommand extends Command {
   private int aCounter,cvCounter, dCounter;
   private double wristStartPosition;
 
-  public SmartElbowElevationCommand(double targetElevation, ElbowSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
+  public SmartElbowElevationCommand(double targetElevation, DifferentialSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
       this.targetElevation = targetElevation;
       this.elbowSubsystem = elbowSubsystem;
       this.elevatorSubsystem = elevatorSubsystem;
@@ -45,7 +45,7 @@ public class SmartElbowElevationCommand extends Command {
     MAX_ACCELERATION = SmartDashboard.getNumber("Differential MaxA", MAX_ACCELERATION);
     MAX_DECELERATION = SmartDashboard.getNumber("Differential MaxD", MAX_DECELERATION);
     MAX_VELOCITY = SmartDashboard.getNumber("Differential MAxV", MAX_VELOCITY);
-    ElbowSubsystem.kG = SmartDashboard.getNumber("Differential kG", kG);
+    DifferentialSubsystem.kG = SmartDashboard.getNumber("Differential kG", kG);
     startElevation = elbowSubsystem.getElevationPos();
     targetDistance = targetElevation - startElevation;
     wristStartPosition = elbowSubsystem.getRotationPos();
@@ -63,8 +63,8 @@ public class SmartElbowElevationCommand extends Command {
   }
   @Override
   public void execute() {
-    double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
-    double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+    double leftMotorPos = DifferentialSubsystem.leftElbowMotor.getEncoder().getPosition();
+    double rightMotorPos = DifferentialSubsystem.rightElbowMotor.getEncoder().getPosition();
     double newElevation = (rightMotorPos - leftMotorPos) / 2.0;
     double targetVelocity = 0.0;
     double targetAcceleration = 0.0;

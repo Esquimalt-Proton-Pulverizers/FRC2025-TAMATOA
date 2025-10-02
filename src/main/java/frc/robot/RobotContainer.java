@@ -32,8 +32,8 @@ import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.State;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowElevationRotationCommand;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.SmartElbowElevationCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
@@ -70,7 +70,7 @@ public class RobotContainer {
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	public final ElbowSubsystem elbowSubsystem = new ElbowSubsystem();
+	public final DifferentialSubsystem elbowSubsystem = new DifferentialSubsystem();
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
@@ -309,20 +309,20 @@ public class RobotContainer {
 	private void registerCommands() {
 		// Register the commands here
 		NamedCommands.registerCommand("ArmToLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, ElbowSubsystem.START_POS_ELEVATION, 
-                ElbowSubsystem.START_POS_ROTATION, 0.0));
+                ElevatorSubsystem.LEVEL1_POSITION, DifferentialSubsystem.LOW_POS, DifferentialSubsystem.START_POS_ELEVATION, 
+                DifferentialSubsystem.START_POS_ROTATION, 0.0));
         NamedCommands.registerCommand("ArmHomingAfterLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                elevatorSubsystem.getPosition(), ElbowSubsystem.HOMING_POS, elbowSubsystem.getElevationPos(), 
+                elevatorSubsystem.getPosition(), DifferentialSubsystem.HOMING_POS, elbowSubsystem.getElevationPos(), 
                 elbowSubsystem.getRotationPos(), ElevatorSubsystem.LEVEL1_POSITION));
         NamedCommands.registerCommand("ArmToLevel2", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
-                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+                ElevatorSubsystem.LEVEL2_POSITION, DifferentialSubsystem.MIDS_POS, DifferentialSubsystem.START_POS_ELEVATION, 
+                DifferentialSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("ArmToLevel3", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
-                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+                ElevatorSubsystem.LEVEL3_POSITION, DifferentialSubsystem.MIDS_POS, DifferentialSubsystem.START_POS_ELEVATION, 
+                DifferentialSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("ArmToLevel4", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-                ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, ElbowSubsystem.START_POS_ELEVATION, 
-                ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+                ElevatorSubsystem.LEVEL4_POSITION, DifferentialSubsystem.HIGH_POS, DifferentialSubsystem.START_POS_ELEVATION, 
+                DifferentialSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
         NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));

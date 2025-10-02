@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 
-public class ElbowSubsystem extends SubsystemBase{
+public class DifferentialSubsystem extends SubsystemBase{
     public final static double START_POS_ELEVATION = 0.0;
     public final static double START_POS_ROTATION  = 0.0;
 
@@ -74,7 +74,7 @@ public class ElbowSubsystem extends SubsystemBase{
     public static double targetElevationPos;
     public static double targetRotationPos;
 
-    public ElbowSubsystem() {
+    public DifferentialSubsystem() {
         timer.start();
 
         leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)

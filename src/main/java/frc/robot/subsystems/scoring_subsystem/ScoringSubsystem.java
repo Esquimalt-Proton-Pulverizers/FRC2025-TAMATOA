@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowElevationRotationCommand;
-import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.SmartElbowElevationCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
@@ -20,9 +20,9 @@ public class ScoringSubsystem extends SubsystemBase{
     private double elbRotation;
     private double elevation;
     private ElevatorSubsystem elevatorSubsystem;
-    private ElbowSubsystem elbowSubsystem;
+    private DifferentialSubsystem elbowSubsystem;
 
-    public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem){
+    public Command moveArm(State targetState, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem){
         this.elevatorSubsystem = elevatorSubsystem;
         currentState = getCurState();
         if (currentState == State.UNKNOWN) {
@@ -112,47 +112,47 @@ public class ScoringSubsystem extends SubsystemBase{
     private Command returnInstantCommand() {
         return new InstantCommand();
     }
-    public Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    public Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("DWE run");
         return new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem)
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem))
+        .andThen(new DifferentialElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
         
     }
 
-    private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("DEW run");
         return new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
-        .andThen(new ElbowElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
+        .andThen(new DifferentialElevationRotationCommand(targetVals[0],targetVals[1], elbowSubsystem));
     }
 
-    private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("WDE run");
-        return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
+        return new DifferentialElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
         .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
     }
 
-    private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnWEDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("WED run");
-        return new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
+        return new DifferentialElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
         .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem));
     }
 
-    private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("EWD run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
-        .andThen(new ElbowElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
+        .andThen(new DifferentialElevationRotationCommand(elbElevation, targetVals[1], elbowSubsystem))
         .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem));
     }
 
-    private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem) {
+    private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem) {
         System.out.println("EDW run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
         .andThen(new SmartElbowElevationCommand(targetVals[0], elbowSubsystem, elevatorSubsystem))
-        .andThen(new ElbowElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
+        .andThen(new DifferentialElevationRotationCommand(targetVals[0], targetVals[1], elbowSubsystem));
     }
 
 
@@ -223,8 +223,8 @@ public class ScoringSubsystem extends SubsystemBase{
         return matrix[from.ordinal()][to.ordinal()];    
     }
     private State getCurState() {
-        double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
-        double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+        double leftMotorPos = DifferentialSubsystem.leftElbowMotor.getEncoder().getPosition();
+        double rightMotorPos = DifferentialSubsystem.rightElbowMotor.getEncoder().getPosition();
         elbElevation = (rightMotorPos - leftMotorPos) / 2.0;
         elbRotation = (rightMotorPos + leftMotorPos) / 2.0;
         double elevatorPos = elevatorSubsystem.getPosition();

@@ -12,19 +12,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** 
  * An example command that uses an example subsystem. 
  * */
-public class ElbowElevationRotationCommand extends Command {
+public class DifferentialElevationRotationCommand extends Command {
   double elevation;
   double rotation; 
-  private ElbowSubsystem elbowSubsystem; 
+  private DifferentialSubsystem elbowSubsystem; 
   private boolean atPosition = false;
   private boolean debuggingMode = true;
 
   private static final double TOLERANCE = 3.0;
-  public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem) {
+  public DifferentialElevationRotationCommand(double elevation, double rotation, DifferentialSubsystem elbowSubsystem) {
     this(elevation, rotation, elbowSubsystem, false);
   }
 
-  public ElbowElevationRotationCommand(double elevation, double rotation, ElbowSubsystem elbowSubsystem, boolean manualOverride) {
+  public DifferentialElevationRotationCommand(double elevation, double rotation, DifferentialSubsystem elbowSubsystem, boolean manualOverride) {
     this.elevation = elevation;
     this.rotation = rotation;
     this.elbowSubsystem = elbowSubsystem;
@@ -46,7 +46,7 @@ public class ElbowElevationRotationCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (Math.abs(ElbowSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
+    if (Math.abs(DifferentialSubsystem.leftElbowEncoder.getPosition() - elbowSubsystem.leftMotorPos)< TOLERANCE && Math.abs(elbowSubsystem.rightElbowEncoder.getPosition() - elbowSubsystem.rightMotorPos) < TOLERANCE){
       atPosition=true;
     }
   }
