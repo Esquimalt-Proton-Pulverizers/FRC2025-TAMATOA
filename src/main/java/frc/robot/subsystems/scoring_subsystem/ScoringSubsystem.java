@@ -48,16 +48,16 @@ public class ScoringSubsystem extends SubsystemBase{
         //Note: "+" sign is only added to disable the VScode inlay hints and make it easier to read
         CORAL_GROUND_INTAKE     (-98.0,     +90.0,  +3.0),
         ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +5.2), // not yet tested
-        CORAL_STATION_INTAKE    (+0.0,      +0.0,   +0.0), // not yet determined
+        CORAL_STATION_INTAKE    (+360.0,      +0.0,   +0.0), // not yet determined
         ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +11.25), // not yet tested
         HOME_FOR_CLIMB          (-5.0,      +0.0,   +2.0),
-        SET_CORAL_POSITION_LEFT (+0.0,      +0.0,   +0.0), // not yet determined
-        SET_CORAL_POSITION_RIGHT(+0.0,      +0.0,   +0.0), // not yet determined
+        SET_CORAL_POSITION_LEFT (+360.0,      +0.0,   +0.0), // not yet determined
+        SET_CORAL_POSITION_RIGHT(+360.0,      +0.0,   +0.0), // not yet determined
         SCORE_L1                (-26.0,     +90.0,  +5.0),
         SCORE_L2                (-51.5,     +0.0,   +16.5),
         SCORE_L3                (-51.5,     +0.0,   +32.5),
         SCORE_L4                (-51.5,     +0.0,   +58.0),
-        SCORE_NET               (+0.0,      +0.0,   +0.0), // not yet determined
+        SCORE_NET               (+360.0,      +0.0,   +0.0), // not yet determined
         SCORE_PROCESSOR         (-90.0,     +180.0, +4.0), // not yet tested
         DRIVE_EMPTY             (-5.0,      +0.0,   +2.0),
         DRIVE_WITH_CORAL        (+20.0,     +90.0,  +2.0), // not yet tested
