@@ -30,6 +30,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ManualMoveArmSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
@@ -71,6 +72,9 @@ public class RobotContainer {
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
+	public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+	public final DifferentialSubsystem differentialSubsystem = new DifferentialSubsystem();
+
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;
@@ -123,11 +127,11 @@ public class RobotContainer {
         // Drive Controls
         // drivetrain.setDefaultCommand(
         //     // Drivetrain will execute this command periodically
-        //     drivetrain.applyRequest(() ->
-        //         drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-        //             .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-        //             .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-        //     )
+            // drivetrain.applyRequest(() ->
+            //     drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+            //         .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+            //         .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
+            // )
         // );
 
 		// Reset the field-centric heading on left bumper press
@@ -177,7 +181,7 @@ public class RobotContainer {
 		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
-
+		operatorController.button(9).whileTrue(scoringSubsystem.ManualMoveArmSubsystem(1, .1, differentialSubsystem, elevatorSubsystem));
 		// driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-100.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
 		// driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-10.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
 
