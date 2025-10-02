@@ -1,53 +1,56 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package frc.robot.subsystems.elevator;
-
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
+package frc.robot.subsystems.scoring_subsystem.differential;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 
-/** 
- * An example command that uses an example subsystem. 
- */
-public class ElevatorToPosCommand extends Command {
-  double targetPositionInches;
-  private double startPosition;
-  private ElevatorSubsystem elevatorSubsystem; 
+public class SmartElbowElevationCommand extends Command {
+  double targetElevation;
+  double startElevation;
+  private ElbowSubsystem elbowSubsystem;
+  private ElevatorSubsystem elevatorSubsystem;  
   private boolean atPosition = false;
-  private final double MAX_VELOCITY = 45.0; // Max speed in inches/sec
-  private final double MAX_ACCELERATION = 35.0; // Max acceleration in inches/sec^2
-  private final double MAX_DECELERATION = 35.0; // Max deceleration in inches/sec^2
-  private final double kG = 0.18; // Feedforward gain for gravity
-  private static double kV = 0.20; // Feedforward gain for velocity
-  private static double kA = 0.03; // Feedforward gain for acceleration
+  private final double TOLERANCE = 2.0; // Tolerance for position check
+  private static double MAX_VELOCITY = 200.0; // Max speed in deg/sec
+  private static double MAX_ACCELERATION = 45.0; // Max acceleration in deg/sec^2
+  private static double MAX_DECELERATION = 45.0; // Max deceleration in deg/sec^2
+  private static double kV = ElbowSubsystem.kV;// 0.010; // Feedforward gain for velocity
+  private static double kA =  ElbowSubsystem.kA;//0.013; // Feedforward gain for acceleration
+  private static double kG = ElbowSubsystem.kG; // Feedforward gain for gravity
   private double targetDistance; // Target distance for the elevator
   private TrapezoidalMotionProfile.MotionProfileResult trapezoidalMotionProfile;
   private double currentTime = 0.0; // Current time in seconds
   private double deltaPosition = 0.0; // Current target position for the elevator
-  private final double PERIOD = 0.02; // 20ms periodic update (typical for FRC
+  private final double PERIOD = 0.02; // 20ms periodic update (typical for FRC)
+  private int aCounter,cvCounter, dCounter;
+  private double wristStartPosition;
 
-  
-  public ElevatorToPosCommand(double targetPositionInches,ElevatorSubsystem elevatorSubsystem) {
-    this.targetPositionInches = targetPositionInches;
-    this.elevatorSubsystem = elevatorSubsystem;
-    this.addRequirements(elevatorSubsystem);
+  public SmartElbowElevationCommand(double targetElevation, ElbowSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
+      this.targetElevation = targetElevation;
+      this.elbowSubsystem = elbowSubsystem;
+      this.elevatorSubsystem = elevatorSubsystem;
+      this.addRequirements(elbowSubsystem);
+      this.addRequirements(elevatorSubsystem);
   }
-    
-  
-  // Called when the command is initially scheduled.
+
   @Override
   public void initialize() {
 
+    aCounter=0;
+    cvCounter=0;
+    dCounter=0;
     // Update kV and kA from SmartDashboard values
-    // kV = SmartDashboard.getNumber("Elevator kV", kV);
-    // kA = SmartDashboard.getNumber("Elevator kA", kA);
-    startPosition = elevatorSubsystem.getPosition(); // Get the current position of the elevator
-    targetDistance = targetPositionInches - startPosition;
-    if (Math.abs(targetDistance) < 0.3) { // Tolerance for "already at position"
+    kV = SmartDashboard.getNumber("Differential kV", kV);
+    kA = SmartDashboard.getNumber("Differential kA", kA);
+    MAX_ACCELERATION = SmartDashboard.getNumber("Differential MaxA", MAX_ACCELERATION);
+    MAX_DECELERATION = SmartDashboard.getNumber("Differential MaxD", MAX_DECELERATION);
+    MAX_VELOCITY = SmartDashboard.getNumber("Differential MAxV", MAX_VELOCITY);
+    ElbowSubsystem.kG = SmartDashboard.getNumber("Differential kG", kG);
+    startElevation = elbowSubsystem.getElevationPos();
+    targetDistance = targetElevation - startElevation;
+    wristStartPosition = elbowSubsystem.getRotationPos();
+    System.out.println("Start Elevation: Target distance " + startElevation + ": " + targetDistance);
+    if (Math.abs(targetDistance) < TOLERANCE) { // Tolerance for "already at position"
       atPosition = true;
       System.out.println("SkippingElevatorMove");
       return;
@@ -58,23 +61,24 @@ public class ElevatorToPosCommand extends Command {
       atPosition = false;
     }
   }
-  
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    double leftMotorPos = ElbowSubsystem.leftElbowMotor.getEncoder().getPosition();
+    double rightMotorPos = ElbowSubsystem.rightElbowMotor.getEncoder().getPosition();
+    double newElevation = (rightMotorPos - leftMotorPos) / 2.0;
     double targetVelocity = 0.0;
     double targetAcceleration = 0.0;
     if (atPosition){
-      elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
-      System.out.println("atPos "+ targetPositionInches);
+      // elbowSubsystem.setElevationRotationPos(targetElevation,FFG);
+      System.out.println("atPos "+ targetElevation);
       return;
     }
-    
     // Increment the elapsed time
     currentTime += PERIOD;
 
     // Determine the current phase of the motion profile
     if (currentTime <= trapezoidalMotionProfile.tAccel) {
+      aCounter++;
       // Acceleration phase
       deltaPosition = 0.5 * MAX_ACCELERATION * currentTime * currentTime;
       // System.out.println("accel dP = "+ deltaPosition);
@@ -82,13 +86,15 @@ public class ElevatorToPosCommand extends Command {
       targetVelocity = MAX_ACCELERATION * currentTime;
     } else if (currentTime <= trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst) {
       // Constant velocity phase
+      cvCounter++;
       double tConstStart = trapezoidalMotionProfile.tAccel;
       deltaPosition = (0.5 * MAX_ACCELERATION * tConstStart * tConstStart) +
-                     (MAX_VELOCITY * (currentTime - tConstStart));
+                      (MAX_VELOCITY * (currentTime - tConstStart));
       targetAcceleration = 0;
       targetVelocity = MAX_VELOCITY;
     } else if (currentTime <= trapezoidalMotionProfile.tTotal) {
       // Deceleration phase
+      dCounter++;
       double tDecelStart = trapezoidalMotionProfile.tAccel + trapezoidalMotionProfile.tConst;
       double tSpentDecel = currentTime - tDecelStart;
       deltaPosition = (0.5 * MAX_ACCELERATION * trapezoidalMotionProfile.tAccel * trapezoidalMotionProfile.tAccel) +
@@ -102,43 +108,47 @@ public class ElevatorToPosCommand extends Command {
       // Motion profile complete
       deltaPosition = Math.abs(targetDistance);
       atPosition = true;
+      System.out.println("Counters a, cv, d =" + aCounter + ", " + cvCounter + ", " + dCounter);
+
     }
 
     // Command the elevator subsystem to move to the target position
     if (targetDistance < 0) {
-      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + kG;
-      //elevatorSubsystem.setTargetPosition(startPosition - deltaPosition);
-      elevatorSubsystem.setTargetPosition(startPosition - deltaPosition, FFVoltage);
+      double FFVoltage = -kV * targetVelocity + -kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
+      elbowSubsystem.setElevationRotationPos(startElevation - deltaPosition, wristStartPosition, FFVoltage);
     }
     else {
-      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + kG;
-      elevatorSubsystem.setTargetPosition(startPosition + deltaPosition, FFVoltage);
+      double FFVoltage = kV * targetVelocity + kA * targetAcceleration + elbowSubsystem.calculateGravityFF(newElevation);
+      elbowSubsystem.setElevationRotationPos(startElevation + deltaPosition, wristStartPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
     }
-    if (Math.abs(elevatorSubsystem.elevatorEncoder.getPosition()-targetPositionInches)<.2){
+    if (Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<.2){
       atPosition=true;
-      elevatorSubsystem.setTargetPosition(targetPositionInches,kG);
+      elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
+      System.out.println("Command set atPosition to true");
+
     }
   }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    if (interrupted){
-      elevatorSubsystem.setTargetPosition(elevatorSubsystem.getPosition());
-
-    } else{
-      elevatorSubsystem.setTargetPosition(targetPositionInches);
-    }
-    
-  }
-
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return atPosition;
   }
-public class TrapezoidalMotionProfile {
+
+  @Override
+  public void end(boolean interrupted) {
+    if (interrupted){
+      elbowSubsystem.setElevationRotationPos(elbowSubsystem.getElevationPos(), wristStartPosition, 0);
+      System.out.println("CommandInterrupted");
+
+    } else{
+      elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
+      System.out.println("CommandCompleted");
+
+    }
+    
+  }
+  public class TrapezoidalMotionProfile {
   public static MotionProfileResult generateProfile(double deMax, double vMax, double aMax, double dTarget) {
       double tAccel = vMax / aMax;
       double dAccel = 0.5 * aMax * tAccel * tAccel;
@@ -184,3 +194,4 @@ public class TrapezoidalMotionProfile {
   }
 }
 }
+

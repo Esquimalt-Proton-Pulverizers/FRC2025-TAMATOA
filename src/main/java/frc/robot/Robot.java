@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;

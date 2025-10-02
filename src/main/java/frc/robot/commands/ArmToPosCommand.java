@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.ElbowElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 public class ArmToPosCommand extends SequentialCommandGroup {
     // Safe Position Constants

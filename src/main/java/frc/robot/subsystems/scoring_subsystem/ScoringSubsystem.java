@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elbow_subsystem.ElbowElevationRotationCommand;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
-import frc.robot.subsystems.elbow_subsystem.SmartElbowElevationCommand;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.ElbowElevationRotationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.SmartElbowElevationCommand;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 
 public class ScoringSubsystem extends SubsystemBase{
