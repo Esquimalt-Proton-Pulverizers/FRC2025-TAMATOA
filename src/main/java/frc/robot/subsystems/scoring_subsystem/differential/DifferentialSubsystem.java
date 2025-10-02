@@ -119,7 +119,7 @@ public class DifferentialSubsystem extends SubsystemBase{
         rightElbowClosedLoopController.setReference(START_POS_ELEVATION, SparkMax.ControlType.kPosition); 
     }
 
-    public static void initialize(){
+    public void initialize(){
         if(!hasBeenInitialized) {
             resetEncoder();
 
