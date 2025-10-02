@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
-import frc.robot.subsystems.scoring_subsystem.differential.SmartElbowElevationCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.SmartDifferentialElevationCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
@@ -222,7 +222,7 @@ public class ScoringSubsystem extends SubsystemBase{
         
     private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
         System.out.println("DWE run");
-        return new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem)
+        return new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem)
         .andThen(new DifferentialElevationRotationCommand(targetVals[0], targetVals[1], differentialSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
         
@@ -230,7 +230,7 @@ public class ScoringSubsystem extends SubsystemBase{
 
     private Command returnDEWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
         System.out.println("DEW run");
-        return new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem)
+        return new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
         .andThen(new DifferentialElevationRotationCommand(targetVals[0],targetVals[1], differentialSubsystem));
     }
@@ -238,7 +238,7 @@ public class ScoringSubsystem extends SubsystemBase{
     private Command returnWDECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
         System.out.println("WDE run");
         return new DifferentialElevationRotationCommand(startDiffElevationAngle, targetVals[1], differentialSubsystem)
-        .andThen(new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem))
+        .andThen(new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem))
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem));
     }
 
@@ -246,20 +246,20 @@ public class ScoringSubsystem extends SubsystemBase{
         System.out.println("WED run");
         return new DifferentialElevationRotationCommand(startDiffElevationAngle, targetVals[1], differentialSubsystem)
         .andThen(new ElevatorToPosCommand(targetVals[2], elevatorSubsystem))
-        .andThen(new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem));
+        .andThen(new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem));
     }
 
     private Command returnEWDCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
         System.out.println("EWD run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
         .andThen(new DifferentialElevationRotationCommand(startDiffElevationAngle, targetVals[1], differentialSubsystem))
-        .andThen(new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem));
+        .andThen(new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem));
     }
 
     private Command returnEDWCommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
         System.out.println("EDW run");
         return new ElevatorToPosCommand(targetVals[2], elevatorSubsystem)
-        .andThen(new SmartElbowElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem))
+        .andThen(new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem))
         .andThen(new DifferentialElevationRotationCommand(targetVals[0], targetVals[1], differentialSubsystem));
     }
    
