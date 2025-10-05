@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -63,8 +63,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    ElbowSubsystem.initialize();
+   // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.initialize();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    ElbowSubsystem.initialize();
+    m_robotContainer.initialize();
   }
 
   @Override

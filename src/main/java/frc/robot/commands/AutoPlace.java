@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.elbow_subsystem.ElbowSubsystem;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 public class AutoPlace extends SequentialCommandGroup {
 
@@ -72,7 +72,7 @@ public class AutoPlace extends SequentialCommandGroup {
      * @param elbowSubsystem - Instance of Elbow Subsystem object
      * @param node - Where to score
      */
-    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, Node node) {
+    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem, Node node) {
         this(drivetrain, elevatorSubsystem, elbowSubsystem, node, "");
     }
 
@@ -85,7 +85,7 @@ public class AutoPlace extends SequentialCommandGroup {
      * @param node - Where to score
      * @param suppliedPathName - Name of path
      */
-    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, ElbowSubsystem elbowSubsystem, Node node, String suppliedPathName) {
+    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem, Node node, String suppliedPathName) {
         PathPlannerPath path;
         String pathName = "";
         // Name format is [side symbol][1/2] (e.g. A1, A2, B1, B2)
@@ -176,20 +176,21 @@ public class AutoPlace extends SequentialCommandGroup {
     }
 
     public Command elevatorToLevel(int level, ElevatorSubsystem elevatorSubsystem) {
-        if (level == 1) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem);
-        }
-        else if (level == 2) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem);
-        }
-        else if (level == 3) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem);
-        }
-        else if (level == 4) {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem);
-        }
-        else {
-            return new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem);
-        }
+        // if (level == 1) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 2) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL2_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 3) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL3_POSITION, elevatorSubsystem);
+        // }
+        // else if (level == 4) {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL4_POSITION, elevatorSubsystem);
+        // }
+        // else {
+        //     return new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem);
+        // }
+        return new InstantCommand(); //TODO repair this with Scoring Subsystem
     }
 }

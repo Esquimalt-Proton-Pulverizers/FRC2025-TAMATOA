@@ -20,8 +20,9 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.elevator.ElevatorToPosCommand;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 public class AutoPickup extends SequentialCommandGroup {
 
@@ -84,7 +85,7 @@ public class AutoPickup extends SequentialCommandGroup {
                         new ParallelCommandGroup(
                             // Move the elevator to the appropriate position based on the level1 flag
                             new SequentialCommandGroup(
-                                new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem)
+                                new ElevatorToPosCommand(ScoringSubsystem.LOW_POSITION, elevatorSubsystem)
                             ),
                             // Drive to the station
                             new SequentialCommandGroup(
@@ -115,7 +116,7 @@ public class AutoPickup extends SequentialCommandGroup {
                         new ParallelCommandGroup(
                             // @TODO: Sequence for Auto-Pickup once at the station
 
-                            new ElevatorToPosCommand(ElevatorSubsystem.LOW_POSITION, elevatorSubsystem),
+                            new ElevatorToPosCommand(ScoringSubsystem.LOW_POSITION, elevatorSubsystem),
                             new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(-2))).repeatedly()
                         ).withDeadline(new WaitCommand(0.25)),
                         new PrintCommand("Drove backwards")
