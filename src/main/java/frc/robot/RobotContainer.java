@@ -52,7 +52,7 @@ public class RobotContainer {
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
 	// Auto scoring variables
-	private int level = 0;
+	private Position autoScoringPosition = Position.SCORE_L1;
 	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
 	private AutoPlace.Side side = AutoPlace.Side.one;
 	
@@ -166,19 +166,19 @@ public class RobotContainer {
 		// operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
 
         //// ---------------- Intake Commands ----------------
-         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-         operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-         operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
+        //  operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
+        //  operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
+        //  operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
+        //  operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
         //// --------------- Elevator Commands ---------------
         // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
         //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		// operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		// operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		// operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		// operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 
 		// driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-100.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
 		// driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-10.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
@@ -205,89 +205,78 @@ public class RobotContainer {
 		// 	));
 
 
-        /////////////////////////////////////////////////////////
         ////// ----------- Automated Controls ----------- ///////
-        /////////////////////////////////////////////////////////
-		////// ---------------- Automated Commands ----------------
-		//// Choosing where to score on Custom Controller
-		// CustomController.bt1().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.A;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt2().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.A;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt3().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.B;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt4().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.B;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt5().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.C;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt6().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.C;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt7().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.D;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt8().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.D;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt9().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.E;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt10().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.E;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt11().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.F;
-		// 	level = 1;
-		// }));
-		// CustomController.bt12().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.F;
-		// 	level = 2;
-		// }));
-		// CustomController.bt16().onTrue(new RunCommand(() -> {
-		// 	level = 1;
-		// }));
-		// CustomController.bt17().onTrue(new RunCommand(() -> {
-		// 	level = 2;
-		// }));
-		// CustomController.bt18().onTrue(new RunCommand(() -> {
-		// 	level = 3;
-		// }));
-		// CustomController.bt19().onTrue(new RunCommand(() -> {
-		// 	level = 4;
-		// }));
+		//// ---------------- Automated Commands ----------------
+		// Choosing where to score on Custom Controller
+		CustomController.bt1().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.A;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt2().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.A;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt3().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.B;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt4().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.B;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt5().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.C;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt6().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.C;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt7().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.D;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt8().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.D;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt9().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.E;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt10().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.E;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt11().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.F;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt12().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.F;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt16().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L1;
+		}));
+		CustomController.bt17().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L2;
+		}));
+		CustomController.bt18().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L3;
+		}));
+		CustomController.bt19().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L4;
+		}));
 
+
+		//TODO remove this overide once testing completed
 		hexSide = AutoPlace.HexSide.C;
 		side = AutoPlace.Side.one;
-		level = 1;
-
-		// driverController.back().whileTrue(new InstantCommand(
-		// 	()-> System.out.println("Back btn pressed")
-		// ));
-
+		autoScoringPosition = Position.SCORE_L1;
 
 		/// Autoplace command (Allow operator to also place)
-		driverController.back().whileTrue(new AutoPlace(drivetrain,
-		elevatorSubsystem, elbowSubsystem,
-		new Node(level, hexSide, side)));
-
-		// operatorController.rightBumper().whileTrue(new AutoPlace(drivetrain,
-		// elevatorSubsystem, elbowSubsystem,
-		// new Node(level, hexSide, side)));
+		driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
 
 		// // Auto pickup command
 		// // If wanting to pickup to score for level 1, press A, otherwise press Y
