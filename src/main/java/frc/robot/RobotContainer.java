@@ -14,18 +14,20 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.ArmToPosCommand;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.hang.HangingSubsystem;
@@ -41,14 +43,19 @@ import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
-
 public class RobotContainer {
-    // Swerve Drive variables
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    private double MaxControlSpeed = 3.0;
+    // Swerve Drive Controls
+	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+	private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second, max angular velocity
+	private double MaxControlSpeed = 1;
 	private final double DRIVE_DEADBAND = 0.0;
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
+
+	// Auto scoring variables
+	private int level = 0;
+	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
+	private AutoPlace.Side side = AutoPlace.Side.one;
+	
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	// private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -81,13 +88,8 @@ public class RobotContainer {
     public static boolean manualOverride = false;
     private boolean encoderReset = false;
 
-    // Auto scoring variables
-	private int level = 0;
-	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
-	private AutoPlace.Side side = AutoPlace.Side.one;
-
 	// Path follower
-	//private final SendableChooser<Command> autoChooser;
+	//private final SendableChooser<Command> autoChooser; //TODO re-enable
 
 
 	/**
@@ -96,9 +98,9 @@ public class RobotContainer {
 	public RobotContainer() {
 		// Register the named commands for auto
 		registerCommands();
-        configureBindings();
-		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
-		//SmartDashboard.putData("Auto Mode", autoChooser);
+		configureBindings();
+		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run TODO re-enable
+		//SmartDashboard.putData("Auto Mode", autoChooser); TODO
     }
 	private static double applyDeadband(double value) {
         if (Math.abs(value) < XBOX_DEADBAND) {
@@ -109,7 +111,7 @@ public class RobotContainer {
         double sign = Math.signum(value);
         double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
         return sign * adjusted;
-    }
+	}
 
 	/**
 	 * Configure all bindings for the robot's controls.
@@ -269,23 +271,32 @@ public class RobotContainer {
 		// 	level = 4;
 		// }));
 
-		// hexSide = AutoPlace.HexSide.C;
-		// side = AutoPlace.Side.one;
-		// level = 1;
+		hexSide = AutoPlace.HexSide.C;
+		side = AutoPlace.Side.one;
+		level = 1;
 
 		// driverController.back().whileTrue(new InstantCommand(
 		// 	()-> System.out.println("Back btn pressed")
 		// ));
 
 
-		// // Auto-place command
-		// driverController.a().whileTrue(new AutoPlace(drivetrain,
-        //     elevatorSubsystem, elbowSubsystem,
-        //     new Node(level, hexSide, side)));
-        // // Auto-score command
-        // driverController.leftBumper().whileTrue(new AutoPickup(drivetrain,
-        //     elevatorSubsystem,
-        //     () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), false));
+		/// Autoplace command (Allow operator to also place)
+		driverController.back().whileTrue(new AutoPlace(drivetrain,
+		elevatorSubsystem, elbowSubsystem,
+		new Node(level, hexSide, side)));
+
+		// operatorController.rightBumper().whileTrue(new AutoPlace(drivetrain,
+		// elevatorSubsystem, elbowSubsystem,
+		// new Node(level, hexSide, side)));
+
+		// // Auto pickup command
+		// // If wanting to pickup to score for level 1, press A, otherwise press Y
+		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
+		// operatorController.a().whileTrue(new RunCommand(() -> level1Pickup = true));
+		// operatorController.leftBumper().whileTrue(new AutoPickup(drivetrain,
+		// elevatorSubsystem,
+		// () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), level1Pickup));
+
 	}
 
 	//public Command getAutonomousCommand() {
@@ -318,5 +329,5 @@ public class RobotContainer {
 	}
     public void initialize() {
         scoringSubsystem.initialize();
-    }
+	}
 }

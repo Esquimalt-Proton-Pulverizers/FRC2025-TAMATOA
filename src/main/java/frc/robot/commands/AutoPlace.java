@@ -36,8 +36,8 @@ public class AutoPlace extends SequentialCommandGroup {
     }
 
     public enum Side {
-        one("1"),
-        two("2");
+        one("1"),// the left one
+        two("2");// the right 2
         public String name;
         private Side(String name) {
             this.name = name;
@@ -133,7 +133,7 @@ public class AutoPlace extends SequentialCommandGroup {
 
         // Drive forward for 1 second
         Command stepThreeAndFour_driveForwardForScoring = new SequentialCommandGroup(
-            new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(0.5))).repeatedly().withTimeout(1) // Drive forward to score
+            new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(0.1))).repeatedly().withTimeout(.5) // Drive forward to score
             // Deposit coral
         );
 
