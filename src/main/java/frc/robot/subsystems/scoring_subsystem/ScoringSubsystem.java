@@ -47,9 +47,9 @@ public class ScoringSubsystem extends SubsystemBase{
     public enum Position {
         //Note: "+" sign is only added to disable the VScode inlay hints and make it easier to read
         CORAL_GROUND_INTAKE     (-98.0,     +90.0,  +3.0),
-        ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +5.2), // not yet tested
+        ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +6.2),
         CORAL_STATION_INTAKE    (+0.0,      +0.0,   +0.0), // not yet determined
-        ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +11.25), // not yet tested
+        ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +16.25), // not yet tested
         HOME_FOR_CLIMB          (-5.0,      +0.0,   +2.0),
         SET_CORAL_POSITION_LEFT (+0.0,      +0.0,   +0.0), // not yet determined
         SET_CORAL_POSITION_RIGHT(+0.0,      +0.0,   +0.0), // not yet determined

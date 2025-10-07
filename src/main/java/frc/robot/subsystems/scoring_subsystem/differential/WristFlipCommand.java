@@ -14,6 +14,7 @@ public class WristFlipCommand extends Command {
 
     private boolean atPosition = false;
     private boolean orientationNormal;
+    private boolean unsafeToFlip = true;
 
     public WristFlipCommand(ScoringSubsystem scoringSubsystem) {
         this.scoringSubsystem = scoringSubsystem;
@@ -24,7 +25,8 @@ public class WristFlipCommand extends Command {
     @Override
     public void initialize() {
         currElevationPosition = scoringSubsystem.getDifferentialSubsystem().getElevationPos();
-        if (scoringSubsystem.getDifferentialSubsystem().getElevationPos() >= -90 && scoringSubsystem.getDifferentialSubsystem().getElevationPos() <= -25) {
+        if (-90 < currElevationPosition && currElevationPosition <-30) {// don't do anything unless safe to flip
+            unsafeToFlip = false;
             System.out.println("1");
             if (Math.abs(scoringSubsystem.getDifferentialSubsystem().getRotationPos() - 0)  <= POSITION_TOLERANCE) {
                 System.out.println("2");
@@ -34,16 +36,19 @@ public class WristFlipCommand extends Command {
                 orientationNormal = false;
             }
         } else {
-            System.out.println("Wrist not at flat position (180 or 0)");
-        }
+            System.out.println("Wrist not safe to flip");
+            unsafeToFlip = true;
+        } 
     }
     @Override
-        public void execute() {
-                if (orientationNormal) {
-                    scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(currElevationPosition, 180);
-                } else if (!orientationNormal) {
-                    scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(currElevationPosition, 0);
-                }
+    public void execute() {
+        if (!unsafeToFlip){
+            if (orientationNormal) {
+                scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(currElevationPosition, 180);
+            } else if (!orientationNormal) {
+                scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(currElevationPosition, 0);
             }
+        }
+    }
 }
 
