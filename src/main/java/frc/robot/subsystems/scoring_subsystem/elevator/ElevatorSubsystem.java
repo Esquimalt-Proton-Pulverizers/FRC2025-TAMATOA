@@ -14,6 +14,8 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 
@@ -37,6 +39,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Add a timer object
   private Timer timer = new Timer();
+  public static int INCREMENT_VALUE = 10;
+
 
   // Elevator Motor Config
   protected static SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
@@ -83,7 +87,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       timer.reset();
     }
   }
-  protected void setTargetPosition(double targetPosition){
+  public void setTargetPosition(double targetPosition){
     setTargetPosition(targetPosition,0);
   }
   protected void setTargetPosition(double targetPosition, double FFVoltage){
@@ -112,4 +116,4 @@ public class ElevatorSubsystem extends SubsystemBase {
       setTargetPosition(newTarget);
     }
   }
-} 
+}
