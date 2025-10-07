@@ -88,8 +88,8 @@ public class ManualScoringControlCommand extends Command {
         scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(targetDifferentialPosition, targetWristPosition);
         scoringSubsystem.getElevatorSubsystem().setTargetPosition(targetElevatorPosition);
 
-        System.out.println("Elevator Control Multipler: " + elevatorControlAxis.getAsDouble());
-        System.out.println("Differntial Control Multipler: " + differentialControlAxis.getAsDouble());
-        System.out.println("Wrist Control Multipler: " + wristControlAxis.getAsDouble());
+        // System.out.println("Elevator Control Multipler: " + elevatorControlAxis.getAsDouble());
+        // System.out.println("Differntial Control Multipler: " + differentialControlAxis.getAsDouble());
+        // System.out.println("Wrist Control Multipler: " + wristControlAxis.getAsDouble());
     }
 }

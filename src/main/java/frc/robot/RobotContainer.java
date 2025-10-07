@@ -37,6 +37,7 @@ import frc.robot.subsystems.scoring_subsystem.differential.DecrementDifferential
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.IncrementDifferentialCommand;
+import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.DecrementElevatorCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
@@ -182,6 +183,7 @@ public class RobotContainer {
 		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 		
 		scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(scoringSubsystem,
 		() -> applyDeadband(-operatorController.getRawAxis(1)),
