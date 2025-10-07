@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 
-public class SmartElbowElevationCommand extends Command {
+public class SmartDifferentialElevationCommand extends Command {
   double targetElevation;
   double startElevation;
   private DifferentialSubsystem elbowSubsystem;
@@ -25,7 +25,7 @@ public class SmartElbowElevationCommand extends Command {
   private int aCounter,cvCounter, dCounter;
   private double wristStartPosition;
 
-  public SmartElbowElevationCommand(double targetElevation, DifferentialSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
+  public SmartDifferentialElevationCommand(double targetElevation, DifferentialSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
       this.targetElevation = targetElevation;
       this.elbowSubsystem = elbowSubsystem;
       this.elevatorSubsystem = elevatorSubsystem;

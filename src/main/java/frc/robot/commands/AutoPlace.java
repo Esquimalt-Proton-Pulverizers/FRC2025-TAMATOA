@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
-import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 public class AutoPlace extends SequentialCommandGroup {
@@ -36,8 +36,8 @@ public class AutoPlace extends SequentialCommandGroup {
     }
 
     public enum Side {
-        one("1"),
-        two("2");
+        one("1"), // the left one
+        two("2"); // the righ two
         public String name;
         private Side(String name) {
             this.name = name;
@@ -45,102 +45,110 @@ public class AutoPlace extends SequentialCommandGroup {
     }
 
     public static class Node {
-        public int level;
+        public Position position;
         public Side side;
         public HexSide hexSide;
-        public Node(int level, HexSide hexSide, Side side) {
-            this.level = level;
-            this.side = side;
-            this.hexSide = hexSide;
-        }
-
-        public String toString() {
-            return "Hex: " + hexSide.name + ", Side: " + side.name + ", Lvl: " + level;
-        }
-    }
-
-    // Create the constraints to use while pathfinding
-    private PathConstraints constraints = new PathConstraints(
-            1.0, 4.0,
-            Units.degreesToRadians(270), Units.degreesToRadians(360));
-
-    /**
-     * Constructor for the AutoPlace class, sets up the pathplanning details and create the commands for 
-     * auto-scoring.
-     * @param drivetrain - Instance of Drivetrain object
-     * @param elevatorSubsystem - Instance of Elevator Subsystem object
-     * @param elbowSubsystem - Instance of Elbow Subsystem object
-     * @param node - Where to score
-     */
-    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem, Node node) {
-        this(drivetrain, elevatorSubsystem, elbowSubsystem, node, "");
-    }
-
-    /**
-     * Constructor for the AutoPlace class, sets up the pathplanning details and create the commands for 
-     * auto-scoring.
-     * @param drivetrain - Instance of Drivetrain object
-     * @param elevatorSubsystem - Instance of Elevator Subsystem object
-     * @param elbowSubsystem - Instance of Elbow Subsystem object
-     * @param node - Where to score
-     * @param suppliedPathName - Name of path
-     */
-    public AutoPlace(CommandSwerveDrivetrain drivetrain, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem elbowSubsystem, Node node, String suppliedPathName) {
-        PathPlannerPath path;
-        String pathName = "";
-        // Name format is [side symbol][1/2] (e.g. A1, A2, B1, B2)
-        pathName += node.hexSide.name;
-        // If lvl 1, append "lvl1" to the path name. Otherwise, append the side name
-        pathName += String.valueOf(node.level).equals("1") ? "lvl1" : node.side.name;
-
-        // Ensure the supplied path is valid
-        try {
-            path = PathPlannerPath.fromPathFile(suppliedPathName.isEmpty() ? pathName : suppliedPathName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw (new RuntimeException("Loaded a path that does not exist."));
-        }
-
-        //// -------------------------------------------------------------------------------------------------
-        //// ------------------------------------- Auto-placing sequence -------------------------------------
-        //// -------------------------------------------------------------------------------------------------
-        /* Step One:   Pathfind to starting point of path, then follow path to move infront of reef to score.
-         *             (At the same time, move elevator to level one position. No higher as it may affect
-         *              balance at high speed.)
-         * Step Two:   Move elevator to correct level, and rotate elbow to the right angle and orientation.
-         * Step Three: Drive forward to line up coral with reef.
-         * Step Four:  Deposit coral to score.
-         * Step Five:  Drive backwards, and lower elevator and coral elbow.
-         */
-
-        // Command to move the robot to the desired position along a path, running until path is complete
-        Command stepOne_driveToPath = new ParallelDeadlineGroup(
-            // On the fly pathfinding to the reef, or follow the path if supplied
-            new ConditionalCommand(
-                AutoBuilder.pathfindThenFollowPath(path, constraints),
-                AutoBuilder.followPath(path),
-                () -> suppliedPathName.isEmpty()
-            ),
-            // Start moving the elevator to level one
-            elevatorToLevel(1, elevatorSubsystem)
+        public int level;
+                public Node(Position position, HexSide hexSide, Side side) {
+                    this.position = position;
+                    this.side = side;
+                    this.hexSide = hexSide;
+                }
+        
+                public String toString() {
+                    return "Hex: " + hexSide.name + ", Side: " + side.name + ", Lvl: " + position.toString();
+                }
+            }
+        
+            // Create the constraints to use while pathfinding
+            private PathConstraints constraints = new PathConstraints(
+                    1.0, 4.0,
+                    Units.degreesToRadians(270), Units.degreesToRadians(360));
+        
+            /**
+             * Constructor for the AutoPlace class, sets up the pathplanning details and create the commands for 
+             * auto-scoring.
+             * @param drivetrain - Instance of Drivetrain object
+             * @param elevatorSubsystem - Instance of Elevator Subsystem object
+             * @param elbowSubsystem - Instance of Elbow Subsystem object
+             * @param node - Where to score
+             */
+            public AutoPlace(CommandSwerveDrivetrain drivetrain, ScoringSubsystem scoringSubsystem, Node node) {
+                this(drivetrain, scoringSubsystem, node, "");
+            }
+        
+            /**
+             * Constructor for the AutoPlace class, sets up the pathplanning details and create the commands for 
+             * auto-scoring.
+             * @param drivetrain - Instance of Drivetrain object
+             * @param elevatorSubsystem - Instance of Elevator Subsystem object
+             * @param elbowSubsystem - Instance of Elbow Subsystem object
+             * @param node - Where to score
+             * @param suppliedPathName - Name of path
+             */
+            public AutoPlace(CommandSwerveDrivetrain drivetrain, ScoringSubsystem scoringSubsystem, Node node, String suppliedPathName) {
+                PathPlannerPath path;
+                String pathName = "";
+                // Name format is [side symbol][1/2] (e.g. A1, A2, B1, B2)
+                pathName += node.hexSide.name;
+                // If lvl 1, append "lvl1" to the path name. Otherwise, append the side name
+                pathName += node.position == Position.SCORE_L1 ? "lvl1" : node.side.name;
+        
+                // Ensure the supplied path is valid
+                try {
+                    path = PathPlannerPath.fromPathFile(pathName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw (new RuntimeException("Loaded a path that does not exist."));
+                }
+        
+                //// -------------------------------------------------------------------------------------------------
+                //// ------------------------------------- Auto-placing sequence -------------------------------------
+                //// -------------------------------------------------------------------------------------------------
+                /* Step One:   Pathfind to starting point of path, then follow path to move infront of reef to score.
+                 *             (At the same time, move elevator to level one position. No higher as it may affect
+                 *              balance at high speed.)
+                 * Step Two:   Move elevator to correct level, and rotate elbow to the right angle and orientation.
+                 * Step Three: Drive forward to line up coral with reef.
+                 * Step Four:  Deposit coral to score.
+                 * Step Five:  Drive backwards, and lower elevator and coral elbow.
+                 */
+        
+                // Command to move the robot to the desired position along a path, running until path is complete
+                Command stepOne_driveToPath = new ParallelDeadlineGroup(
+                    // On the fly pathfinding to the reef, or follow the path if supplied
+                    new ConditionalCommand(
+                        AutoBuilder.pathfindThenFollowPath(path, constraints),
+                        AutoBuilder.followPath(path),
+                        () -> suppliedPathName.isEmpty()
+                    ),
+                    // Start moving the elevator to level one
+                    elevatorToLevel(node.level, scoringSubsystem)
         );
 
         // Command to move elevator to correct level, and rotate elbow to the right angle and orientation
         Command stepTwo_moveScoringSystems = new ParallelCommandGroup(
-            elevatorToLevel(node.level, elevatorSubsystem) // Move elevator to the correct level
+            elevatorToLevel(node.level, scoringSubsystem) // Move elevator to the correct level
             // Rotate Elbow for the right angle and orientation
         );
 
         // Drive forward for 1 second
-        Command stepThreeAndFour_driveForwardForScoring = new SequentialCommandGroup(
-            new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(0.5))).repeatedly().withTimeout(1) // Drive forward to score
+        Command stepThree_driveForwardForScoring = new SequentialCommandGroup(
+            new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(0.1))).repeatedly().withTimeout(.5) // Drive forward to score
             // Deposit coral
         );
+
+            // Drive forward for 1 second
+        Command stepfour_depositCoral = //new SequentialCommandGroup(
+            new InstantCommand() // Drive forward to score
+            // Deposit coral
+            ;
+            //);
 
         // Drive backwards, and lower elevator and coral elbow
         Command stepFive_driveBackwardsandLowerScoringSystem = new ParallelDeadlineGroup(
             new InstantCommand(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityY(-0.5))).repeatedly().withTimeout(1), // Drive backwards for one second
-            elevatorToLevel(0, elevatorSubsystem) // Move elevator to the bottom position
+            elevatorToLevel(0, scoringSubsystem) // Move elevator to the bottom position
             // Rotate Elbow for stowing
         );
 
@@ -148,7 +156,8 @@ public class AutoPlace extends SequentialCommandGroup {
         if (!Utils.isSimulation()) {
             addCommands(stepOne_driveToPath,
                     stepTwo_moveScoringSystems,
-                    stepThreeAndFour_driveForwardForScoring,
+                    stepThree_driveForwardForScoring,
+                    stepfour_depositCoral,
                     stepFive_driveBackwardsandLowerScoringSystem
                     );
 
@@ -175,7 +184,7 @@ public class AutoPlace extends SequentialCommandGroup {
         }
     }
 
-    public Command elevatorToLevel(int level, ElevatorSubsystem elevatorSubsystem) {
+    public Command elevatorToLevel(int level, ScoringSubsystem scoringSubsystem) {
         // if (level == 1) {
         //     return new ElevatorToPosCommand(ElevatorSubsystem.LEVEL1_POSITION, elevatorSubsystem);
         // }

@@ -39,7 +39,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Add a timer object
   private Timer timer = new Timer();
-  public static int INCREMENT_VALUE = 10;
 
 
   // Elevator Motor Config

@@ -14,15 +14,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.ArmToPosCommand;
@@ -33,7 +33,6 @@ import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ManualScoringControlCommand;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
-import frc.robot.subsystems.scoring_subsystem.differential.DecrementDifferentialCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.IncrementDifferentialCommand;
@@ -41,25 +40,29 @@ import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.DecrementElevatorCommand;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
-import frc.robot.subsystems.scoring_subsystem.elevator.IncrementElevatorCommand;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
-
 public class RobotContainer {
-    // Swerve Drive variables
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    private double MaxControlSpeed = 3.0;
+    // Swerve Drive Controls
+	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+	private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second, max angular velocity
+	private double MaxControlSpeed = 1;
 	private final double DRIVE_DEADBAND = 0.0;
 	private final double TURBO_BUTTON_MULTIPLE = 2.0;
 
+	
+	// Auto scoring variables
+	private Position autoScoringPosition = Position.SCORE_L1;
+	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
+	private AutoPlace.Side side = AutoPlace.Side.one;
+
 	// Setting up bindings for necessary control of the swerve drive platform
-	// private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-	// 		.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
-	// 		.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
+			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 	// private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
 	// Telemetry
@@ -87,13 +90,9 @@ public class RobotContainer {
     public static boolean manualOverride = false;
     private boolean encoderReset = false;
 
-    // Auto scoring variables
-	private int level = 0;
-	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
-	private AutoPlace.Side side = AutoPlace.Side.one;
 
 	// Path follower
-	//private final SendableChooser<Command> autoChooser;
+	//private final SendableChooser<Command> autoChooser; //TODO re-enable
 
 
 	/**
@@ -102,9 +101,9 @@ public class RobotContainer {
 	public RobotContainer() {
 		// Register the named commands for auto
 		registerCommands();
-        configureBindings();
-		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
-		//SmartDashboard.putData("Auto Mode", autoChooser);
+		configureBindings();
+		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run TODO re-enable
+		// SmartDashboard.putData("Auto Mode", autoChooser); TODO
     }
 	private static double applyDeadband(double value) {
         if (Math.abs(value) < XBOX_DEADBAND) {
@@ -115,7 +114,7 @@ public class RobotContainer {
         double sign = Math.signum(value);
         double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
         return sign * adjusted;
-    }
+	}
 
 	/**
 	 * Configure all bindings for the robot's controls.
@@ -127,14 +126,14 @@ public class RobotContainer {
         
 		//// ----------------- Driving Commands -----------------
         // Drive Controls
-        // drivetrain.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     drivetrain.applyRequest(() ->
-        //         drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-        //             .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-        //             .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-        //     )
-        // );
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
+            )
+        );
 
 		// Reset the field-centric heading on left bumper press
 		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -188,9 +187,9 @@ public class RobotContainer {
 		// operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
 		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
 		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
-		
+
 		//// ----------------- Hanging Commands ----------------
-		
+
 
 
 		//// -------- Manual Override + Encoder Reset --------
@@ -208,89 +207,87 @@ public class RobotContainer {
 		// 	));
 
 
-        /////////////////////////////////////////////////////////
         ////// ----------- Automated Controls ----------- ///////
-        /////////////////////////////////////////////////////////
-		////// ---------------- Automated Commands ----------------
-		//// Choosing where to score on Custom Controller
-		// CustomController.bt1().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.A;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt2().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.A;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt3().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.B;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt4().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.B;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt5().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.C;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt6().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.C;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt7().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.D;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt8().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.D;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt9().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.E;
-		// 	side = AutoPlace.Side.one;
-		// }));
-		// CustomController.bt10().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.E;
-		// 	side = AutoPlace.Side.two;
-		// }));
-		// CustomController.bt11().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.F;
-		// 	level = 1;
-		// }));
-		// CustomController.bt12().onTrue(new RunCommand(() -> {
-		// 	hexSide = AutoPlace.HexSide.F;
-		// 	level = 2;
-		// }));
-		// CustomController.bt16().onTrue(new RunCommand(() -> {
-		// 	level = 1;
-		// }));
-		// CustomController.bt17().onTrue(new RunCommand(() -> {
-		// 	level = 2;
-		// }));
-		// CustomController.bt18().onTrue(new RunCommand(() -> {
-		// 	level = 3;
-		// }));
-		// CustomController.bt19().onTrue(new RunCommand(() -> {
-		// 	level = 4;
-		// }));
-
-		// hexSide = AutoPlace.HexSide.C;
-		// side = AutoPlace.Side.one;
-		// level = 1;
-
-		// driverController.back().whileTrue(new InstantCommand(
-		// 	()-> System.out.println("Back btn pressed")
-		// ));
+		//// ---------------- Automated Commands ----------------
+		// Choosing where to score on Custom Controller
+		CustomController.bt1().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.A;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt2().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.A;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt3().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.B;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt4().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.B;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt5().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.C;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt6().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.C;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt7().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.D;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt8().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.D;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt9().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.E;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt10().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.E;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt11().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.F;
+			side = AutoPlace.Side.one;
+		}));
+		CustomController.bt12().onTrue(new RunCommand(() -> {
+			hexSide = AutoPlace.HexSide.F;
+			side = AutoPlace.Side.two;
+		}));
+		CustomController.bt16().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L1;
+		}));
+		CustomController.bt17().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L2;
+		}));
+		CustomController.bt18().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L3;
+		}));
+		CustomController.bt19().onTrue(new RunCommand(() -> {
+			autoScoringPosition = Position.SCORE_L4;
+		}));
 
 
-		// // Auto-place command
-		// driverController.a().whileTrue(new AutoPlace(drivetrain,
-        //     elevatorSubsystem, elbowSubsystem,
-        //     new Node(level, hexSide, side)));
-        // // Auto-score command
-        // driverController.leftBumper().whileTrue(new AutoPickup(drivetrain,
-        //     elevatorSubsystem,
-        //     () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), false));
+		//TODO remove this overide once testing completed
+		hexSide = AutoPlace.HexSide.C;
+		side = AutoPlace.Side.one;
+		autoScoringPosition = Position.SCORE_L1;
+
+		/// Autoplace command (Allow operator to also place)
+		driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
+
+		// // Auto pickup command
+		// // If wanting to pickup to score for level 1, press A, otherwise press Y
+		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
+		// operatorController.a().whileTrue(new RunCommand(() -> level1Pickup = true));
+		// operatorController.leftBumper().whileTrue(new AutoPickup(drivetrain,
+		// elevatorSubsystem,
+		// () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), level1Pickup));
+
 	}
 
 	//public Command getAutonomousCommand() {
@@ -323,5 +320,5 @@ public class RobotContainer {
 	}
     public void initialize() {
         scoringSubsystem.initialize();
-    }
+	}
 }

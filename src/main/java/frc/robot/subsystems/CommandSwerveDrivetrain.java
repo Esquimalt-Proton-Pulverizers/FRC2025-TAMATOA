@@ -15,13 +15,16 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -48,7 +51,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
-
+    private Timer timer = new Timer();
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -203,6 +206,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configureAutoBuilder() {
+        timer.start();
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -297,7 +301,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Utils.fpgaToCurrentTime(mt2.timestampSeconds));
 
             // System.out.println("Limelight updatedPose");
-            // var updatedPose = getState().Pose;
+            var updatedPose = getState().Pose;
             // System.out.println("Updated Robot Position: " + updatedPose);
         }
         if (mt1 != null && mt1.tagCount > 0 && angularVelocity <= 720 && mt1.avgTagDist < 2.0) {
@@ -306,9 +310,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 mt1.pose,
                 Utils.fpgaToCurrentTime(mt1.timestampSeconds));
 
-            // System.out.println(mt1.avgTagDist);
-            // var updatedPose = getState().Pose;
-            // System.out.println("Updated Robot Position: " + updatedPose);
+             //System.out.println(mt1.avgTagDist);
+             var updatedPose = getState().Pose;
+             //System.out.println("Updated Robot Position: " + updatedPose);
+        }
+        if (timer.hasElapsed(1)){
+            timer.reset();
+            System.out.println("************");
+            System.out.println("mt1 is: " + mt1);
+            System.out.println("mt1 tag cnt: " + mt1.tagCount);
+            System.out.println("Omega is: " + angularVelocity);
+
         }
     }
 
