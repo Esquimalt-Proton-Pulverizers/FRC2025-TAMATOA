@@ -159,50 +159,39 @@ public class RobotContainer {
         //// -------------------- Cancel All --------------------
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
-        //// ------------------- Arm Controls -------------------
+        //// ---------------- General Use Commands ----------------
 
-		// operatorController.button(5).onTrue(scoringSubsystem.moveArm(State.CORAL_GROUND_INTAKE, elevatorSubsystem, elbowSubsystem)); // Left Bumper
-		// operatorController.button(2).onTrue(scoringSubsystem.moveArm(State.SCORE_L1, elevatorSubsystem, elbowSubsystem)); // A
-		// operatorController.button(1).onTrue(scoringSubsystem.moveArm(State.SCORE_L2, elevatorSubsystem, elbowSubsystem)); // X
-		// operatorController.button(3).onTrue(scoringSubsystem.moveArm(State.SCORE_L3, elevatorSubsystem, elbowSubsystem)); // B
-		// operatorController.button(4).onTrue(scoringSubsystem.moveArm(State.SCORE_L4, elevatorSubsystem, elbowSubsystem)); // Y
-		// operatorController.button(6).onTrue(scoringSubsystem.moveArm(State.CORAL_STATION_INTAKE, elevatorSubsystem, elbowSubsystem)); // Right Bumper
-		// operatorController.button(9).onTrue(scoringSubsystem.moveArm(State.HOME_FOR_CLIMB, elevatorSubsystem, elbowSubsystem)); // Back Button
+		 operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(scoringSubsystem,
+		 () -> applyDeadband(-operatorController.getRawAxis(1)),
+		 () -> applyDeadband(-operatorController.getRawAxis(5)),
+		 () -> applyDeadband(operatorController.getRawAxis(4))));
 
-        //// ---------------- Intake Commands ----------------
-         operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));  // Left Trigger	
-         operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.outtake())); // Right Trigger	
-         operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Left Trigger	
-         operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));   // Right Trigger	
-        //// --------------- Elevator Commands ---------------
-        // operatorController.button(11).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem));  // Left Stick Button
-        //operatorController.button(12).onTrue(Commands.runOnce(()->elevatorSubsystem.manualMove(-ELEVATOR_MOVEMENT_PER_CLICK), elevatorSubsystem)); // Right Stick Button
-		// operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+        //// --------------- Coral Handling Commands ---------------
+		// operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
+		// operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
+		// operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
+		// operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
+		// operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
+		// operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
+		// operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		// operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+
+		//// ----------------- Algea Handling Commands ----------------
+ 		operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
+		operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
+		operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
+		operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
+		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
+		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
-		operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 		
-		scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(scoringSubsystem,
-		() -> applyDeadband(-operatorController.getRawAxis(1)),
-		() -> applyDeadband(-operatorController.getRawAxis(5)),
-		() -> applyDeadband(operatorController.getRawAxis(4))));
-
-		// left bumper
-		// operatorController.button(5).whileTrue(new IncrementDifferentialCommand(scoringSubsystem));
-		// //right bumper
-		// operatorController.button(6).whileTrue(new DecrementDifferentialCommand(scoringSubsystem));
-		// driverController.button(2).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-100.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
-		// driverController.button(4).onTrue(Commands.defer(()->new SmartElbowElevationCommand(-10.0, elbowSubsystem, elevatorSubsystem), Set.of(elevatorSubsystem)));
+		//// ----------------- Hanging Commands ----------------
 		
 
-		//// ----------------- Elbow Commands ----------------
-		// operatorController.povUp().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
-		// operatorController.povDown().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(-ELBOW_ELEVATION_MOVEMENT_PER_CLICK, 0.0), elbowSubsystem));
-		// operatorController.povLeft().onTrue(Commands.runOnce(()->elbowSubsystem.manualcMove(0.0, -ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
-		// operatorController.povRight().onTrue(Commands.runOnce(()->elbowSubsystem.manualMove(0.0, ELBOW_ROTATION_MOVEMENT_PER_CLICK), elbowSubsystem));
 
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
@@ -328,9 +317,9 @@ public class RobotContainer {
         // NamedCommands.registerCommand("ArmToLevel4", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
         //         ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, ElbowSubsystem.START_POS_ELEVATION, 
         //         ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
-        NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.intake()));
-        NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.outtake()));
-        NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.stop()));
+        NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));
+        NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake()));
+        NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
 	}
     public void initialize() {
         scoringSubsystem.initialize();

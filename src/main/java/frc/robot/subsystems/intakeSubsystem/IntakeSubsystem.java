@@ -26,9 +26,13 @@ public class IntakeSubsystem extends SubsystemBase {
     // private static final double INTAKE_VOLTAGE = 5.0;
     // private static final double OUTAKE_VOLTAGE = 5.0;
 
-    private static final double HOLDING_VELOCITY =      0.0;
-    private static final double INTAKE_VELOCITY  =  12.0; // In terms of coral
-    private static final double OUTAKE_VELOCITY  = -2.0;
+    private static final double CORAL_HOLDING_VELOCITY =  0.0;
+    private static final double CORAL_INTAKE_VELOCITY  =  12.0; // In terms of coral
+    private static final double CORAL_OUTAKE_VELOCITY  = -2.0;
+
+    private static final double ALGEA_HOLDING_VELOCITY =  -4.0;
+    private static final double ALGEA_OUTAKE_VELOCITY = 2.0; // In terms of algea
+    private static final double ALGEA_INTAKE_VELOCITY = -12.0;
     
     public IntakeSubsystem() {
         // Initialize the subsystem here
@@ -61,15 +65,27 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorController.setReference(targetVelocity, ControlType.kVoltage);
     }
 
-    public void intake(){
-        setTargetVoltage(INTAKE_VELOCITY);
+    public void coralIntake(){
+        setTargetVoltage(CORAL_INTAKE_VELOCITY);
     }
 
-    public void outtake(){
-        setTargetVoltage(OUTAKE_VELOCITY);
+    public void coralOuttake(){
+        setTargetVoltage(CORAL_OUTAKE_VELOCITY);
     }
 
-    public void stop(){
-        setTargetVoltage(HOLDING_VELOCITY);
+    public void coralStop(){
+        setTargetVoltage(CORAL_HOLDING_VELOCITY);
+    }
+
+    public void algeaIntake(){
+        setTargetVoltage(ALGEA_INTAKE_VELOCITY);
+    }
+
+    public void algeaOuttake(){
+        setTargetVoltage(ALGEA_OUTAKE_VELOCITY);
+    }
+
+    public void algeaStop(){
+        setTargetVoltage(ALGEA_HOLDING_VELOCITY);
     }
 }
