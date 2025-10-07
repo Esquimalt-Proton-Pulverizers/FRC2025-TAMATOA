@@ -14,8 +14,11 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class PathFinderHelperCommands {
 
-    public Command followRelativePathCommand (Pose2d relativeMove, PathConstraints pathConstraints, CommandSwerveDrivetrain drivetrain) {
+    public static Command followRelativePathCommand (Pose2d relativeMove, PathConstraints pathConstraints, CommandSwerveDrivetrain drivetrain) {
+        System.out.println(" ****************************Following relative path step one: " + relativeMove);
+        printPose(drivetrain);
         return Commands.defer(() -> {
+            System.out.println("*********************Following relative path: " + relativeMove);
             Pose2d startPose = drivetrain.getState().Pose;
             Rotation2d startHeading = startPose.getRotation();
             Translation2d fieldTranslation = relativeMove.getTranslation().rotateBy(startHeading);
@@ -26,6 +29,12 @@ public class PathFinderHelperCommands {
         Set.of(drivetrain));
               
     }
+    public static void printPose(CommandSwerveDrivetrain drivetrain){
+		Pose2d test = drivetrain.getState().Pose;
+		System.out.println("x " + test.getX());
+		System.out.println("y " + test.getY());
+		System.out.println("rot " + test.getRotation());
+	}
 }
 
 

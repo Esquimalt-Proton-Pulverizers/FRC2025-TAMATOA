@@ -13,9 +13,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathConstraints;
 
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,6 +44,7 @@ import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
+import frc.robot.commands.PathFinderHelperCommands;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
@@ -92,7 +95,7 @@ public class RobotContainer {
 
 
 	// Path follower
-	//private final SendableChooser<Command> autoChooser; //TODO re-enable
+	private final SendableChooser<Command> autoChooser;
 
 
 	/**
@@ -101,9 +104,9 @@ public class RobotContainer {
 	public RobotContainer() {
 		// Register the named commands for auto
 		registerCommands();
-		configureBindings();
-		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run TODO re-enable
-		// SmartDashboard.putData("Auto Mode", autoChooser); TODO
+        configureBindings();
+		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
+		SmartDashboard.putData("Auto Mode", autoChooser);
     }
 	private static double applyDeadband(double value) {
         if (Math.abs(value) < XBOX_DEADBAND) {
@@ -114,6 +117,12 @@ public class RobotContainer {
         double sign = Math.signum(value);
         double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
         return sign * adjusted;
+    }
+	public void printPose(){
+		Pose2d test = drivetrain.getState().Pose;
+		System.out.println("x " + test.getX());
+		System.out.println("y " + test.getY());
+		System.out.println("rot " + test.getRotation());
 	}
 
 	/**
@@ -126,6 +135,14 @@ public class RobotContainer {
         
 		//// ----------------- Driving Commands -----------------
         // Drive Controls
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
+                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
+                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
+            )
+        );
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
@@ -178,6 +195,7 @@ public class RobotContainer {
 		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 
+
 		//// ----------------- Algea Handling Commands ----------------
  		// operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
 		// operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
@@ -209,6 +227,15 @@ public class RobotContainer {
 
         ////// ----------- Automated Controls ----------- ///////
 		//// ---------------- Automated Commands ----------------
+		/// 		// operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+
+		PathConstraints constraints = new PathConstraints(
+            0.5, 1.0,
+            Units.degreesToRadians(270), Units.degreesToRadians(360));
+		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // Right Bumper
+		operatorController.button(1).whileTrue(AutoBuilder.pathfindToPose(new Pose2d(.5,0,new Rotation2d(0)), constraints)); // Right Bumper
+
+		
 		// Choosing where to score on Custom Controller
 		CustomController.bt1().onTrue(new RunCommand(() -> {
 			hexSide = AutoPlace.HexSide.A;
@@ -290,10 +317,10 @@ public class RobotContainer {
 
 	}
 
-	//public Command getAutonomousCommand() {
+	public Command getAutonomousCommand() {
 		/* Run the path selected from the auto chooser */
-		//return autoChooser.getSelected();
-	//}
+		return autoChooser.getSelected();
+	}
 
 	private void registerCommands() {
 		// Register the commands here
