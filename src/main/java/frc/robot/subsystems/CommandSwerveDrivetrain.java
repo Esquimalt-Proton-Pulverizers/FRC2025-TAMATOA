@@ -15,14 +15,9 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.util.Units;
-
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -30,14 +25,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.limelight.LimelightHelpers;
-
 
 
 /**
@@ -55,7 +48,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
-    private Timer timer= new Timer();
 
 
     /** Swerve request to apply during robot-centric path following */
@@ -211,7 +203,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private void configureAutoBuilder() {
-        timer.start();//TODO
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -299,7 +290,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-        //mt2 uses the heading from the roborio, so you shouldn't feed rotation back into the roborio because it is recursive
         if (mt2 != null && mt2.tagCount > 0 && angularVelocity <= 720) {
             setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7, 9999999));
             addVisionMeasurement(
@@ -307,29 +297,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Utils.fpgaToCurrentTime(mt2.timestampSeconds));
 
             // System.out.println("Limelight updatedPose");
-            var updatedPose = getState().Pose;
+            // var updatedPose = getState().Pose;
             // System.out.println("Updated Robot Position: " + updatedPose);
         }
-        // mt1 is less accurate for position because it uses the april tags for heading to estimpate its pose
-        // small deviaitons in the april tag aspect angle can lead to huge deviations in position, so 
-        // we only use it for a moderately accurate heading reading (5 degrees), and low (5m) estimate of position
-        if (mt1 != null && mt1.tagCount > 0 && angularVelocity <= 720 && mt1.avgTagDist < 2.0) {//TODO
+        if (mt1 != null && mt1.tagCount > 0 && angularVelocity <= 720 && mt1.avgTagDist < 2.0) {
             setVisionMeasurementStdDevs(VecBuilder.fill(5,5, 5));
             addVisionMeasurement(
                 mt1.pose,
                 Utils.fpgaToCurrentTime(mt1.timestampSeconds));
 
-             //System.out.println(mt1.avgTagDist);
-            var updatedPose = getState().Pose;
-             //System.out.println("Updated Robot Position: " + updatedPose);
-        }
-        if (timer.hasElapsed(1)){
-            timer.reset();
-            System.out.println("************");
-            System.out.println("mt1 is: " + mt1);
-            System.out.println("mt1 tag cnt: " + mt1.tagCount);
-            System.out.println("Omega is: " + angularVelocity);
-
+            // System.out.println(mt1.avgTagDist);
+            // var updatedPose = getState().Pose;
+            // System.out.println("Updated Robot Position: " + updatedPose);
         }
     }
 
