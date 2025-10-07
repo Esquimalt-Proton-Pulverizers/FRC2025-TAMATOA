@@ -27,6 +27,13 @@ public class ManualScoringControlCommand extends Command {
     private final double WRIST_CW_MULTIPLER = 5;
     private final double WRIST_CCW_MULTIPLER = 5;
 
+    private final double ELEVATOR_MAX_POS = 59;
+    private final double ELEVATOR_MIN_POS = 2;
+    private final double DIFFERENTIAL_MAX_POS = -7;
+    private final double DIFFERENTIAL_MIN_POS = -130;
+
+
+
     public ManualScoringControlCommand(ScoringSubsystem scoringSubsystem,
         DoubleSupplier elevatorControlAxis,
         DoubleSupplier differentialControlAxis,
@@ -49,7 +56,6 @@ public class ManualScoringControlCommand extends Command {
     }
 
 
-    // elevatorControlAxis = 0.5;
     @Override
     public void execute() {
         currElevatorPosition = scoringSubsystem.getElevatorSubsystem().getPosition();
@@ -62,7 +68,7 @@ public class ManualScoringControlCommand extends Command {
         else {
             targetElevatorPosition = currElevatorPosition + (elevatorControlAxis.getAsDouble() * ELEVATOR_LOWER_MULTIPLER);
         }
-            // targetElevatorPosition = MathUtil.clamp(targetElevatorPosition, MAX LOW POSITION, MAX HIGH POSITION)
+             targetElevatorPosition = MathUtil.clamp(targetElevatorPosition, ELEVATOR_MIN_POS, ELEVATOR_MAX_POS);
 
         if (differentialControlAxis.getAsDouble() >= 0) {
             targetDifferentialPosition = currDifferentialPosition + (differentialControlAxis.getAsDouble() * DIFFERENTIAL_LIFT_MULTIPLIER);
@@ -70,12 +76,13 @@ public class ManualScoringControlCommand extends Command {
         else {
             targetDifferentialPosition = currDifferentialPosition + (differentialControlAxis.getAsDouble() * DIFFERENTIAL_LOWER_MULTIPLER);
         }
+            targetDifferentialPosition = MathUtil.clamp(targetDifferentialPosition, DIFFERENTIAL_MIN_POS, DIFFERENTIAL_MAX_POS);
 
         if (wristControlAxis.getAsDouble() >= 0) {
-            targetWristPosition = currWristPosition + (wristControlAxis.getAsDouble() * WRIST_CW_MULTIPLER);
+            targetWristPosition = currWristPosition /*+ (wristControlAxis.getAsDouble() * WRIST_CW_MULTIPLER)*/;
         }
         else {
-            targetWristPosition = currWristPosition + (wristControlAxis.getAsDouble() * WRIST_CCW_MULTIPLER);
+            targetWristPosition = currWristPosition /*+ (wristControlAxis.getAsDouble() * WRIST_CCW_MULTIPLER)*/;
         }
 
         scoringSubsystem.getDifferentialSubsystem().setElevationRotationPos(targetDifferentialPosition, targetWristPosition);
