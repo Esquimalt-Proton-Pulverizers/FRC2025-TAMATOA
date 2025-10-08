@@ -5,16 +5,12 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
-
 import java.util.Set;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -22,12 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.ArmToPosCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.hang.HangingSubsystem;
@@ -35,28 +28,18 @@ import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ManualScoringControlCommand;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
-import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
-import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
-import frc.robot.subsystems.scoring_subsystem.differential.IncrementDifferentialCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
-import frc.robot.subsystems.scoring_subsystem.elevator.DecrementElevatorCommand;
-import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
-import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
-import frc.robot.commands.AutoPickup;
 import frc.robot.commands.AutoPlace;
-import frc.robot.commands.PathFinderHelperCommands;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
 public class RobotContainer {
     // Swerve Drive Controls
-	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-	private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second, max angular velocity
-	private double MaxControlSpeed = 1;
-	private final double DRIVE_DEADBAND = 0.0;
-	private final double TURBO_BUTTON_MULTIPLE = 2.0;
+	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts top speed possible at 12 volts
+	private final double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second, max angular velocity
+	private final double MAX_CONTROL_SPEED = 1; //max speed the driver can go in x or y in m/s
+	private final double TURBO_MULTIPLE = 1.3; // technically a divider for how slow it is pre turbo since it is limited to the max control speed ... 1.0 disables it
 
-	
 	// Auto scoring variables
 	private Position autoScoringPosition = Position.SCORE_L1;
 	private AutoPlace.HexSide hexSide = AutoPlace.HexSide.A;
@@ -64,9 +47,8 @@ public class RobotContainer {
 
 	// Setting up bindings for necessary control of the swerve drive platform
 	private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-			.withDeadband(MaxSpeed * DRIVE_DEADBAND).withRotationalDeadband(MaxAngularRate * DRIVE_DEADBAND) // Add a 10% deadband
+			.withDeadband(0).withRotationalDeadband(0) // don't apply deadband here, it ends up being jerky apply it in the request supplier
 			.withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-	// private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
 	// Telemetry
 	private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -76,7 +58,7 @@ public class RobotContainer {
 	private final CommandGenericHID operatorController = new CommandGenericHID(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.09;
-	public final double RIGHT_TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
+	// public final double TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -104,20 +86,41 @@ public class RobotContainer {
 	public RobotContainer() {
 		// Register the named commands for auto
 		registerCommands();
-        configureBindings();
+		configureDriveBindings(true);//false just disables driving without breaking limelight
+		configureOperatorBindingsBrandon();
+		// configureOperatorBindingsColin();
+		configureAutomatedBindings();
 		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
-	private static double applyDeadband(double value) {
-        if (Math.abs(value) < XBOX_DEADBAND) {
+	/** called in robot teleop and auto initialize methods */
+	public void initialize() {
+        scoringSubsystem.initialize();
+	}
+	/** proper deadband application for smooth control */
+	private static double applyDeadband(double value){
+		return applyDeadband(value, XBOX_DEADBAND);
+	}
+	private static double applyDeadband(double value, double deadband) {
+        if (Math.abs(value) < deadband) {
             return 0.0;
         }
-
         // Rescale so the output goes from 0 to 1 outside the deadband
         double sign = Math.signum(value);
-        double adjusted = (Math.abs(value) - XBOX_DEADBAND) / (1.0 - XBOX_DEADBAND);
+        double adjusted = (Math.abs(value) - deadband) / (1.0 - deadband);
         return sign * adjusted;
     }
+
+	/** conditions the input axis with deadband and turbo 
+	 * @param turboAxis assumes the turbo axis is 0 to 1
+	*/
+	private double conditionInput(double inputAxis, double turboAxis, double maxRange){
+		//map the input which ranges from -1 to 1 and the turbo axis to a range of +/- MAX_CONTROL_SPEED
+		inputAxis = applyDeadband(inputAxis);
+		double turbo = turboAxis * (1 - 1/TURBO_MULTIPLE) + 1/TURBO_MULTIPLE ; //ranges from 1/turbo multiple to 1 with turbo axis from 0 to 1
+		return inputAxis * maxRange * turbo;
+	}
+
 	public void printPose(){
 		Pose2d test = drivetrain.getState().Pose;
 		System.out.println("x " + test.getX());
@@ -126,39 +129,38 @@ public class RobotContainer {
 	}
 
 	/**
-	 * Configure all bindings for the robot's controls.
+	 * Configure only the drive to enable or disable
+	 * @param enableDriving true to enable driving, false to disable
 	 */
-	private void configureBindings() {
-        /////////////////////////////////////////////////////////
-        ////// ------------- Driver Controls ------------- //////
-        /////////////////////////////////////////////////////////
-        
-		//// ----------------- Driving Commands -----------------
-        // Drive Controls
-        drivetrain.setDefaultCommand(
+	private void configureDriveBindings(boolean enableDriving){
+		if (enableDriving){
+			// Drive Controls
+			drivetrain.setDefaultCommand(
+				// Drivetrain will execute this command periodically
+				drivetrain.applyRequest(() ->
+					drive.withVelocityX(conditionInput(-driverController.getLeftY(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive forward with negative Y (forward)
+						.withVelocityY(conditionInput(-driverController.getLeftX(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive left with negative X (left)
+						.withRotationalRate(conditionInput(-driverController.getRightX(), driverController.getRightTriggerAxis() , MAX_ANGULAR_RATE)) // Drive counterclockwise with negative X (left)
+				)
+			);
+			// Reset the field-centric heading on left bumper press
+			driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		} else {
+			drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-            )
-        );
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(applyDeadband(-driverController.getLeftY()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET) * TURBO_BUTTON_MULTIPLE) ) // Drive forward with negative Y (forward)
-                    .withVelocityY(applyDeadband(-driverController.getLeftX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE )) // Drive left with negative X (left)
-                    .withRotationalRate(applyDeadband(-driverController.getRightX()) * ((driverController.getRightTriggerAxis() + RIGHT_TRIGGER_OFFSET)  * TURBO_BUTTON_MULTIPLE) ) // Drive counterclockwise with negative X (left)
-            )
-        );
+            	drivetrain.applyRequest(() ->
+					drive.withVelocityX(0 ) // no drive
+						.withVelocityY(0) // no drive
+						.withRotationalRate(0) // no turn
+				)
+        	);
+		}
+		// Brake Mode - Stop robot from being moved
+		//driverController.x().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake()));
+	}
 
-		// Reset the field-centric heading on left bumper press
-		// driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        // Brake Mode - Stop robot from being moved
-		// driverController.x().whileTrue(drivetrain.applyRequest(() -> brake));
-
-
+	/** Created only to reduce Merge Conflicts while both working on this file */
+	private void configureOperatorBindingsColin() {
         //// ----------------- Hanging Controls -----------------
 		// driverController.povUp().onTrue(hanger.extend());
         // driverController.povDown().onTrue(hanger.retract());
@@ -166,11 +168,6 @@ public class RobotContainer {
         // driverController.leftBumper().onFalse(hanger.stop());
         // driverController.back().onTrue(hanger.manualRetract());
         // driverController.back().onFalse(hanger.resetWinch());
-
-
-        /////////////////////////////////////////////////////////
-        ////// ------------ Operator Controls ------------ //////
-        /////////////////////////////////////////////////////////
         
         //// -------------------- Cancel All --------------------
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
@@ -206,10 +203,6 @@ public class RobotContainer {
 		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
 		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 
-		//// ----------------- Hanging Commands ----------------
-
-
-
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
 		// If Manual Override is true, reset encoder positions, and then become false
@@ -223,11 +216,17 @@ public class RobotContainer {
 		// 		Commands.runOnce(() -> manualOverride = true),
 		// 		() -> manualOverride)
 		// 	));
+	}
+	/** Created only to reduce Merge Conflicts while both working on this file */
+	private void configureOperatorBindingsBrandon() {
+		// button 2 is B on xbox controller
+		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		// button 9 is left joystick button on xbox controller
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
 
-
-        ////// ----------- Automated Controls ----------- ///////
-		//// ---------------- Automated Commands ----------------
-		/// 		// operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+	}
+	/** Created to reduce Merge Conflicts while both working on this file, and it also is a convenient place to store allt he auto scoring elements */
+	private void configureAutomatedBindings(){
 
 		PathConstraints constraints = new PathConstraints(
             0.5, 1.0,
@@ -344,8 +343,5 @@ public class RobotContainer {
         NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
-	}
-    public void initialize() {
-        scoringSubsystem.initialize();
 	}
 }
