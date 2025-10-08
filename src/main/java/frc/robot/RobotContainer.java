@@ -182,10 +182,10 @@ public class RobotContainer {
 		 () -> applyDeadband(operatorController.getRawAxis(4))));
 
         //// --------------- Coral Handling Commands ---------------
-		// operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
-		// operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
-		// operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
-		// operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
+		operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
+		operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
 		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
 		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
 		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
@@ -196,10 +196,10 @@ public class RobotContainer {
 
 
 		//// ----------------- Algea Handling Commands ----------------
- 		// operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
-		// operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
-		// operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
-		// operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
+ 		// operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
+		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
 		operatorController.button(6).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
 		operatorController.pov(270).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
