@@ -48,9 +48,9 @@ public class ScoringSubsystem extends SubsystemBase{
     public enum Position {
         //Note: "+" sign is only added to disable the VScode inlay hints and make it easier to read
         CORAL_GROUND_INTAKE     (-98.0,     +90.0,  +3.0),
-        ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +6.2),
+        ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +8.2),
         CORAL_STATION_INTAKE    (+0.0,      +0.0,   +0.0), // not yet determined
-        ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +16.25), // not yet tested
+        ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +21.25), // not yet tested
         HOME_FOR_CLIMB          (-5.0,      +0.0,   +2.0),
         SET_CORAL_POSITION_LEFT (+360.0,    +0.0,   +0.0), // not yet determined
         SET_CORAL_POSITION_RIGHT(+360.0,    +0.0,   +0.0), // not yet determined
@@ -61,8 +61,8 @@ public class ScoringSubsystem extends SubsystemBase{
         SCORE_NET               (+360.0,    +0.0,   +0.0), // not yet determined
         SCORE_PROCESSOR         (-90.0,     -90.0,  +4.0), // not yet tested
         DRIVE_EMPTY             (-5.0,      +0.0,   +2.0),
-        DRIVE_WITH_CORAL        (+20.0,     +90.0,  +2.0), // not yet tested
-        DRIVE_WITH_ALGAE        (+30.0,     -90.0,  +2.0), // not yet tested
+        DRIVE_WITH_CORAL        (-35.0,     +90.0,  +2.0), // not yet tested
+        DRIVE_WITH_ALGAE        (-40.0,     -90.0,  +2.0), // not yet tested
         SAFETY                  (-45.0,     +0.0,   +5.0),
         UNDEFINED(Double.NaN, Double.NaN, Double.NaN); // sentinel 
     
@@ -206,18 +206,18 @@ public class ScoringSubsystem extends SubsystemBase{
         /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Algae Ground Intake
         /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Coral Station Intake
         /*AL_LO*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
-        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
+        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
         /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Left
         /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Right
         /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 1
         /*L2*/      {S.WDE, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 2
         /*L3*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 3
-        /*L4*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 4
+        /*L4*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EWD, S.EWD, S.x__, S.DWE}, //Level 4
         /*NET*/     {S.WDE, S.WDE, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Net
-        /*PROC*/    {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Processor
+        /*PROC*/    {S.WDE, S.WED, S.x__, S.x__, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Processor
         /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Drive Empty
         /*DR_COR*/  {S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Drive with Coral
-        /*DR_ALG*/  {S.UUU, S.UUU, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.DWE}, //Drive with Algae
+        /*DR_ALG*/  {S.EWD, S.WDE, S.x__, S.x__, S.EWD, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.DWE}, //Drive with Algae
         /*SAFETY*/  {S.WDE, S.WED, S.UUU, S.WED, S.EWD, S.UUU, S.UUU, S.WDE, S.WDE, S.WDE, S.WDE, S.UUU, S.DWE, S.EWD, S.WED, S.WED, S.x__}  //Safety
         //Undefined state is not in the matrix because it is covered by an if statement in moveArm()
     };

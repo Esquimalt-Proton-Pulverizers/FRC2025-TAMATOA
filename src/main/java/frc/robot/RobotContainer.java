@@ -206,8 +206,7 @@ public class RobotContainer {
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
 		operatorController.button(6).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
 		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
-		operatorController.pov(270).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		operatorController.pov(270).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
 		operatorController.pov(0).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 
 		//// -------- Manual Override + Encoder Reset --------
