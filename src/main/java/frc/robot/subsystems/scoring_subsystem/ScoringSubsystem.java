@@ -58,10 +58,10 @@ public class ScoringSubsystem extends SubsystemBase{
         SCORE_L3                (-51.5,     +0.0,   +32.5),
         SCORE_L4                (-51.5,     +0.0,   +58.0),
         SCORE_NET               (+360.0,    +0.0,   +0.0), // not yet determined
-        SCORE_PROCESSOR         (-90.0,     +180.0, +4.0), // not yet tested
+        SCORE_PROCESSOR         (-90.0,     -90.0,  +4.0), // not yet tested
         DRIVE_EMPTY             (-5.0,      +0.0,   +2.0),
         DRIVE_WITH_CORAL        (+20.0,     +90.0,  +2.0), // not yet tested
-        DRIVE_WITH_ALGAE        (+30.0,     +180.0, +2.0), // not yet tested
+        DRIVE_WITH_ALGAE        (+30.0,     -90.0,  +2.0), // not yet tested
         SAFETY                  (-45.0,     +0.0,   +5.0),
         UNDEFINED(Double.NaN, Double.NaN, Double.NaN); // sentinel 
     
