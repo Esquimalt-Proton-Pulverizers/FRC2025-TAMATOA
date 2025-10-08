@@ -17,11 +17,14 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -235,20 +238,28 @@ public class RobotContainer {
 	/** Created to reduce Merge Conflicts while both working on this file, and it also is a convenient place to store allt he auto scoring elements */
 	private void configureAutomatedBindings(){
 		//Testing Only area TODO comment out when not testing
-		drivetrain.resetPose(new Pose2d(6.5, 4.2, new Rotation2d(Units.degreesToRadians(90)))); //near center of field facing towards drivers
+		Pose2d frontofABlueRobotPose = new Pose2d(5.76,4.0, new Rotation2d(Units.degreesToRadians(90)));
+		Pose2d frontofARedRobotPose = new Pose2d(11.7,4.0, new Rotation2d(Units.degreesToRadians(-90)));
+		double backupDistance = 0.5; //meters to start away from reef
+		Translation2d offset = new Translation2d(backupDistance,0);
+		// Transform2d transform = new Transform2d(offset, new Rotation2d(0));
+		Pose2d startPose = new Pose2d(frontofABlueRobotPose.getTranslation().plus(offset), new Rotation2d(Units.degreesToRadians(180)));
+		Pose2d endPose = new Pose2d(frontofABlueRobotPose.getTranslation(), new Rotation2d(Units.degreesToRadians(180)));
+
+		drivetrain.resetPose(frontofABlueRobotPose); //near center of field facing towards drivers
 		//drivetrain.seedFieldCentric();
 		PathConstraints constraints = new PathConstraints(
-			1, 4.0,
+			1, 0.1,
 			Units.degreesToRadians(270), Units.degreesToRadians(360));
-		// PathPlannerPath testPath =
-        //           new PathPlannerPath(
-        //               PathPlannerPath.waypointsFromPoses(
-        //                   new Pose2d(0.1,0.0, new Rotation2d(0)), new Pose2d(0.5,0.0, new Rotation2d(0))),
-        //               constraints,
-        //               new IdealStartingState(
-        //                   Math.hypot(0, 0),
-        //                   new Rotation2d(0)),
-        //               new GoalEndState(0, new Rotation2d(0)));
+		PathPlannerPath testPath2 =
+                  new PathPlannerPath(
+                      PathPlannerPath.waypointsFromPoses(
+						startPose , endPose),
+                      constraints,
+                      new IdealStartingState(
+                          0,
+                          new Rotation2d(Units.degreesToRadians(90))),
+                      new GoalEndState(0, new Rotation2d(Units.degreesToRadians(90))));
 		PathPlannerPath testPath;
 		try {
 			testPath = PathPlannerPath.fromPathFile("A1");
@@ -259,8 +270,10 @@ public class RobotContainer {
 
 		
 		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
-		// operatorController.button(1).whileTrue(AutoBuilder.pathfindToPose(new Pose2d(.5,0,new Rotation2d(0)), constraints)); // 
-		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath, constraints)); // A button
+		//driverController.button(2).whileTrue(AutoBuilder.pathfindToPose(frontofABlueRobotPose, constraints)); // 
+		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath2, constraints)); // A button
+		driverController.button(8).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofABlueRobotPose))); // menu button
+		driverController.button(4).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofARedRobotPose))); // y button
 
 		if(false){
 				// Choosing where to score on Custom Controller
