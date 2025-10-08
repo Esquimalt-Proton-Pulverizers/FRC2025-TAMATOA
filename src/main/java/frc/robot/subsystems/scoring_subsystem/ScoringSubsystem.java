@@ -14,8 +14,8 @@ import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorToPosCommand;
 
 
 public class ScoringSubsystem extends SubsystemBase{
-    private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-	private final DifferentialSubsystem differentialSubsystem = new DifferentialSubsystem();
+    private final ElevatorSubsystem elevatorSubsystem;
+	private final DifferentialSubsystem differentialSubsystem;
     private static final double SAFE_ELEVATOR_HEIGHT = 5.0; // Minimum safe height for elevator to avoid collisions
     public static Position currentPosition = Position.UNDEFINED; // Initial state; NOTE robot must start in this position or collisions may occur
     private double[] targetVals; // 1; diff pos, 2; Wrist pos, 3; Elevator pos
@@ -24,6 +24,7 @@ public class ScoringSubsystem extends SubsystemBase{
     private double startElevPos;
     private Timer timer = new Timer();
     private boolean debugMode = true;
+    private boolean enableTelemetry = false;
     //Scoring System Position Constants
     /*from elevator class*/
     public static final double LOCK_POSITION   =  0.0;
@@ -109,12 +110,18 @@ public class ScoringSubsystem extends SubsystemBase{
     public void initialize() {
         differentialSubsystem.initialize(); //TODO make a class variable for this, or pull from start position
     }
-    public ScoringSubsystem() {
+    public ScoringSubsystem(boolean enableTelemetry) {
         timer.start();
+        this.enableTelemetry = enableTelemetry;
+        elevatorSubsystem = new ElevatorSubsystem(enableTelemetry);
+        differentialSubsystem = new DifferentialSubsystem(enableTelemetry);
     }
     @Override
     public void periodic() {
         if(timer.hasElapsed(2.0)) {
+            if (enableTelemetry){
+                //put any normal telemetry here
+            }
             if (debugMode==true){
                 double[] current = {differentialSubsystem.getElevationPos(), differentialSubsystem.getRotationPos(), elevatorSubsystem.getPosition()};
                 System.out.println("Current ScoringSystem position" + Position.fromCurrentVals(current));

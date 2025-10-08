@@ -66,9 +66,9 @@ public class RobotContainer {
 
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
-	public final HangingSubsystem hanger = new HangingSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
+	public final HangingSubsystem hanger = new HangingSubsystem(false);
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(false);
+	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem(false);
 
     // Manual Movement
     public final double ELEVATOR_MOVEMENT_PER_CLICK = 1.0;

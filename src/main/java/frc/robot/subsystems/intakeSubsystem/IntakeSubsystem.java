@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {    
     private Timer timer = new Timer();
+    private boolean enableTelemetry;
 
     protected SparkMax intakeMotor = new SparkMax(4, MotorType.kBrushless);
 
@@ -34,7 +35,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private static final double ALGEA_OUTAKE_VELOCITY = 2.0; // In terms of algea
     private static final double ALGEA_INTAKE_VELOCITY = -12.0;
     
-    public IntakeSubsystem() {
+    public IntakeSubsystem(boolean enableTelemetry) {
+        this.enableTelemetry = enableTelemetry;
         // Initialize the subsystem here
         timer.start();
         intakeMotorConfig.smartCurrentLimit(1,8,50);
@@ -55,10 +57,12 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Put code here to be run every loop
-        // if(timer.hasElapsed(2.0)) {
-        // System.out.println("intake output velocity" + intakeEncoder.getVelocity());
-        // timer.reset();
-        // }
+        if(timer.hasElapsed(2.0)) {
+            if (enableTelemetry){
+                System.out.println("intake output velocity" + intakeEncoder.getVelocity());
+            }
+        timer.reset();
+        }
     }
 
     public void setTargetVoltage(double targetVelocity){

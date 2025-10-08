@@ -39,6 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   // Add a timer object
   private Timer timer = new Timer();
+  private boolean enableTelemetry;
 
 
   // Elevator Motor Config
@@ -46,9 +47,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   protected SparkMaxConfig elevatorConfig = new SparkMaxConfig();
   private SparkClosedLoopController elevatorClosedLoopController = elevatorMotor.getClosedLoopController();
   public RelativeEncoder elevatorEncoder = elevatorMotor.getEncoder();
-  
- 
-  public ElevatorSubsystem() {
+    
+    
+   
+  public ElevatorSubsystem(boolean enableTelemetry) {
+    this.enableTelemetry = enableTelemetry;
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
       .velocityConversionFactor(1);
@@ -80,9 +83,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     // Put code here to be run every loop
     if(timer.hasElapsed(2.0)) {
-       System.out.println("Elevator target position"+getTargetPosition());
-      // System.out.println("Is inverted: " + !isCompetitionRobot);
-      System.out.println("Elevator Level: " + getPosition());
+      if (enableTelemetry){
+        System.out.println("Elevator target position"+getTargetPosition());
+        // System.out.println("Is inverted: " + !isCompetitionRobot);
+        System.out.println("Elevator Level: " + getPosition());
+      }
+       
       timer.reset();
     }
   }

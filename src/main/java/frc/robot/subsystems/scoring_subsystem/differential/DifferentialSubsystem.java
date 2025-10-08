@@ -50,6 +50,7 @@ public class DifferentialSubsystem extends SubsystemBase{
     public double ELBOW_MOTORS_GEAR_RATIO = 360/48.0 ;
 
     private Timer timer = new Timer();
+    private boolean enableTelemetry = false;
 
     public static boolean hasBeenInitialized = false;
 
@@ -74,7 +75,8 @@ public class DifferentialSubsystem extends SubsystemBase{
     public static double targetElevationPos;
     public static double targetRotationPos;
 
-    public DifferentialSubsystem() {
+    public DifferentialSubsystem(boolean enableTelemetry) {
+        this.enableTelemetry = enableTelemetry;
         timer.start();
 
         leftMotorConfig.encoder.positionConversionFactor(ELBOW_MOTORS_GEAR_RATIO)
@@ -135,12 +137,15 @@ public class DifferentialSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
       // Put code here to be run every loop
-      if(timer.hasElapsed(1.0)) {
-        System.out.println("-----------------------");
-        System.out.println("Elbow Elevation: " + getElevationPos());
-        System.out.println("Elbow Rotation: " + getRotationPos());
+      if(timer.hasElapsed(2.0)) {
+        if (enableTelemetry){
+            System.out.println("-----------------------");
+            System.out.println("Elbow Elevation: " + getElevationPos());
+            System.out.println("Elbow Rotation: " + getRotationPos());
+            System.out.println("FFG: " + calculateGravityFF(getElevationPos()));
+        }
         timer.reset();
-        System.out.println("FFG: " + calculateGravityFF(getElevationPos()));
+        
       }
     }
     public void setElevationRotationPos(double elevation, double rotation, double feedForward) {

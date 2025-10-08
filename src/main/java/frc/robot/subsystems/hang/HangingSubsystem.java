@@ -28,6 +28,8 @@ public final class HangingSubsystem extends SubsystemBase {
 
     private final double INTAKE_VOLTAGE = 6.0;
     private final double HOLDING_VOLTAGE = 0.0;
+    private Timer timer = new Timer();
+    private boolean enableTelemetry;
 
     // Hardware
     private  SparkMax winchMotor;
@@ -38,7 +40,8 @@ public final class HangingSubsystem extends SubsystemBase {
     private SparkClosedLoopController intakeController;
 
     
-    public HangingSubsystem() {
+    public HangingSubsystem(boolean enableTelemetry) {
+        this.enableTelemetry = enableTelemetry;
         winchMotor = new SparkMax(WINCH_MOTOR_CAN_ID, MotorType.kBrushless);
         
         SparkMaxConfig winchConfig = new SparkMaxConfig();
@@ -83,7 +86,18 @@ public final class HangingSubsystem extends SubsystemBase {
         intakeController.setReference(0, SparkMax.ControlType.kVoltage);
         intakeMotor.getEncoder();    
 
-        new Timer();
+        
+    }
+    @Override
+    public void periodic() {
+        // Put code here to be run every loop
+        if(timer.hasElapsed(2.0)) {
+            if (enableTelemetry){
+                //add any periodic telemetry here
+            }
+            SmartDashboard.putNumber("Servo Position", latchServo.getPosition());
+            timer.reset();
+        }
     }
 
     private void setLatchServoPosition(LatchServoPosition position) {
@@ -138,10 +152,6 @@ public final class HangingSubsystem extends SubsystemBase {
 
     public Command latch() {
         return Commands.runOnce(() -> setLatchServoPosition(LatchServoPosition.LATCHED));    
-    }
-
-    @Override public void periodic() {
-        SmartDashboard.putNumber("Servo Position", latchServo.getPosition());
     }
 
     public enum LatchServoPosition {
