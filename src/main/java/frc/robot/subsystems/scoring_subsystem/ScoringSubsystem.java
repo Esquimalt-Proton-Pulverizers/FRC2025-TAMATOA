@@ -198,7 +198,7 @@ public class ScoringSubsystem extends SubsystemBase{
         /*CG_IN*/   {S.x__, S.EDW, S.x__, S.x__, S.WDE, S.OOO, S.OOO, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.DWE}, //Coral Ground Intake
         /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Algae Ground Intake
         /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Coral Station Intake
-        /*AL_LO*/   {S.UUU, S.UUU, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.UUU, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
+        /*AL_LO*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
         /*HOME*/    {S.DWE, S.DWE, S.DWE, S.UUU, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
         /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Left
         /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Right
