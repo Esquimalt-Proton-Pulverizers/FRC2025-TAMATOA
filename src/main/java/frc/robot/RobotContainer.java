@@ -91,8 +91,8 @@ public class RobotContainer {
 		// Register the named commands for auto
 		registerCommands();
 		configureDriveBindings(true);//false just disables driving without breaking limelight
-		configureOperatorBindingsBrandon();
-		// configureOperatorBindingsColin();
+		//configureOperatorBindingsBrandon();
+		configureOperatorBindingsColin();
 		configureAutomatedBindings();
 		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
@@ -178,34 +178,37 @@ public class RobotContainer {
 
         //// ---------------- General Use Commands ----------------
 
-		 operatorController.button(6).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+		 operatorController.button(10).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+		 operatorController.button(7).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
 		 () -> applyDeadband(-operatorController.getRawAxis(5)),
 		 () -> applyDeadband(operatorController.getRawAxis(4))));
 
         //// --------------- Coral Handling Commands ---------------
-		operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
-		operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
-		operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
-		operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
+		operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
+		operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
 		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
+		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
 		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		operatorController.pov(180).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+
 
 
 		//// ----------------- Algea Handling Commands ----------------
- 		// operatorController.button(7).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
-		// operatorController.button(8).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
-		// operatorController.button(7).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
-		// operatorController.button(8).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
-		// operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		// operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
-		// operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
-		// operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+ 		// operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
+		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
+		operatorController.button(6).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
+		operatorController.pov(270).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
+		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		operatorController.pov(0).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
