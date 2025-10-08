@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.SmartDifferentialElevationCommand;
@@ -120,7 +121,7 @@ public class ScoringSubsystem extends SubsystemBase{
     public void periodic() {
         if(timer.hasElapsed(2.0)) {
             if (enableTelemetry){
-                //put any normal telemetry here
+               
             }
             if (debugMode==true){
                 double[] current = {differentialSubsystem.getElevationPos(), differentialSubsystem.getRotationPos(), elevatorSubsystem.getPosition()};
@@ -206,7 +207,7 @@ public class ScoringSubsystem extends SubsystemBase{
         /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Algae Ground Intake
         /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Coral Station Intake
         /*AL_LO*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
-        /*HOME*/    {S.DWE, S.DWE, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
+        /*HOME*/    {S.DWE, S.DEW, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
         /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Left
         /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Right
         /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 1
