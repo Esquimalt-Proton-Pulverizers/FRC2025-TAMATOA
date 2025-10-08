@@ -10,7 +10,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -61,7 +65,7 @@ public class RobotContainer {
 	// public final double TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
-	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
 	public final HangingSubsystem hanger = new HangingSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem();
@@ -220,92 +224,117 @@ public class RobotContainer {
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
 		// button 2 is B on xbox controller
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
 		// button 9 is left joystick button on xbox controller
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
+		driverController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
 
 	}
 	/** Created to reduce Merge Conflicts while both working on this file, and it also is a convenient place to store allt he auto scoring elements */
 	private void configureAutomatedBindings(){
-
+		//Testing Only area TODO comment out when not testing
+		drivetrain.resetPose(new Pose2d(6.5, 4.2, new Rotation2d(Units.degreesToRadians(90)))); //near center of field facing towards drivers
+		//drivetrain.seedFieldCentric();
 		PathConstraints constraints = new PathConstraints(
-            0.5, 1.0,
-            Units.degreesToRadians(270), Units.degreesToRadians(360));
-		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // Right Bumper
-		operatorController.button(1).whileTrue(AutoBuilder.pathfindToPose(new Pose2d(.5,0,new Rotation2d(0)), constraints)); // Right Bumper
+			1, 4.0,
+			Units.degreesToRadians(270), Units.degreesToRadians(360));
+		// PathPlannerPath testPath =
+        //           new PathPlannerPath(
+        //               PathPlannerPath.waypointsFromPoses(
+        //                   new Pose2d(0.1,0.0, new Rotation2d(0)), new Pose2d(0.5,0.0, new Rotation2d(0))),
+        //               constraints,
+        //               new IdealStartingState(
+        //                   Math.hypot(0, 0),
+        //                   new Rotation2d(0)),
+        //               new GoalEndState(0, new Rotation2d(0)));
+		PathPlannerPath testPath;
+		try {
+			testPath = PathPlannerPath.fromPathFile("A1");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw (new RuntimeException("Loaded a path that does not exist."));
+		}
 
 		
-		// Choosing where to score on Custom Controller
-		CustomController.bt1().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.A;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt2().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.A;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt3().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.B;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt4().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.B;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt5().onTrue(new RunCommand(() -> {
+		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
+		// operatorController.button(1).whileTrue(AutoBuilder.pathfindToPose(new Pose2d(.5,0,new Rotation2d(0)), constraints)); // 
+		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath, constraints)); // A button
+
+		if(false){
+				// Choosing where to score on Custom Controller
+			CustomController.bt1().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.A;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt2().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.A;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt3().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.B;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt4().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.B;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt5().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.C;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt6().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.C;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt7().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.D;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt8().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.D;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt9().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.E;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt10().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.E;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt11().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.F;
+				side = AutoPlace.Side.one;
+			}));
+			CustomController.bt12().onTrue(new RunCommand(() -> {
+				hexSide = AutoPlace.HexSide.F;
+				side = AutoPlace.Side.two;
+			}));
+			CustomController.bt16().onTrue(new RunCommand(() -> {
+				autoScoringPosition = Position.SCORE_L1;
+			}));
+			CustomController.bt17().onTrue(new RunCommand(() -> {
+				autoScoringPosition = Position.SCORE_L2;
+			}));
+			CustomController.bt18().onTrue(new RunCommand(() -> {
+				autoScoringPosition = Position.SCORE_L3;
+			}));
+			CustomController.bt19().onTrue(new RunCommand(() -> {
+				autoScoringPosition = Position.SCORE_L4;
+			}));
+
+
+			//TODO remove this overide once testing completed
 			hexSide = AutoPlace.HexSide.C;
 			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt6().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.C;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt7().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.D;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt8().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.D;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt9().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.E;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt10().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.E;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt11().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.F;
-			side = AutoPlace.Side.one;
-		}));
-		CustomController.bt12().onTrue(new RunCommand(() -> {
-			hexSide = AutoPlace.HexSide.F;
-			side = AutoPlace.Side.two;
-		}));
-		CustomController.bt16().onTrue(new RunCommand(() -> {
 			autoScoringPosition = Position.SCORE_L1;
-		}));
-		CustomController.bt17().onTrue(new RunCommand(() -> {
-			autoScoringPosition = Position.SCORE_L2;
-		}));
-		CustomController.bt18().onTrue(new RunCommand(() -> {
-			autoScoringPosition = Position.SCORE_L3;
-		}));
-		CustomController.bt19().onTrue(new RunCommand(() -> {
-			autoScoringPosition = Position.SCORE_L4;
-		}));
+
+			/// Autoplace command (Allow operator to also place)
+			driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
 
 
-		//TODO remove this overide once testing completed
-		hexSide = AutoPlace.HexSide.C;
-		side = AutoPlace.Side.one;
-		autoScoringPosition = Position.SCORE_L1;
-
-		/// Autoplace command (Allow operator to also place)
-		driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
-
+		}
+		
+		
 		// // Auto pickup command
 		// // If wanting to pickup to score for level 1, press A, otherwise press Y
 		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
