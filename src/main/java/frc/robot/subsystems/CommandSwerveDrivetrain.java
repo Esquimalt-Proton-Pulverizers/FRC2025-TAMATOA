@@ -316,10 +316,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         if (timer.hasElapsed(1)){
             timer.reset();
-            System.out.println("************");
-            System.out.println("mt1 is: " + mt1);
-            System.out.println("mt1 tag cnt: " + mt1.tagCount);
-            System.out.println("Omega is: " + angularVelocity);
+            if (mt1!= null){
+                System.out.println("************");
+                System.out.println("mt1 is: " + mt1);
+                System.out.println("mt1 tag cnt: " + mt1.tagCount);
+                System.out.println("Omega is: " + angularVelocity);
+
+            }
+            // 
 
         }
     }
