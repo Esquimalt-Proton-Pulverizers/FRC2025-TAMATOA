@@ -38,6 +38,7 @@ import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
 import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
 import frc.robot.commands.AutoPlace;
+import frc.robot.commands.AutoScoringPathBuilder;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
 
@@ -239,15 +240,16 @@ public class RobotContainer {
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
 		// button 2 is B on xbox controller
-		driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		//driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
 		// button 9 is left joystick button on xbox controller
-		driverController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
+		//driverController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
 
 	}
 	/** Created to reduce Merge Conflicts while both working on this file, and it also is a convenient place to store allt he auto scoring elements */
 	private void configureAutomatedBindings(){
 		//Testing Only area TODO comment out when not testing
 		Pose2d frontofABlueRobotPose = new Pose2d(5.76,4.0, new Rotation2d(Units.degreesToRadians(90)));
+		Pose2d frontofCRedRobotPose = new Pose2d(5.76,4.0, new Rotation2d(Units.degreesToRadians(90)));
 		Pose2d frontofARedRobotPose = new Pose2d(11.7,4.0, new Rotation2d(Units.degreesToRadians(-90)));
 		double backupDistance = 0.5; //meters to start away from reef
 		Translation2d offset = new Translation2d(backupDistance,0);
@@ -277,7 +279,8 @@ public class RobotContainer {
 			throw (new RuntimeException("Loaded a path that does not exist."));
 		}
 
-		
+		AutoScoringPathBuilder pathBuilder = new AutoScoringPathBuilder(true);
+		driverController.button(2).onTrue(pathBuilder.generateScoringPathTest()); // B button
 		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
 		//driverController.button(2).whileTrue(AutoBuilder.pathfindToPose(frontofABlueRobotPose, constraints)); // 
 		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath2, constraints)); // A button
