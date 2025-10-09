@@ -68,7 +68,7 @@ public class RobotContainer {
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
 	public final HangingSubsystem hanger = new HangingSubsystem(false);
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(false);
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(true);
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem(false);
 
     // Manual Movement
@@ -85,7 +85,7 @@ public class RobotContainer {
 	private final SendableChooser<Command> autoChooser;
 
 	// Control Variables
-	public boolean AlgaeMode = false;
+	public static boolean AlgaeMode = false;
 
 
 	/**
@@ -190,9 +190,9 @@ public class RobotContainer {
 		 () -> applyDeadband(operatorController.getRawAxis(4))));
 
         //// --------------- Coral Handling Commands ---------------
-		operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake())).and(()-> !AlgaeMode)
+		operatorController.axisGreaterThan(2,.1).and(()-> !AlgaeMode).onTrue(Commands.runOnce(() -> intakeSubsystem.coralIntake()))
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));  // Left Trigger	
-		operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())).and(()-> !AlgaeMode)
+		operatorController.axisGreaterThan(3,.1).and(()-> !AlgaeMode).onTrue(Commands.runOnce(() -> intakeSubsystem.coralOuttake()))
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())); // Right Trigger	
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> !AlgaeMode);   // Left Trigger	
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> !AlgaeMode);   // Right Trigger	
@@ -207,9 +207,9 @@ public class RobotContainer {
 
 
 		//// ----------------- Algea Handling Commands ----------------
- 		operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake())).and(()-> AlgaeMode)
+ 		operatorController.axisGreaterThan(2,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()))
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));  // Left Trigger	
-		operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())).and(()-> AlgaeMode)
+		operatorController.axisGreaterThan(3,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake()))
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop())); // Right Trigger	
 		new Trigger(()->AlgaeMode).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop())).and(()-> AlgaeMode);   // Left Trigger	
