@@ -249,7 +249,7 @@ public class RobotContainer {
 	private void configureAutomatedBindings(){
 		//Testing Only area TODO comment out when not testing
 		Pose2d frontofABlueRobotPose = new Pose2d(5.76,4.0, new Rotation2d(Units.degreesToRadians(90)));
-		Pose2d frontofCRedRobotPose = new Pose2d(5.76,4.0, new Rotation2d(Units.degreesToRadians(90)));
+		Pose2d frontofCRedRobotPose = new Pose2d(13.673,5.084, new Rotation2d(Units.degreesToRadians(150)));
 		Pose2d frontofARedRobotPose = new Pose2d(11.7,4.0, new Rotation2d(Units.degreesToRadians(-90)));
 		double backupDistance = 0.5; //meters to start away from reef
 		Translation2d offset = new Translation2d(backupDistance,0);
@@ -280,12 +280,12 @@ public class RobotContainer {
 		}
 
 		AutoScoringPathBuilder pathBuilder = new AutoScoringPathBuilder(true);
-		driverController.button(2).onTrue(pathBuilder.generateScoringPathTest()); // B button
+		driverController.button(2).onTrue(pathBuilder.goToScoringPosition(AutoScoringPathBuilder.C_L)); // B button
 		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
 		//driverController.button(2).whileTrue(AutoBuilder.pathfindToPose(frontofABlueRobotPose, constraints)); // 
 		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath2, constraints)); // A button
-		driverController.button(8).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofABlueRobotPose))); // menu button
-		driverController.button(4).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofARedRobotPose))); // y button
+		driverController.button(8).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofCRedRobotPose))); // menu button
+		//driverController.button(4).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofCRedRobotPose))); // y button
 
 		if(false){
 				// Choosing where to score on Custom Controller

@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import javax.xml.crypto.dsig.Transform;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -28,7 +29,8 @@ public class AutoScoringPathBuilder {
     private static final Rotation2d RELATIVE_PATH_HEADING = new Rotation2d(Units.degreesToRadians(180)); // A1 heading of the robot to the 
     private static final Rotation2d ROTATION_PER_SIDE = new Rotation2d(Units.degreesToRadians(60)); // the rotation per side of the reef to do transformations
 
-    public static final PathConstraints SCORING_PATH_CONSTRAINTS = new PathConstraints(1, 4, 1, 1);
+    public static final PathConstraints SCORING_PATH_CONSTRAINTS = new PathConstraints(1, .5, 1, 1);
+    public static final PathConstraints FIND_PATH_CONSTRAINTS = new PathConstraints(2, .2, 1, 1);
 
 
 
@@ -36,6 +38,7 @@ public class AutoScoringPathBuilder {
     private static final Translation2d A_L_OFFSET = new Translation2d(RADIAL_OFFSET,LEFT_POLE_OFFSET);
     private static final Translation2d A_R_OFFSET = new Translation2d(RADIAL_OFFSET,RIGHT_POLE_OFFSET);
 
+    //All the left Poses
     private static Pose2d robotPoseA_L = new Pose2d(REEF_CENTER.plus(A_L_OFFSET),RELATIVE_ROBOT_YAW);
     private static Pose2d robotPoseB_L = robotPoseA_L.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-1));
     private static Pose2d robotPoseC_L = robotPoseA_L.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-2));
@@ -43,29 +46,29 @@ public class AutoScoringPathBuilder {
     private static Pose2d robotPoseE_L = robotPoseA_L.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-4));
     private static Pose2d robotPoseF_L = robotPoseA_L.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-5));
 
-  
-
+    //All the right Poses
+    private static Pose2d robotPoseA_R = new Pose2d(REEF_CENTER.plus(A_R_OFFSET),RELATIVE_ROBOT_YAW);
+    private static Pose2d robotPoseB_R = robotPoseA_R.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-1));
+    private static Pose2d robotPoseC_R = robotPoseA_R.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-2));
+    private static Pose2d robotPoseD_R = robotPoseA_R.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-3));
+    private static Pose2d robotPoseE_R = robotPoseA_R.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-4));
+    private static Pose2d robotPoseF_R = robotPoseA_R.rotateAround(REEF_CENTER, ROTATION_PER_SIDE.times(-5));
 
     public AutoScoringPathBuilder(boolean debugMode){
         this.debugMode = debugMode;
         A_L = generateScoringPath(robotPoseA_L, DEFAULT_DISTANCE);
-    }
-    public Command generateScoringPathTest(){
-        return new InstantCommand(()->{
-            System.out.println("Path A_L");
-            generateScoringPath(robotPoseA_L, DEFAULT_DISTANCE);
-            System.out.println("Path B_L");
-            generateScoringPath(robotPoseB_L, DEFAULT_DISTANCE);
-            System.out.println("Path C_L");
-            generateScoringPath(robotPoseC_L, DEFAULT_DISTANCE);
-            System.out.println("Path D_L");
-            generateScoringPath(robotPoseD_L, DEFAULT_DISTANCE);
-            System.out.println("Path E_L");
-            generateScoringPath(robotPoseE_L, DEFAULT_DISTANCE);
-            System.out.println("Path F_L");
-            generateScoringPath(robotPoseF_L, DEFAULT_DISTANCE);
-            }
-        );
+        A_R = generateScoringPath(robotPoseA_R, DEFAULT_DISTANCE);
+        B_L = generateScoringPath(robotPoseB_L, DEFAULT_DISTANCE);
+        B_R = generateScoringPath(robotPoseB_R, DEFAULT_DISTANCE);
+        C_L = generateScoringPath(robotPoseC_L, DEFAULT_DISTANCE);
+        C_R = generateScoringPath(robotPoseC_R, DEFAULT_DISTANCE);
+        D_L = generateScoringPath(robotPoseD_L, DEFAULT_DISTANCE);
+        D_R = generateScoringPath(robotPoseD_R, DEFAULT_DISTANCE);
+        E_L = generateScoringPath(robotPoseE_L, DEFAULT_DISTANCE);
+        E_R = generateScoringPath(robotPoseE_R, DEFAULT_DISTANCE);
+        F_L = generateScoringPath(robotPoseF_L, DEFAULT_DISTANCE);
+        F_R = generateScoringPath(robotPoseF_R, DEFAULT_DISTANCE);
+        
     }
 
     public PathPlannerPath generateScoringPath(Pose2d robotFinalPose, double distanceM){
@@ -95,6 +98,40 @@ public class AutoScoringPathBuilder {
             idealStartingState,
             goalEndState
             );
+    }
+
+
+
+
+
+    public Command generateScoringPathTest(){
+        return new InstantCommand(()->{
+            System.out.println("Path A_L");
+            generateScoringPath(robotPoseA_L, DEFAULT_DISTANCE);
+            System.out.println("Path B_L");
+            generateScoringPath(robotPoseB_L, DEFAULT_DISTANCE);
+            System.out.println("Path C_L");
+            generateScoringPath(robotPoseC_L, DEFAULT_DISTANCE);
+            System.out.println("Path D_L");
+            generateScoringPath(robotPoseD_L, DEFAULT_DISTANCE);
+            System.out.println("Path E_L");
+            generateScoringPath(robotPoseE_L, DEFAULT_DISTANCE);
+            System.out.println("Path F_L");
+            generateScoringPath(robotPoseF_L, DEFAULT_DISTANCE);
+            }
+        );
+    }
+
+    public Command printPathwaypointsTest(PathPlannerPath path){
+        return new InstantCommand(()->{
+            System.out.println("Path waypoints****************");
+            System.out.println(path.getWaypoints());
+            }
+        );
+    }
+
+    public Command goToScoringPosition(PathPlannerPath path){
+        return AutoBuilder.pathfindThenFollowPath(path, FIND_PATH_CONSTRAINTS);
     }
 
 }
