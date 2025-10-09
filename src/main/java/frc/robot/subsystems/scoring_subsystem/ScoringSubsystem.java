@@ -66,6 +66,8 @@ public class ScoringSubsystem extends SubsystemBase{
         DRIVE_WITH_CORAL        (-35.0,     +90.0,  +2.0), // not yet tested
         DRIVE_WITH_ALGAE        (-40.0,     -90.0,  +2.0), // not yet tested
         SAFETY                  (-45.0,     +0.0,   +5.0),
+        DEALGAE_LOW             (-115.0,    +90.0,  +32.5),
+        DEALGAE_HIGH            (-115.0,     +90.0,   +58.0),
         UNDEFINED(Double.NaN, Double.NaN, Double.NaN); // sentinel 
     
         private final double[] targetVals;
@@ -107,7 +109,6 @@ public class ScoringSubsystem extends SubsystemBase{
             return UNDEFINED;
         }
     }
-
     
     public void initialize() {
         differentialSubsystem.initialize(); //TODO make a class variable for this, or pull from start position
@@ -203,25 +204,26 @@ public class ScoringSubsystem extends SubsystemBase{
 
     // Matrix layout: rows = from state, cols = to state
     private static final S[][] matrix = {
-        //           CG_IN  AG_IN  CS_IN  AL_LO  HOME   SET_L  SET_R  L1     L2     L3     L4     NET    PROC   DR_EMP DR_COR DR_ALG SAFETY
-        /*CG_IN*/   {S.x__, S.EDW, S.x__, S.x__, S.WDE, S.OOO, S.OOO, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.DWE}, //Coral Ground Intake
-        /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Algae Ground Intake
-        /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Coral Station Intake
-        /*AL_LO*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Algae Lollipop Intake
-        /*HOME*/    {S.DWE, S.DEW, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE}, //Home for Climb
-        /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Left
-        /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Set Coral Position Right
-        /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 1
-        /*L2*/      {S.WDE, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 2
-        /*L3*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Level 3
-        /*L4*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EWD, S.EWD, S.x__, S.DWE}, //Level 4
-        /*NET*/     {S.WDE, S.WDE, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.DWE}, //Net
-        /*PROC*/    {S.WDE, S.WED, S.x__, S.x__, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Processor
-        /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Drive Empty
-        /*DR_COR*/  {S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE}, //Drive with Coral
-        /*DR_ALG*/  {S.EWD, S.WDE, S.x__, S.x__, S.EWD, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.DWE}, //Drive with Algae
-        /*SAFETY*/  {S.WDE, S.WED, S.UUU, S.WED, S.EWD, S.UUU, S.UUU, S.WDE, S.WDE, S.WDE, S.WDE, S.UUU, S.DWE, S.EWD, S.WED, S.WED, S.x__}  //Safety
-        //Undefined state is not in the matrix because it is covered by an if statement in moveArm()
+        //           CG_IN  AG_IN  CS_IN  AL_LO  HOME   SET_L  SET_R  L1     L2     L3     L4     NET    PROC   DR_EMP DR_COR DR_ALG SAFETY  DE_AL1 DE_AL2
+        /*CG_IN*/   {S.x__, S.EDW, S.x__, S.x__, S.WDE, S.OOO, S.OOO, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.DWE, S.UUU, S.UUU}, //Coral Ground Intake
+        /*AG_IN*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.WDE, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Algae Ground Intake
+        /*CS_IN*/   {S.WDE, S.WDE, S.x__, S.WED, S.WDE, S.WDE, S.WDE, S.WED, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Coral Station Intake
+        /*AL_LO*/   {S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Algae Lollipop Intake
+        /*HOME*/    {S.DWE, S.DEW, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE, S.UUU, S.UUU}, //Home for Climb
+        /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Set Coral Position Left
+        /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Set Coral Position Right
+        /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Level 1
+        /*L2*/      {S.WDE, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Level 2
+        /*L3*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Level 3
+        /*L4*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EWD, S.EWD, S.x__, S.DWE, S.UUU, S.UUU}, //Level 4
+        /*NET*/     {S.WDE, S.WDE, S.x__, S.x__, S.UUU, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Net
+        /*PROC*/    {S.WDE, S.WED, S.x__, S.x__, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.OOO, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Processor
+        /*DR_EMP*/  {S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Drive Empty
+        /*DR_COR*/  {S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Drive with Coral
+        /*DR_ALG*/  {S.EWD, S.WDE, S.x__, S.x__, S.EWD, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Drive with Algae
+        /*SAFETY*/  {S.WDE, S.WED, S.UUU, S.WED, S.EWD, S.UUU, S.UUU, S.WDE, S.WDE, S.WDE, S.WDE, S.UUU, S.DWE, S.EWD, S.WED, S.WED, S.x__, S.UUU, S.UUU}, //Safety
+        /*DE_AL1*/  {S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.x__, S.UUU}, //DeAlgae Position 1
+        /*DE_AL2*/  {S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.UUU, S.x__}  //DeAlgae Position 2
     };
 
     private S getSequence(Position from, Position to) {
@@ -278,6 +280,16 @@ public class ScoringSubsystem extends SubsystemBase{
         } else return new InstantCommand();
     }
 
+    public Command DealgaeCommand(boolean high, IntakeSubsystem intakeSubsystem) {
+        if (high) {
+            moveArm(Position.DEALGAE_HIGH);
+            return intakeSubsystem.coralIntakeCommand();
+        } else {
+            moveArm(Position.DEALGAE_LOW);
+            return intakeSubsystem.coralIntakeCommand();
+        }
+    }
+
     private Command PlaceCoralL4Command(IntakeSubsystem intakeSubsystem) {
         return new SmartDifferentialElevationCommand(-90, differentialSubsystem, elevatorSubsystem)
         .andThen(new SmartDifferentialElevationCommand(-130, differentialSubsystem, elevatorSubsystem))
@@ -293,4 +305,3 @@ public class ScoringSubsystem extends SubsystemBase{
     }
     
 }
-

@@ -33,9 +33,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private static final double CORAL_INTAKE_VELOCITY  =  12.0; // In terms of coral
     private static final double CORAL_OUTAKE_VELOCITY  =  2.0;
 
-    private static final double ALGEA_HOLDING_VELOCITY = 4.0;
-    private static final double ALGEA_OUTAKE_VELOCITY =  2.0; // In terms of algea
-    private static final double ALGEA_INTAKE_VELOCITY =  12.0;
+    private static final double ALGAE_HOLDING_VELOCITY = 4.0;
+    private static final double ALGAE_OUTAKE_VELOCITY =  2.0; // In terms of algae
+    private static final double ALGAE_INTAKE_VELOCITY =  12.0;
     
     public IntakeSubsystem(boolean enableTelemetry) {
         this.enableTelemetry = enableTelemetry;
@@ -85,21 +85,50 @@ public class IntakeSubsystem extends SubsystemBase {
         setTargetVoltage(CORAL_HOLDING_VELOCITY);
     }
 
-    public void algeaIntake(){
-        setTargetVoltage(-ALGEA_INTAKE_VELOCITY);
+    public void algaeIntake(){
+        setTargetVoltage(-ALGAE_INTAKE_VELOCITY);
     }
 
-    public void algeaOuttake(){
-        setTargetVoltage(ALGEA_OUTAKE_VELOCITY);
+    public void algaeOuttake(){
+        setTargetVoltage(ALGAE_OUTAKE_VELOCITY);
     }
 
-    public void algeaStop(){
-        setTargetVoltage(-ALGEA_HOLDING_VELOCITY);
+    public void algaeStop(){
+        setTargetVoltage(-ALGAE_HOLDING_VELOCITY);
+    }
+
+    public Command coralIntakeCommand() {
+        return this.runOnce(() -> {
+            coralIntake();
+        });
     }
 
     public Command coralOuttakeCommand() {
         return this.runOnce(() -> {
             coralOuttake();
+        });
+    }
+    public Command coralStopCommand() {
+        return this.runOnce(() -> {
+            coralStop();
+        });
+    }
+
+    public Command algaeIntakeCommand() {
+        return this.runOnce(() -> {
+            algaeIntake();
+        });
+    }
+
+    public Command algaeOuttakeCommand() {
+        return this.runOnce(() -> {
+            algaeOuttake();
+        });
+    }
+
+    public Command algaeStopCommand() {
+        return this.runOnce(() -> {
+            algaeStop();
         });
     }
 }

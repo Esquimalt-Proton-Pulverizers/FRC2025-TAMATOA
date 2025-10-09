@@ -206,14 +206,14 @@ public class RobotContainer {
 
 
 
-		//// ----------------- Algea Handling Commands ----------------
- 		operatorController.axisGreaterThan(2,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()))
-			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));  // Left Trigger	
-		operatorController.axisGreaterThan(3,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake()))
-			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop())); // Right Trigger	
+		//// ----------------- Algae Handling Commands ----------------
+ 		operatorController.axisGreaterThan(2,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeIntake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop()));  // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeOuttake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())); // Right Trigger	
 		new Trigger(()->AlgaeMode).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
-		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop())).and(()-> AlgaeMode);   // Left Trigger	
-		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop())).and(()-> AlgaeMode);   // Right Trigger	
+		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Right Trigger	
 		operatorController.button(6).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
 		operatorController.button(9).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
 		operatorController.pov(270).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
