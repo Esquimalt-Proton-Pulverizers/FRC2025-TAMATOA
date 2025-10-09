@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.hang.HangingSubsystem;
@@ -70,7 +71,7 @@ public class RobotContainer {
 	// Create Subsystems
 	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
 	public final HangingSubsystem hanger = new HangingSubsystem(false);
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(false);
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(true);
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem(false);
 
     // Manual Movement
@@ -85,6 +86,9 @@ public class RobotContainer {
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
+
+	// Control Variables
+	public static boolean AlgaeMode = false;
 
 
 	/**
@@ -180,7 +184,7 @@ public class RobotContainer {
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
         //// ---------------- General Use Commands ----------------
-
+		 operatorController.button(8).onTrue(Commands.runOnce(()-> AlgaeMode = !AlgaeMode));
 		 operatorController.button(10).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 		 operatorController.button(7).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(scoringSubsystem,
@@ -189,29 +193,34 @@ public class RobotContainer {
 		 () -> applyDeadband(operatorController.getRawAxis(4))));
 
         //// --------------- Coral Handling Commands ---------------
-		operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));  // Left Trigger	
-		operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake())); // Right Trigger	
-		operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Left Trigger	
-		operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));   // Right Trigger	
-		operatorController.button(5).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
-		operatorController.button(1).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
-		operatorController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(3).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.button(4).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.pov(180).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.axisGreaterThan(2,.1).and(()-> !AlgaeMode).onTrue(Commands.runOnce(() -> intakeSubsystem.coralIntake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));  // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).and(()-> !AlgaeMode).onTrue(Commands.runOnce(() -> intakeSubsystem.coralOuttake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())); // Right Trigger	
+		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> !AlgaeMode);   // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> !AlgaeMode);   // Right Trigger	
+		operatorController.button(5).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
+		operatorController.button(1).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
+		operatorController.button(2).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.button(3).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		operatorController.button(4).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		operatorController.pov(180).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.button(6).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 
 
 
-		//// ----------------- Algea Handling Commands ----------------
- 		// operatorController.axisGreaterThan(2,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaIntake()));  // Left Trigger	
-		// operatorController.axisGreaterThan(3,.1).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaOuttake())); // Right Trigger	
-		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Left Trigger	
-		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algeaStop()));   // Right Trigger	
-		operatorController.button(6).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
-		operatorController.pov(270).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem))); 
-		operatorController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
-		operatorController.pov(0).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
+		//// ----------------- Algae Handling Commands ----------------
+ 		operatorController.axisGreaterThan(2,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeIntake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop()));  // Left Trigger	
+		operatorController.axisGreaterThan(3,.1).and(()-> AlgaeMode).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeOuttake()))
+			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())); // Right Trigger	
+		new Trigger(()->AlgaeMode).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
+		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Left Trigger	
+		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Right Trigger	
+		operatorController.button(6).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.button(9).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
+		operatorController.pov(270).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
+		operatorController.pov(0).and(()-> AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
