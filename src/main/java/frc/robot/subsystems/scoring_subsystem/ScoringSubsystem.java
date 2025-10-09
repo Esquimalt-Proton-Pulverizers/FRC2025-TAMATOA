@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.SmartDifferentialElevationCommand;
@@ -270,6 +271,18 @@ public class ScoringSubsystem extends SubsystemBase{
         .andThen(new SmartDifferentialElevationCommand(targetVals[0], differentialSubsystem, elevatorSubsystem))
         .andThen(new DifferentialElevationRotationCommand(targetVals[0], targetVals[1], differentialSubsystem));
     }
+
+    public Command PlaceCoralCommand(Position position, IntakeSubsystem intakeSubsystem) {
+        if (position == Position.SCORE_L4) {
+            return PlaceCoralL4Command(intakeSubsystem);
+        } else return new InstantCommand();
+    }
+
+    private Command PlaceCoralL4Command(IntakeSubsystem intakeSubsystem) {
+        return new SmartDifferentialElevationCommand(-90, differentialSubsystem, elevatorSubsystem)
+        .andThen(new SmartDifferentialElevationCommand(-130, differentialSubsystem, elevatorSubsystem))
+        .alongWith(intakeSubsystem.coralOuttakeCommand());
+    }
    
     public ElevatorSubsystem getElevatorSubsystem() {
         return elevatorSubsystem;
@@ -278,5 +291,6 @@ public class ScoringSubsystem extends SubsystemBase{
     public DifferentialSubsystem getDifferentialSubsystem() {
         return differentialSubsystem;
     }
+    
 }
 

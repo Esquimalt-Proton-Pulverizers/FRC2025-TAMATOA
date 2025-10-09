@@ -202,6 +202,7 @@ public class RobotContainer {
 		operatorController.button(3).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
 		operatorController.pov(180).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.button(6).and(()-> !AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 
 
 

@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -91,5 +92,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void algeaStop(){
         setTargetVoltage(ALGEA_HOLDING_VELOCITY);
+    }
+
+    public Command coralOuttakeCommand() {
+        return this.runOnce(() -> {
+            coralOuttake();
+        });
     }
 }
