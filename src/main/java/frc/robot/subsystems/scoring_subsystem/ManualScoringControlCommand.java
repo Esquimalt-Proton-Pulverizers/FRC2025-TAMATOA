@@ -4,9 +4,14 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.RobotModes;
+import frc.robot.subsystems.limelight.LimelightHelpers;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 
 public class ManualScoringControlCommand extends Command {
     private ScoringSubsystem scoringSubsystem;
+    private RobotContainer robotContainer;
 
     private DoubleSupplier elevatorControlAxis;
     private DoubleSupplier differentialControlAxis;
@@ -27,8 +32,8 @@ public class ManualScoringControlCommand extends Command {
     private final double WRIST_CW_MULTIPLER = 5;
     private final double WRIST_CCW_MULTIPLER = 5;
 
-    private final double ELEVATOR_MAX_POS = 59;
-    private final double ELEVATOR_MIN_POS = 2;
+    private final double ELEVATOR_MAX_POS = ElevatorSubsystem.MAX_ELEVATION - 0;
+    private final double ELEVATOR_MIN_POS = ElevatorSubsystem.MIN_ELEVATION + 1;
     private final double DIFFERENTIAL_MAX_POS = -7;
     private final double DIFFERENTIAL_MIN_POS = -130;
 
@@ -36,19 +41,20 @@ public class ManualScoringControlCommand extends Command {
 
 
 
-    public ManualScoringControlCommand(ScoringSubsystem scoringSubsystem,
+    public ManualScoringControlCommand(RobotContainer robotContainer, ScoringSubsystem scoringSubsystem,
         DoubleSupplier elevatorControlAxis,
         DoubleSupplier differentialControlAxis,
         DoubleSupplier wristControlAxis) {
         
         this.scoringSubsystem = scoringSubsystem;
-        
+        this.robotContainer = robotContainer;
         this.elevatorControlAxis = elevatorControlAxis;
         this.differentialControlAxis = differentialControlAxis;
         this.wristControlAxis = wristControlAxis;
 
         addRequirements(scoringSubsystem);
     }
+
 
     @Override
     public void initialize() {
@@ -71,7 +77,7 @@ public class ManualScoringControlCommand extends Command {
             targetElevatorPosition = scoringSubsystem.getElevatorSubsystem().getPosition();
             elevatorMoved = false;
         }
-        targetElevatorPosition = MathUtil.clamp(targetElevatorPosition, ELEVATOR_MIN_POS, ELEVATOR_MAX_POS);
+        if (!(robotContainer.getRobotMode()  == RobotModes.ManualMoveMode)) targetElevatorPosition = MathUtil.clamp(targetElevatorPosition, ELEVATOR_MIN_POS, ELEVATOR_MAX_POS);
 
         if (differentialControlAxis.getAsDouble() != 0) {
             targetDifferentialPosition += (differentialControlAxis.getAsDouble() * DIFFERENTIAL_LIFT_MULTIPLIER);
@@ -80,7 +86,7 @@ public class ManualScoringControlCommand extends Command {
             targetDifferentialPosition = scoringSubsystem.getDifferentialSubsystem().getElevationPos();
             differentialMoved = false;
         }
-        targetDifferentialPosition = MathUtil.clamp(targetDifferentialPosition, DIFFERENTIAL_MIN_POS, DIFFERENTIAL_MAX_POS);
+        if (!(robotContainer.getRobotMode()  == RobotModes.ManualMoveMode)) targetDifferentialPosition = MathUtil.clamp(targetDifferentialPosition, DIFFERENTIAL_MIN_POS, DIFFERENTIAL_MAX_POS);
 
         if (wristControlAxis.getAsDouble() != 0) {
             targetWristPosition += 0 /*+ (wristControlAxis.getAsDouble() * WRIST_CW_MULTIPLER)*/;
