@@ -100,9 +100,9 @@ public class LEDlights extends SubsystemBase {
         setColor(0,255,0); //green
     }
     else if (robotMode == RobotModes.CoralMode) {
-        setColor(255,192,203); //pink
+        setColor(255,0,203); //pink
     }
-    else if (robotMode == RobotModes.ManualMoveMode) {
+    else if (robotMode == RobotModes.HangingMode) {
         setColor(30,144,255); //blue
     }
     else if (robotMode == RobotModes.ManualMoveMode) {
