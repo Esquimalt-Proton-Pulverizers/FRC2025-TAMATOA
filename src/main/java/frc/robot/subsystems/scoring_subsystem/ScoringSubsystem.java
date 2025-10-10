@@ -85,7 +85,7 @@ public class ScoringSubsystem extends SubsystemBase{
          * @return matching current Position or UNDEFINED
          */
         public static Position fromCurrentVals(double[] current) {
-            double[] tolerances = {5.0, 5.0, 2.0}; //TODO set these tolerances appropriately
+            double[] tolerances = {10.0, 5.0, 3.0}; //TODO set these tolerances appropriately
             double safetyBonustolerance = 5.0; //extra tolerance for safety position
             for (Position pos : values()) {
                 if (pos == UNDEFINED) continue; // skip sentinel entry for undefined in a way that is ok if we add more positions later

@@ -23,46 +23,45 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmToLevel1"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Center to L1A"
+            "pathName": "C1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CoralOutake"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.2
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "CoralOutake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeStop"
-                }
-              }
-            ]
+            "waitTime": 1.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "MoveAway - FromL1Center"
+            "pathName": "reverseC1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeStop"
           }
         }
       ]

@@ -113,9 +113,9 @@ public class RobotContainer {
 		// Register the named commands for auto
 		registerCommands();
 		configureDriveBindings(true);//false just disables driving without breaking limelight
-		//configureOperatorBindingsBrandon();
+		configureOperatorBindingsBrandon();
 		configureOperatorBindingsColin();
-		// configureAutomatedBindings();
+		configureAutomatedBindings();
 		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
@@ -295,11 +295,11 @@ public class RobotContainer {
 		}
 
 		AutoScoringPathBuilder pathBuilder = new AutoScoringPathBuilder(true);
-		driverController.button(2).onTrue(pathBuilder.goToScoringPosition(AutoScoringPathBuilder.C_L)); // B button
-		// operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
-		//driverController.button(2).whileTrue(AutoBuilder.pathfindToPose(frontofABlueRobotPose, constraints)); // 
-		driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath2, constraints)); // A button
-		driverController.button(8).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofCRedRobotPose))); // menu button
+		// driverController.button(2).onTrue(pathBuilder.goToScoringPosition(AutoScoringPathBuilder.C_L)); // B button
+		// // operatorController.button(1).whileTrue(PathFinderHelperCommands.followRelativePathCommand(new Pose2d(.5,0,new Rotation2d(0)), constraints, drivetrain)); // 
+		// //driverController.button(2).whileTrue(AutoBuilder.pathfindToPose(frontofABlueRobotPose, constraints)); // 
+		// driverController.button(1).whileTrue(AutoBuilder.pathfindThenFollowPath(testPath2, constraints)); // A button
+		// driverController.button(8).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofCRedRobotPose))); // menu button
 		//driverController.button(4).onTrue(Commands.runOnce(()-> drivetrain.resetPose(frontofCRedRobotPose))); // y button
 
 		if(false){
@@ -372,7 +372,7 @@ public class RobotContainer {
 			autoScoringPosition = Position.SCORE_L1;
 
 			/// Autoplace command (Allow operator to also place)
-			driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
+			//driverController.back().whileTrue(new AutoPlace(drivetrain, scoringSubsystem, new Node(autoScoringPosition, hexSide, side)));
 
 
 		}
@@ -423,21 +423,12 @@ public class RobotContainer {
 		// Register the commands here
 
 		//TODO move the positions into the subsystems and make the commands more simple by calling only one position 
-		// NamedCommands.registerCommand("ArmToLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-        //         ElevatorSubsystem.LEVEL1_POSITION, ElbowSubsystem.LOW_POS, ElbowSubsystem.START_POS_ELEVATION, 
-        //         ElbowSubsystem.START_POS_ROTATION, 0.0));
-        // NamedCommands.registerCommand("ArmHomingAfterLevel1", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-        //         elevatorSubsystem.getPosition(), ElbowSubsystem.HOMING_POS, elbowSubsystem.getElevationPos(), 
-        //         elbowSubsystem.getRotationPos(), ElevatorSubsystem.LEVEL1_POSITION));
-        // NamedCommands.registerCommand("ArmToLevel2", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-        //         ElevatorSubsystem.LEVEL2_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
-        //         ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
-        // NamedCommands.registerCommand("ArmToLevel3", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-        //         ElevatorSubsystem.LEVEL3_POSITION, ElbowSubsystem.MIDS_POS, ElbowSubsystem.START_POS_ELEVATION, 
-        //         ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
-        // NamedCommands.registerCommand("ArmToLevel4", new ArmToPosCommand(elevatorSubsystem, elbowSubsystem, 
-        //         ElevatorSubsystem.LEVEL4_POSITION, ElbowSubsystem.HIGH_POS, ElbowSubsystem.START_POS_ELEVATION, 
-        //         ElbowSubsystem.START_POS_ROTATION, ElevatorSubsystem.LOW_POSITION));
+		NamedCommands.registerCommand("ArmToLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		NamedCommands.registerCommand("ArmToSafety", Commands.defer(()->scoringSubsystem.moveArm(Position.SAFETY), Set.of(scoringSubsystem)));
+        NamedCommands.registerCommand("ArmHomingAfterLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+        NamedCommands.registerCommand("ArmToLevel2", scoringSubsystem.moveArm(Position.SCORE_L2));
+        NamedCommands.registerCommand("ArmToLevel3", scoringSubsystem.moveArm(Position.SCORE_L3));
+        NamedCommands.registerCommand("ArmToLevel4", scoringSubsystem.moveArm(Position.SCORE_L4));
         NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));

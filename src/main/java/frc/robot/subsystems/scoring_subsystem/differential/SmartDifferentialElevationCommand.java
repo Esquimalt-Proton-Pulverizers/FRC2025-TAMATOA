@@ -24,6 +24,7 @@ public class SmartDifferentialElevationCommand extends Command {
   private final double PERIOD = 0.02; // 20ms periodic update (typical for FRC)
   private int aCounter,cvCounter, dCounter;
   private double wristStartPosition;
+  private boolean reachedPredictedPosition;
 
   public SmartDifferentialElevationCommand(double targetElevation, DifferentialSubsystem elbowSubsystem, ElevatorSubsystem elevatorSubsystem) {
       this.targetElevation = targetElevation;
@@ -35,6 +36,7 @@ public class SmartDifferentialElevationCommand extends Command {
 
   @Override
   public void initialize() {
+    reachedPredictedPosition=false;
 
     aCounter=0;
     cvCounter=0;
@@ -107,7 +109,8 @@ public class SmartDifferentialElevationCommand extends Command {
     } else {
       // Motion profile complete
       deltaPosition = Math.abs(targetDistance);
-      atPosition = true;
+      reachedPredictedPosition=true;
+      //atPosition = true;
       System.out.println("Counters a, cv, d =" + aCounter + ", " + cvCounter + ", " + dCounter);
 
     }
@@ -122,10 +125,11 @@ public class SmartDifferentialElevationCommand extends Command {
       elbowSubsystem.setElevationRotationPos(startElevation + deltaPosition, wristStartPosition, FFVoltage);
       //System.out.println("deltaP = "+ deltaPosition);
     }
-    if (Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<.2){
-      atPosition=true;
-      elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
-      System.out.println("Command set atPosition to true");
+    if (reachedPredictedPosition){
+      if(Math.abs(elbowSubsystem.getElevationPos()-targetElevation)<2.0) {atPosition=true;
+        elbowSubsystem.setElevationRotationPos(targetElevation, wristStartPosition);
+        System.out.println("Command set atPosition to true");
+      }
 
     }
   }
