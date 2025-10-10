@@ -392,6 +392,9 @@ public class RobotContainer {
 		if (robotMode == RobotModes.CoralMode) {
 			robotMode = RobotModes.AlgaeMode;
 		} else robotMode = RobotModes.CoralMode;
+
+		ledLights.lightMode(robotMode);
+
 		return new InstantCommand();
 	}
 
@@ -399,6 +402,9 @@ public class RobotContainer {
 		if (robotMode == RobotModes.HangingMode) {
 			robotMode = RobotModes.CoralMode;
 		} else robotMode = RobotModes.HangingMode;
+
+		ledLights.lightMode(robotMode);
+
 		return new InstantCommand();
 	}
 

@@ -4,10 +4,11 @@ package frc.robot.subsystems.lights;
 import com.ctre.phoenix.led.*;
 //import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.wpilibj2.command.Command;
 //import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer.RobotModes;
 
 
 // https://github.com/FRC2539/javabot-2023/blob/main/src/main/java/frc/robot/subsystems/LightsSubsystem.java
@@ -48,10 +49,8 @@ public class LEDlights extends SubsystemBase {
        //config.vBatOutputMode = VBatOutputMode.Modulated;
        candle.configAllSettings(config,100);
 
-
        setColor(128,0,128); //Default colour setting
    }
-
 
    /* private void setColor(Colour colour) {
        candle.setLEDs(colour.r, colour.g, colour.b);
@@ -96,5 +95,18 @@ public class LEDlights extends SubsystemBase {
        }
    }
 
-
+   public void lightMode(RobotModes robotMode) {
+    if (robotMode == RobotModes.AlgaeMode) {
+        setColor(0,255,0); //green
+    }
+    else if (robotMode == RobotModes.CoralMode) {
+        setColor(255,192,203); //pink
+    }
+    else if (robotMode == RobotModes.ManualMoveMode) {
+        setColor(30,144,255); //blue
+    }
+    else if (robotMode == RobotModes.ManualMoveMode) {
+        setColor(220,20,60); //red
+    }
+   }
 }
