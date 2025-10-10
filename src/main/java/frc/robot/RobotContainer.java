@@ -38,11 +38,14 @@ import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ManualScoringControlCommand;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem;
 import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
+import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
+import frc.robot.subsystems.scoring_subsystem.elevator.ElevatorSubsystem;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoScoringPathBuilder;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
+import frc.robot.subsystems.lights.LEDlights;
 
 public class RobotContainer {
     // Swerve Drive Controls
@@ -97,6 +100,10 @@ public class RobotContainer {
 
 	// Path follower
 	private final SendableChooser<Command> autoChooser;
+	// LED Lights
+	public final LEDlights ledLights = new LEDlights();
+
+
 
 	/**
 	 * RobotContainer constructor initializes the robot.
@@ -114,6 +121,7 @@ public class RobotContainer {
 	/** called in robot teleop and auto initialize methods */
 	public void initialize() {
         scoringSubsystem.initialize();
+		ledLights.lightMode(robotMode);
 	}
 	/** proper deadband application for smooth control */
 	private static double applyDeadband(double value){
@@ -192,8 +200,17 @@ public class RobotContainer {
         //// -------------------- Cancel All --------------------
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
+
+		//// Manual Override controls
+		/// reset encoders
+		operatorController.leftBumper().and(operatorController.rightBumper()).and(()-> robotMode == RobotModes.ManualMoveMode).onTrue(Commands.runOnce(() -> {
+			DifferentialSubsystem.resetEncoder();
+			ElevatorSubsystem.resetEncoder();
+		}));
+
         //// ---------------- General Use Commands ----------------
 		 operatorController.start().onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
+		 operatorController.back().onTrue(Commands.runOnce(()-> toggleManualMode())); // Back Button
 		 operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(this, scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
@@ -233,20 +250,6 @@ public class RobotContainer {
 		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 		operatorController.rightStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
 		operatorController.leftStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
-
-		//// -------- Manual Override + Encoder Reset --------
-		// If Manual Override is false, become true
-		// If Manual Override is true, reset encoder positions, and then become false
-        operatorController.back().whileTrue(Commands.runOnce(() -> 
-			new ConditionalCommand(
-				new ParallelCommandGroup(
-					Commands.runOnce(() -> scoringSubsystem.elevatorSubsystem.resetEncoder()),
-					Commands.runOnce(() -> scoringSubsystem.differentialSubsystem.resetEncoder()),
-					Commands.runOnce(() -> robotMode = RobotModes.CoralMode)
-				),				 
-				Commands.runOnce(() -> robotMode = RobotModes.ManualMoveMode),
-				() -> robotMode == RobotModes.ManualMoveMode)
-			));
 	}
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
@@ -372,15 +375,6 @@ public class RobotContainer {
 
 
 		}
-		
-		
-		// // Auto pickup command
-		// // If wanting to pickup to score for level 1, press A, otherwise press Y
-		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
-		// operatorController.a().whileTrue(new RunCommand(() -> level1Pickup = true));
-		// operatorController.leftBumper().whileTrue(new AutoPickup(drivetrain,
-		// elevatorSubsystem,
-		// () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), level1Pickup));
 
 	}
 	
@@ -388,6 +382,9 @@ public class RobotContainer {
 		if (robotMode == RobotModes.CoralMode) {
 			robotMode = RobotModes.AlgaeMode;
 		} else robotMode = RobotModes.CoralMode;
+
+		ledLights.lightMode(robotMode);
+
 		return new InstantCommand();
 	}
 
@@ -395,6 +392,18 @@ public class RobotContainer {
 		if (robotMode == RobotModes.HangingMode) {
 			robotMode = RobotModes.CoralMode;
 		} else robotMode = RobotModes.HangingMode;
+
+		ledLights.lightMode(robotMode);
+
+		return new InstantCommand();
+	}
+	public Command toggleManualMode() {
+		if (robotMode == RobotModes.ManualMoveMode) {
+			robotMode = RobotModes.CoralMode;
+		} else robotMode = RobotModes.ManualMoveMode;
+
+		ledLights.lightMode(robotMode);
+
 		return new InstantCommand();
 	}
 
