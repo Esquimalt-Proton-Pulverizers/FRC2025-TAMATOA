@@ -51,7 +51,7 @@ public class ScoringSubsystem extends SubsystemBase{
         //Note: "+" sign is only added to disable the VScode inlay hints and make it easier to read
         CORAL_GROUND_INTAKE     (-98.0,     +90.0,  +3.0),
         ALGAE_GROUND_INTAKE     (-115.0,    -90.0,  +8.2),
-        CORAL_STATION_INTAKE    (+0.0,      +0.0,   +0.0), // not yet determined
+        CORAL_STATION_INTAKE    (-26.0,     +90.0,  +10.0), // not yet determined
         ALGAE_LOLLIPOP_INTAKE   (-115.0,    -90.0,  +21.25), // not yet tested
         HOME_FOR_CLIMB          (-5.0,      +0.0,   +2.0),
         SET_CORAL_POSITION_LEFT (+360.0,    +0.0,   +0.0), // not yet determined
