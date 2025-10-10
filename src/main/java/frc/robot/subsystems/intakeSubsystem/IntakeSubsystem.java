@@ -97,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void algaeStop(){
-        setTargetPosition(intakeEncoder.getPosition() - 1);
+        setTargetVoltage(-ALGAE_HOLDING_VELOCITY);
     }
 
     public Command coralIntakeCommand() {
