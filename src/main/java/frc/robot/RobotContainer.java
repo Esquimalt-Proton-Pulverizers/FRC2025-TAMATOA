@@ -251,6 +251,7 @@ public class RobotContainer {
 				Commands.runOnce(() -> robotMode = RobotModes.ManualMoveMode),
 				() -> robotMode == RobotModes.ManualMoveMode)
 			));
+		operatorController.button(7).onTrue(Commands.runOnce(() -> ledLights.lightMode(robotMode)));
 	}
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
