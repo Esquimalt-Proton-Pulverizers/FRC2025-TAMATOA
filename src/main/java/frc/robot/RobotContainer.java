@@ -180,7 +180,7 @@ public class RobotContainer {
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsColin() {
 		//// ------------------ Drivetrain Controls ------------------
-		driverController.button(8).onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
+		driverController.start().onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
         driverController.povDown().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.retract());
@@ -195,7 +195,7 @@ public class RobotContainer {
         //// ---------------- General Use Commands ----------------
 		 operatorController.button(8).onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
 		 operatorController.button(10).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
-		 operatorController.button(7).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		 operatorController.pov(180).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(this, scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
 		 () -> applyDeadband(-operatorController.getRawAxis(5)),
@@ -213,7 +213,7 @@ public class RobotContainer {
 		operatorController.button(2).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
 		operatorController.button(3).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.pov(180).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.pov(0).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
 		operatorController.button(6).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 
 
@@ -236,7 +236,7 @@ public class RobotContainer {
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
 		// If Manual Override is true, reset encoder positions, and then become false
-        driverController.button(9).onTrue(Commands.runOnce(() -> 
+        operatorController.button(7).onTrue(Commands.runOnce(() -> 
 			new ConditionalCommand(
 				new ParallelCommandGroup(
 					Commands.runOnce(() -> scoringSubsystem.elevatorSubsystem.resetEncoder()),
