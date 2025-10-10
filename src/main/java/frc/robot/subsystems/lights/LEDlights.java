@@ -49,7 +49,7 @@ public class LEDlights extends SubsystemBase {
        //config.vBatOutputMode = VBatOutputMode.Modulated;
        candle.configAllSettings(config,100);
 
-       setColor(128,0,128); //Default colour setting
+       setColor(5,0,5); //Default colour setting
    }
 
    /* private void setColor(Colour colour) {
@@ -100,13 +100,16 @@ public class LEDlights extends SubsystemBase {
         setColor(0,255,0); //green
     }
     else if (robotMode == RobotModes.CoralMode) {
-        setColor(255,0,203); //purple
+        setColor(255,255,255); //purple
     }
     else if (robotMode == RobotModes.HangingMode) {
-        setColor(30,144,255); //blue
+        setColor(0,0,255); //blue
     }
     else if (robotMode == RobotModes.ManualMoveMode) {
-        setColor(220,20,60); //red
+        setColor(255,0,0); //red
     }
+   }
+   public void dimLights() {
+       setColor(5,0,5); //off
    }
 }
