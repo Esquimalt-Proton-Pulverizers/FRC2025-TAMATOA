@@ -66,7 +66,7 @@ public class RobotContainer {
 
 	// Controllers
 	private final CommandXboxController driverController = new CommandXboxController(0);
-	private final CommandGenericHID operatorController = new CommandXboxController(1);
+	private final CommandXboxController operatorController = new CommandXboxController(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.09;
 	// public final double TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
@@ -189,14 +189,12 @@ public class RobotContainer {
         driverController.leftBumper().and(()-> robotMode == RobotModes.HangingMode).onFalse(hanger.stop());
         driverController.back().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.manualRetract());
         driverController.back().and(()-> robotMode == RobotModes.HangingMode).onFalse(hanger.resetWinch());
-        
         //// -------------------- Cancel All --------------------
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
         //// ---------------- General Use Commands ----------------
-		 operatorController.button(8).onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
-		 operatorController.button(10).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
-		 operatorController.pov(180).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		 operatorController.start().onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
+		 operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(this, scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
 		 () -> applyDeadband(-operatorController.getRawAxis(5)),
@@ -209,13 +207,15 @@ public class RobotContainer {
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())); // Right Trigger	
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> robotMode == RobotModes.CoralMode);   // Left Trigger	
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> robotMode == RobotModes.CoralMode);   // Right Trigger	
-		operatorController.button(5).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
-		operatorController.button(1).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
-		operatorController.button(3).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(2).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.button(4).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.pov(0).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
-		operatorController.button(6).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+		operatorController.leftBumper().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
+		operatorController.a().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
+		operatorController.x().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.b().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		operatorController.y().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		operatorController.povUp().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.rightBumper().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+		operatorController.rightStick().and(()-> robotMode == RobotModes.CoralMode).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
+
 
 
 
@@ -227,17 +227,17 @@ public class RobotContainer {
 		new Trigger(()->robotMode == RobotModes.AlgaeMode).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Left Trigger	
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Right Trigger	
-		operatorController.button(5).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.button(6).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
-		operatorController.pov(270).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
-		operatorController.pov(0).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
-		operatorController.button(10).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
-		operatorController.button(9).and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
+		operatorController.leftBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.rightBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
+		operatorController.povLeft().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
+		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
+		operatorController.rightStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
+		operatorController.leftStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
 
 		//// -------- Manual Override + Encoder Reset --------
 		// If Manual Override is false, become true
 		// If Manual Override is true, reset encoder positions, and then become false
-        operatorController.button(7).onTrue(Commands.runOnce(() -> 
+        operatorController.back().whileTrue(Commands.runOnce(() -> 
 			new ConditionalCommand(
 				new ParallelCommandGroup(
 					Commands.runOnce(() -> scoringSubsystem.elevatorSubsystem.resetEncoder()),
