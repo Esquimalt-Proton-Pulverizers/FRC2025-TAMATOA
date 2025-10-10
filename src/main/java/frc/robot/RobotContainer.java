@@ -66,7 +66,7 @@ public class RobotContainer {
 
 	// Controllers
 	private final CommandXboxController driverController = new CommandXboxController(0);
-	private final CommandGenericHID operatorController = new CommandGenericHID(1);
+	private final CommandGenericHID operatorController = new CommandXboxController(1);
     private final CommandCustomController CustomController = new CommandCustomController(2);
 	private static final double XBOX_DEADBAND = 0.09;
 	// public final double TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
@@ -107,7 +107,7 @@ public class RobotContainer {
 		configureDriveBindings(true);//false just disables driving without breaking limelight
 		//configureOperatorBindingsBrandon();
 		configureOperatorBindingsColin();
-		configureAutomatedBindings();
+		// configureAutomatedBindings();
 		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
 		SmartDashboard.putData("Auto Mode", autoChooser);
     }
@@ -181,6 +181,7 @@ public class RobotContainer {
 	private void configureOperatorBindingsColin() {
 		//// ------------------ Drivetrain Controls ------------------
 		driverController.start().onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
+		driverController.b().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // B button
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
         driverController.povDown().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.retract());
@@ -210,8 +211,8 @@ public class RobotContainer {
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> robotMode == RobotModes.CoralMode);   // Right Trigger	
 		operatorController.button(5).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
 		operatorController.button(1).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
-		operatorController.button(2).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.button(3).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		operatorController.button(3).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.button(2).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
 		operatorController.button(4).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
 		operatorController.pov(0).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
 		operatorController.button(6).and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper

@@ -72,6 +72,10 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorController.setReference(targetVelocity, ControlType.kVoltage);
     }
 
+    public void setTargetPosition(double targetPosition){
+        intakeMotorController.setReference(targetPosition, ControlType.kPosition);
+    }
+
     public void coralIntake(){
         setTargetVoltage(CORAL_INTAKE_VELOCITY);
     }
@@ -93,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void algaeStop(){
-        setTargetVoltage(-ALGAE_HOLDING_VELOCITY);
+        setTargetPosition(intakeEncoder.getPosition() - 1);
     }
 
     public Command coralIntakeCommand() {
