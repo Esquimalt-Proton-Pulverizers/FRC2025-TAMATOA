@@ -23,6 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -400,7 +401,10 @@ public class RobotContainer {
 	public Command toggleManualMode() {
 		if (robotMode == RobotModes.ManualMoveMode) {
 			robotMode = RobotModes.CoralMode;
-		} else robotMode = RobotModes.ManualMoveMode;
+		} else {robotMode = RobotModes.ManualMoveMode;
+			//cancel all commands
+			CommandScheduler.getInstance().cancelAll();
+		}
 
 		ledLights.lightMode(robotMode);
 
