@@ -62,7 +62,6 @@ public class IntakeSubsystem extends SubsystemBase {
         if(timer.hasElapsed(2.0)) {
             if (enableTelemetry){
                 System.out.println("intake output velocity" + intakeEncoder.getVelocity());
-                System.out.println("algaeMode is: " + RobotContainer.AlgaeMode);
             }
 
         timer.reset();
