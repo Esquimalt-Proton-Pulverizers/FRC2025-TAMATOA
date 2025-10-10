@@ -37,7 +37,8 @@ public class LEDlights extends SubsystemBase {
 
 
    private AnimationTypes m_currentAnimation;
-*/
+   */
+
    public LEDlights() {
        config = new CANdleConfiguration();
        config.brightnessScalar = 1.0;
@@ -97,10 +98,3 @@ public class LEDlights extends SubsystemBase {
 
 
 }
-
-
-//In robot container:
-public final LEDlights ledLights = new LEDlights();
-
-
-

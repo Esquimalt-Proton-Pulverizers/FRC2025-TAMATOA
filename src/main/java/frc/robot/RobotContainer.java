@@ -37,6 +37,7 @@ import frc.robot.subsystems.scoring_subsystem.differential.WristFlipCommand;
 import frc.robot.commands.AutoPlace;
 import frc.robot.commands.AutoPlace.Node;
 import scoringcontroller.CommandCustomController;
+import frc.robot.subsystems.lights.LEDlights;
 
 public class RobotContainer {
     // Swerve Drive Controls
@@ -86,6 +87,10 @@ public class RobotContainer {
 
 	// Control Variables
 	public static boolean AlgaeMode = false;
+
+	// LED Lights
+	public final LEDlights ledLights = new LEDlights();
+
 
 
 	/**
