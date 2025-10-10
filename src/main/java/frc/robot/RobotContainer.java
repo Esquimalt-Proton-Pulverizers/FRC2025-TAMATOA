@@ -200,6 +200,14 @@ public class RobotContainer {
         //// -------------------- Cancel All --------------------
         // operatorController.button(12).onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll())
 
+
+		//// Manual Override controls
+		/// reset encoders
+		operatorController.leftBumper().and(operatorController.rightBumper()).and(()-> robotMode == RobotModes.ManualMoveMode).onTrue(Commands.runOnce(() -> {
+			DifferentialSubsystem.resetEncoder();
+			ElevatorSubsystem.resetEncoder();
+		}));
+
         //// ---------------- General Use Commands ----------------
 		 operatorController.start().onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
 		 operatorController.back().onTrue(Commands.runOnce(()-> toggleManualMode())); // Back Button
@@ -242,21 +250,6 @@ public class RobotContainer {
 		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 		operatorController.rightStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
 		operatorController.leftStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
-
-		//// -------- Manual Override + Encoder Reset --------
-		// If Manual Override is false, become true
-		// If Manual Override is true, reset encoder positions, and then become false
-        // operatorController.button(7).onTrue(Commands.runOnce(() -> 
-		// 	new ConditionalCommand(
-		// 		new ParallelCommandGroup(
-		// 			Commands.runOnce(() -> ElevatorSubsystem.resetEncoder()),
-		// 			Commands.runOnce(() -> DifferentialSubsystem.resetEncoder()),
-		// 			Commands.runOnce(() -> {robotMode = RobotModes.CoralMode;
-		// 				ledLights.lightMode(robotMode);})
-		// 		),				 
-		// 		Commands.runOnce(() -> {robotMode = RobotModes.ManualMoveMode; ledLights.lightMode(RobotModes.ManualMoveMode);}),
-		// 		() -> false)//robotMode == RobotModes.ManualMoveMode)
-		// 	));
 	}
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
@@ -382,15 +375,6 @@ public class RobotContainer {
 
 
 		}
-		
-		
-		// // Auto pickup command
-		// // If wanting to pickup to score for level 1, press A, otherwise press Y
-		// operatorController.y().whileTrue(new RunCommand(() -> level1Pickup = false));
-		// operatorController.a().whileTrue(new RunCommand(() -> level1Pickup = true));
-		// operatorController.leftBumper().whileTrue(new AutoPickup(drivetrain,
-		// elevatorSubsystem,
-		// () -> AutoPickup.getCoralSide(drivetrain.getState().Pose), level1Pickup));
 
 	}
 	
@@ -416,8 +400,6 @@ public class RobotContainer {
 	public Command toggleManualMode() {
 		if (robotMode == RobotModes.ManualMoveMode) {
 			robotMode = RobotModes.CoralMode;
-			ElevatorSubsystem.resetEncoder();
-			DifferentialSubsystem.resetEncoder();
 		} else robotMode = RobotModes.ManualMoveMode;
 
 		ledLights.lightMode(robotMode);
