@@ -213,7 +213,7 @@ public class ScoringSubsystem extends SubsystemBase{
         /*HOME*/    {S.DWE, S.DEW, S.DWE, S.DWE, S.x__, S.DWE, S.DWE, S.DWE, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.x__, S.x__, S.DWE, S.DWE, S.OOO, S.OOO}, //Home for Climb
         /*SET_L*/   {S.UUU, S.UUU, S.x__, S.x__, S.WDE, S.x__, S.x__, S.WDE, S.x__, S.x__, S.EDW, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Set Coral Position Left
         /*SET_R*/   {S.UUU, S.UUU, S.x__, S.x__, S.OOO, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.UUU, S.UUU}, //Set Coral Position Right
-        /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.DWE}, //Level 1
+        /*L1*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WED, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.EDW, S.EDW}, //Level 1
         /*L2*/      {S.WDE, S.WDE, S.x__, S.x__, S.x__, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.DWE}, //Level 2
         /*L3*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.DWE, S.DWE, S.DWE}, //Level 3
         /*L4*/      {S.WDE, S.WDE, S.x__, S.x__, S.WED, S.WDE, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.x__, S.EWD, S.EWD, S.x__, S.DWE, S.DWE, S.DWE}, //Level 4

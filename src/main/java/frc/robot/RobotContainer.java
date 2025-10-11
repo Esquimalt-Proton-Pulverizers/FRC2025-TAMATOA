@@ -52,8 +52,8 @@ public class RobotContainer {
     // Swerve Drive Controls
 	private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts top speed possible at 12 volts
 	private final double MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second, max angular velocity
-	private final double MAX_CONTROL_SPEED = 1; //max speed the driver can go in x or y in m/s
-	private final double TURBO_MULTIPLE = 1.3; // technically a divider for how slow it is pre turbo since it is limited to the max control speed ... 1.0 disables it
+	private final double MAX_CONTROL_SPEED = 1.6; //max speed the driver can go in x or y in m/s
+	private final double TURBO_MULTIPLE = 2; // technically a divider for how slow it is pre turbo since it is limited to the max control speed ... 1.0 disables it
 
 	// Auto scoring variables
 	private Position autoScoringPosition = Position.SCORE_L1;
@@ -425,7 +425,7 @@ public class RobotContainer {
 		//TODO move the positions into the subsystems and make the commands more simple by calling only one position 
 		NamedCommands.registerCommand("ArmToLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
 		NamedCommands.registerCommand("ArmToSafety", Commands.defer(()->scoringSubsystem.moveArm(Position.SAFETY), Set.of(scoringSubsystem)));
-        NamedCommands.registerCommand("ArmHomingAfterLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+        NamedCommands.registerCommand("ArmHomingAfterLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
         NamedCommands.registerCommand("ArmToLevel2", scoringSubsystem.moveArm(Position.SCORE_L2));
         NamedCommands.registerCommand("ArmToLevel3", scoringSubsystem.moveArm(Position.SCORE_L3));
         NamedCommands.registerCommand("ArmToLevel4", scoringSubsystem.moveArm(Position.SCORE_L4));

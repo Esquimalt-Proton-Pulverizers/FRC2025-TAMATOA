@@ -55,12 +55,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     timer.start();
     elevatorConfig.encoder.positionConversionFactor(1 / 1.347)
       .velocityConversionFactor(1);
-    elevatorConfig.smartCurrentLimit(8,8,50);
+    elevatorConfig.smartCurrentLimit(15,15,50);
     elevatorConfig.idleMode(IdleMode.kCoast);
 
     elevatorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
       .p(.1).i(0.00000).d(0.0000)
-      .outputRange(-.5, .7, ClosedLoopSlot.kSlot0);
+      .outputRange(-.9, .9, ClosedLoopSlot.kSlot0);
       // Set PID values for velocity control in slot 1
       // .p(0.0001, ClosedLoopSlot.kSlot1)
       // .i(0, ClosedLoopSlot.kSlot1)

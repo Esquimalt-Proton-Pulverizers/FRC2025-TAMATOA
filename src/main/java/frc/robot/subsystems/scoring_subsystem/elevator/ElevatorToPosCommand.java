@@ -18,9 +18,9 @@ public class ElevatorToPosCommand extends Command {
   private double startPosition;
   private ElevatorSubsystem elevatorSubsystem; 
   private boolean atPosition = false;
-  private final double MAX_VELOCITY = 45.0; // Max speed in inches/sec
-  private final double MAX_ACCELERATION = 35.0; // Max acceleration in inches/sec^2
-  private final double MAX_DECELERATION = 35.0; // Max deceleration in inches/sec^2
+  private final double MAX_VELOCITY = 65.0; // Max speed in inches/sec
+  private final double MAX_ACCELERATION = 95.0; // Max acceleration in inches/sec^2
+  private final double MAX_DECELERATION = 65.0; // Max deceleration in inches/sec^2
   private final double kG = 0.18; // Feedforward gain for gravity
   private static double kV = 0.20; // Feedforward gain for velocity
   private static double kA = 0.03; // Feedforward gain for acceleration
