@@ -190,8 +190,8 @@ public class RobotContainer {
 	private void configureOperatorBindingsColin() {
 		//// ------------------ Drivetrain Controls ------------------
 		driverController.start().onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
-		new Trigger(()-> robotMode == RobotModes.HangingMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))
-		.andThen(scoringSubsystem.differentialBreak()).andThen(Commands.run(()->{}, scoringSubsystem)));
+		new Trigger(()-> robotMode == RobotModes.HangingMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))
+		.andThen(Commands.runOnce(()->scoringSubsystem.differentialBreak(),scoringSubsystem)).andThen(Commands.run(()->{}, scoringSubsystem)));
 		driverController.b().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // B button
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
@@ -214,7 +214,7 @@ public class RobotContainer {
         //// ---------------- General Use Commands ----------------
 		 operatorController.start().onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
 		 operatorController.back().onTrue(Commands.runOnce(()-> toggleManualMode())); // Back Button
-		 operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		 operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(this, scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
 		 () -> applyDeadband(-operatorController.getRawAxis(5)),
@@ -227,12 +227,12 @@ public class RobotContainer {
 			.onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())); // Right Trigger	
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> robotMode == RobotModes.CoralMode);   // Left Trigger	
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop())).and(()-> robotMode == RobotModes.CoralMode);   // Right Trigger	
-		operatorController.leftBumper().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
-		operatorController.a().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))); 
-		operatorController.x().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L2), Set.of(scoringSubsystem)));
-		operatorController.b().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L3), Set.of(scoringSubsystem)));
-		operatorController.y().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L4), Set.of(scoringSubsystem)));
-		operatorController.povUp().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
+		operatorController.leftBumper().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.CORAL_GROUND_INTAKE), Set.of(scoringSubsystem))); // Left Bumper
+		operatorController.a().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L1), Set.of(scoringSubsystem))); 
+		operatorController.x().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L2), Set.of(scoringSubsystem)));
+		operatorController.b().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L3), Set.of(scoringSubsystem)));
+		operatorController.y().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L4), Set.of(scoringSubsystem)));
+		operatorController.povUp().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.DRIVE_WITH_CORAL), Set.of(scoringSubsystem))); // Down on D-Pad
 		operatorController.rightBumper().and(()-> robotMode == RobotModes.CoralMode).onTrue(Commands.defer(()->scoringSubsystem.PlaceCoralCommand(Position.SCORE_L4, intakeSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 		operatorController.rightStick().and(()-> robotMode == RobotModes.CoralMode).whileTrue(Commands.defer(()-> new WristFlipCommand(scoringSubsystem), Set.of(scoringSubsystem))); // Right Bumper
 
@@ -247,19 +247,19 @@ public class RobotContainer {
 		new Trigger(()->robotMode == RobotModes.AlgaeMode).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));
 		// operatorController.axisGreaterThan(2,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Left Trigger	
 		// operatorController.axisGreaterThan(3,.1).onFalse(intakeSubsystem.runOnce(() -> intakeSubsystem.algaeStop())).and(()-> AlgaeMode);   // Right Trigger	
-		operatorController.leftBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
-		operatorController.rightBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
-		operatorController.povLeft().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
-		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
+		operatorController.leftBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
+		operatorController.rightBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
+		operatorController.povLeft().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
+		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
 		operatorController.rightStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
 		operatorController.leftStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
 	}
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
 		// button 2 is B on xbox controller
-		//driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		//driverController.button(2).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L1), Set.of(scoringSubsystem)));
 		// button 9 is left joystick button on xbox controller
-		//driverController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
+		//driverController.button(9).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))); 
 
 	}
 	/** Created to reduce Merge Conflicts while both working on this file, and it also is a convenient place to store allt he auto scoring elements */
@@ -394,7 +394,7 @@ public class RobotContainer {
 	public Command toggleHangingMode() {
 		if (robotMode == RobotModes.HangingMode) {
 			robotMode = RobotModes.CoralMode;
-		} else  robotMode = RobotModes.HangingMode;
+		} else robotMode = RobotModes.HangingMode;
 
 		ledLights.lightMode(robotMode);
 
@@ -425,12 +425,12 @@ public class RobotContainer {
 		// Register the commands here
 
 		//TODO move the positions into the subsystems and make the commands more simple by calling only one position 
-		NamedCommands.registerCommand("ArmToLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem)));
-		NamedCommands.registerCommand("ArmToSafety", Commands.defer(()->scoringSubsystem.moveArm(Position.SAFETY), Set.of(scoringSubsystem)));
-        NamedCommands.registerCommand("ArmHomingAfterLevel1", Commands.defer(()->scoringSubsystem.moveArm(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
-        NamedCommands.registerCommand("ArmToLevel2", scoringSubsystem.moveArm(Position.SCORE_L2));
-        NamedCommands.registerCommand("ArmToLevel3", scoringSubsystem.moveArm(Position.SCORE_L3));
-        NamedCommands.registerCommand("ArmToLevel4", scoringSubsystem.moveArm(Position.SCORE_L4));
+		NamedCommands.registerCommand("ArmToLevel1", Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_L1), Set.of(scoringSubsystem)));
+		NamedCommands.registerCommand("ArmToSafety", Commands.defer(()->scoringSubsystem.moveArmx2(Position.SAFETY), Set.of(scoringSubsystem)));
+        NamedCommands.registerCommand("ArmHomingAfterLevel1", Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+        NamedCommands.registerCommand("ArmToLevel2", scoringSubsystem.moveArmx2(Position.SCORE_L2));
+        NamedCommands.registerCommand("ArmToLevel3", scoringSubsystem.moveArmx2(Position.SCORE_L3));
+        NamedCommands.registerCommand("ArmToLevel4", scoringSubsystem.moveArmx2(Position.SCORE_L4));
         NamedCommands.registerCommand("CoralIntake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralIntake()));
         NamedCommands.registerCommand("CoralOutake", intakeSubsystem.runOnce(() -> intakeSubsystem.coralOuttake()));
         NamedCommands.registerCommand("IntakeStop", intakeSubsystem.runOnce(() -> intakeSubsystem.coralStop()));

@@ -1,13 +1,17 @@
 package frc.robot.subsystems.scoring_subsystem;
 
+import java.util.Set;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.intakeSubsystem.IntakeSubsystem;
+import frc.robot.subsystems.scoring_subsystem.ScoringSubsystem.Position;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialElevationRotationCommand;
 import frc.robot.subsystems.scoring_subsystem.differential.DifferentialSubsystem;
 import frc.robot.subsystems.scoring_subsystem.differential.SmartDifferentialElevationCommand;
@@ -230,6 +234,9 @@ public class ScoringSubsystem extends SubsystemBase{
     private S getSequence(Position from, Position to) {
         return matrix[from.ordinal()][to.ordinal()];    
     }
+    public Command moveArmx2(Position position){
+        return moveArm(position).andThen(Commands.defer(()->moveArm(position), Set.of(this)));
+    }
 
         
     private Command returnDWECommand(double[] targetVals, ElevatorSubsystem elevatorSubsystem, DifferentialSubsystem differentialSubsystem) {
@@ -316,9 +323,9 @@ public class ScoringSubsystem extends SubsystemBase{
     private Command ReturnErrorCommand() {
         return new InstantCommand(()-> System.out.println("Unknown / Unimplimented Sequence"));
     }
-    public Command differentialBreak(){
+    public void differentialBreak(){
         elevatorSubsystem.setTargetPosition(0);
-        return new InstantCommand();
+        //return new InstantCommand();
     }
     
 }
