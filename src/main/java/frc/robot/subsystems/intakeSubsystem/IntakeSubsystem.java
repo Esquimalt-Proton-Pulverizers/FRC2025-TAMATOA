@@ -31,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private static final double CORAL_HOLDING_VELOCITY =  0.0;
     private static final double CORAL_INTAKE_VELOCITY  =  12.0; // In terms of coral
-    private static final double CORAL_OUTAKE_VELOCITY  =  2.0;
+    private static final double CORAL_OUTAKE_VELOCITY  =  3.0;
 
     private static final double ALGAE_HOLDING_VELOCITY = 4.0;
     private static final double ALGAE_OUTAKE_VELOCITY =  2.0; // In terms of algae
