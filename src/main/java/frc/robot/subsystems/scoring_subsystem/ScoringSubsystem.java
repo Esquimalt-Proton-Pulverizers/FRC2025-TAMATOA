@@ -316,5 +316,9 @@ public class ScoringSubsystem extends SubsystemBase{
     private Command ReturnErrorCommand() {
         return new InstantCommand(()-> System.out.println("Unknown / Unimplimented Sequence"));
     }
+    public Command differentialBreak(){
+        elevatorSubsystem.setTargetPosition(0);
+        return new InstantCommand();
+    }
     
 }

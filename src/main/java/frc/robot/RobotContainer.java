@@ -190,6 +190,8 @@ public class RobotContainer {
 	private void configureOperatorBindingsColin() {
 		//// ------------------ Drivetrain Controls ------------------
 		driverController.start().onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
+		new Trigger(()-> robotMode == RobotModes.HangingMode).onTrue(Commands.defer(()->scoringSubsystem.moveArm(Position.SCORE_L1), Set.of(scoringSubsystem))
+		.andThen(scoringSubsystem.differentialBreak()).andThen(Commands.run(()->{}, scoringSubsystem)));
 		driverController.b().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // B button
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
@@ -392,7 +394,7 @@ public class RobotContainer {
 	public Command toggleHangingMode() {
 		if (robotMode == RobotModes.HangingMode) {
 			robotMode = RobotModes.CoralMode;
-		} else robotMode = RobotModes.HangingMode;
+		} else  robotMode = RobotModes.HangingMode;
 
 		ledLights.lightMode(robotMode);
 
