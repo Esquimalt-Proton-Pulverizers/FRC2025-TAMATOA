@@ -13,13 +13,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.2
+            "waitTime": 1.0
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Left to L1D_Waypoint"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmToLevel1"
           }
         },
         {

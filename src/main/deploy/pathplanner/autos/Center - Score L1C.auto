@@ -37,7 +37,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C1"
+            "pathName": "Center to C1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
           }
         },
         {

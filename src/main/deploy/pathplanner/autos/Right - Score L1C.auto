@@ -17,15 +17,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "ArmToLevel1"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Center to L1A"
+            "pathName": "Right to C1"
           }
         },
         {
@@ -57,12 +51,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MoveAway - FromL1Center"
           }
         }
       ]
