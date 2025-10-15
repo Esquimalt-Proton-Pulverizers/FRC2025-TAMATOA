@@ -138,6 +138,10 @@ public final class HangingSubsystem extends SubsystemBase {
             setLatchServoPosition(LatchServoPosition.LATCHED);
         });    
     }
+    /**only use once arm is extended */
+    public Command directVoltageControl(double extensionVolts){
+        return Commands.runOnce(()->winchController.setReference(extensionVolts, ControlType.kVoltage));
+    }
 
     public Command resetWinch() {
         return Commands.runOnce(() -> {

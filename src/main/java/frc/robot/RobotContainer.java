@@ -196,6 +196,12 @@ public class RobotContainer {
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
         driverController.povDown().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.retract());
+		driverController.leftTrigger(0.5).and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
+        driverController.rightTrigger(0.5).and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.retract());
+		driverController.a().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.directVoltageControl(-4));
+        driverController.a().and(()-> robotMode == RobotModes.HangingMode).onFalse(hanger.directVoltageControl(0));
+		driverController.y().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.directVoltageControl(4));
+        driverController.y().and(()-> robotMode == RobotModes.HangingMode).onFalse(hanger.directVoltageControl(0));
 		driverController.leftBumper().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.intake());
         driverController.leftBumper().and(()-> robotMode == RobotModes.HangingMode).onFalse(hanger.stop());
         driverController.back().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.manualRetract());
@@ -214,7 +220,7 @@ public class RobotContainer {
         //// ---------------- General Use Commands ----------------
 		 operatorController.start().onTrue(Commands.runOnce(()-> toggleAlgaeCoralMode()));
 		 operatorController.back().onTrue(Commands.runOnce(()-> toggleManualMode())); // Back Button
-		 operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
+		 //operatorController.povDown().onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem)));
 		 scoringSubsystem.setDefaultCommand(new ManualScoringControlCommand(this, scoringSubsystem,
 		 () -> applyDeadband(-operatorController.getRawAxis(1)),
 		 () -> applyDeadband(-operatorController.getRawAxis(5)),
@@ -250,9 +256,9 @@ public class RobotContainer {
 		operatorController.leftBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.ALGAE_GROUND_INTAKE), Set.of(scoringSubsystem)));
 		operatorController.rightBumper().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.ALGAE_LOLLIPOP_INTAKE), Set.of(scoringSubsystem))); 
 		operatorController.povLeft().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.SCORE_PROCESSOR), Set.of(scoringSubsystem)));
-		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
-		operatorController.rightStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
-		operatorController.leftStick().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
+		operatorController.povRight().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.DRIVE_WITH_ALGAE), Set.of(scoringSubsystem)));
+		operatorController.povUp().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(true, intakeSubsystem), Set.of(scoringSubsystem)));
+		operatorController.povDown().and(()-> robotMode == RobotModes.AlgaeMode).onTrue(Commands.defer(()->scoringSubsystem.DealgaeCommand(false, intakeSubsystem), Set.of(scoringSubsystem)));
 	}
 	/** Created only to reduce Merge Conflicts while both working on this file */
 	private void configureOperatorBindingsBrandon() {
