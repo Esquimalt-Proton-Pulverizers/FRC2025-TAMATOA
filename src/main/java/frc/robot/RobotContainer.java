@@ -76,7 +76,7 @@ public class RobotContainer {
 	// public final double TRIGGER_OFFSET = 1; //changes the right trigger range to be 1-2 instead of 0-1
 
 	// Create Subsystems
-	public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
+	//public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //this should create drivetrain and configure the Autobuilder settings
 	public final HangingSubsystem hanger = new HangingSubsystem(false);
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(false);
 	public final ScoringSubsystem scoringSubsystem = new ScoringSubsystem(true);
@@ -100,7 +100,7 @@ public class RobotContainer {
 
 
 	// Path follower
-	private final SendableChooser<Command> autoChooser;
+	//private final SendableChooser<Command> autoChooser;
 	// LED Lights
 	public final LEDlights ledLights = new LEDlights();
 
@@ -116,8 +116,8 @@ public class RobotContainer {
 		configureOperatorBindingsBrandon();
 		configureOperatorBindingsColin();
 		configureAutomatedBindings();
-		autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
-		SmartDashboard.putData("Auto Mode", autoChooser);
+		//autoChooser = AutoBuilder.buildAutoChooser("Center - Score L1A"); // Default auto program to run
+		//SmartDashboard.putData("Auto Mode", autoChooser);
     }
 	/** called in robot teleop and auto initialize methods */
 	public void initialize() {
@@ -148,40 +148,40 @@ public class RobotContainer {
 		return inputAxis * maxRange * turbo;
 	}
 
-	public void printPose(){
-		Pose2d test = drivetrain.getState().Pose;
-		System.out.println("x " + test.getX());
-		System.out.println("y " + test.getY());
-		System.out.println("rot " + test.getRotation());
-	}
+	// public void printPose(){
+	// 	Pose2d test = drivetrain.getState().Pose;
+	// 	System.out.println("x " + test.getX());
+	// 	System.out.println("y " + test.getY());
+	// 	System.out.println("rot " + test.getRotation());
+	// }
 
 	/**
 	 * Configure only the drive to enable or disable
 	 * @param enableDriving true to enable driving, false to disable
 	 */
 	private void configureDriveBindings(boolean enableDriving){
-		if (enableDriving){
-			// Drive Controls
-			drivetrain.setDefaultCommand(
-				// Drivetrain will execute this command periodically
-				drivetrain.applyRequest(() ->
-					drive.withVelocityX(conditionInput(-driverController.getLeftY(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive forward with negative Y (forward)
-						.withVelocityY(conditionInput(-driverController.getLeftX(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive left with negative X (left)
-						.withRotationalRate(conditionInput(-driverController.getRightX(), driverController.getRightTriggerAxis() , MAX_ANGULAR_RATE)) // Drive counterclockwise with negative X (left)
-				)
-			);
-			// Reset the field-centric heading on left bumper press
-			//driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-		} else {
-			drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            	drivetrain.applyRequest(() ->
-					drive.withVelocityX(0 ) // no drive
-						.withVelocityY(0) // no drive
-						.withRotationalRate(0) // no turn
-				)
-        	);
-		}
+		// if (enableDriving){
+		// 	// Drive Controls
+		// 	drivetrain.setDefaultCommand(
+		// 		// Drivetrain will execute this command periodically
+		// 		drivetrain.applyRequest(() ->
+		// 			drive.withVelocityX(conditionInput(-driverController.getLeftY(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive forward with negative Y (forward)
+		// 				.withVelocityY(conditionInput(-driverController.getLeftX(), driverController.getRightTriggerAxis() , MAX_CONTROL_SPEED)) // Drive left with negative X (left)
+		// 				.withRotationalRate(conditionInput(-driverController.getRightX(), driverController.getRightTriggerAxis() , MAX_ANGULAR_RATE)) // Drive counterclockwise with negative X (left)
+		// 		)
+		// 	);
+		// 	// Reset the field-centric heading on left bumper press
+		// 	//driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+		// } else {
+		// 	drivetrain.setDefaultCommand(
+        //     // Drivetrain will execute this command periodically
+        //     	drivetrain.applyRequest(() ->
+		// 			drive.withVelocityX(0 ) // no drive
+		// 				.withVelocityY(0) // no drive
+		// 				.withRotationalRate(0) // no turn
+		// 		)
+        // 	);
+		// }
 		// Brake Mode - Stop robot from being moved
 		//driverController.x().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake()));
 	}
@@ -192,7 +192,7 @@ public class RobotContainer {
 		driverController.start().onTrue(Commands.runOnce(() -> toggleHangingMode())); // View button
 		new Trigger(()-> robotMode == RobotModes.HangingMode).onTrue(Commands.defer(()->scoringSubsystem.moveArmx2(Position.HOME_FOR_CLIMB), Set.of(scoringSubsystem))
 		.andThen(Commands.runOnce(()->scoringSubsystem.differentialBreak(),scoringSubsystem)).andThen(Commands.run(()->{}, scoringSubsystem)));
-		driverController.b().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // B button
+		//driverController.b().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric())); // B button
         //// ----------------- Hanging Controls -----------------
 		driverController.povUp().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.extend());
         driverController.povDown().and(()-> robotMode == RobotModes.HangingMode).onTrue(hanger.retract());
@@ -280,7 +280,7 @@ public class RobotContainer {
 		Pose2d startPose = new Pose2d(frontofABlueRobotPose.getTranslation().plus(offset), new Rotation2d(Units.degreesToRadians(180)));
 		Pose2d endPose = new Pose2d(frontofABlueRobotPose.getTranslation(), new Rotation2d(Units.degreesToRadians(180)));
 
-		drivetrain.resetPose(frontofABlueRobotPose); //near center of field facing towards drivers
+		//drivetrain.resetPose(frontofABlueRobotPose); //near center of field facing towards drivers
 		//drivetrain.seedFieldCentric();
 		PathConstraints constraints = new PathConstraints(
 			1, 0.1,
@@ -424,7 +424,7 @@ public class RobotContainer {
 	}
 	public Command getAutonomousCommand() {
 		/* Run the path selected from the auto chooser */
-		return autoChooser.getSelected();
+		return new InstantCommand();//autoChooser.getSelected();
 	}
 
 	private void registerCommands() {
